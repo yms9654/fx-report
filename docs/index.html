@@ -265,6 +265,33 @@ a:focus-visible,summary:focus-visible{outline:2px solid var(--up); outline-offse
 .why .cal li.key{margin:0 -8px; padding-left:8px; padding-right:8px}
 /* 히어로 게이지 제거에 따른 여백 정리 */
 .now__rows{margin-bottom:0}
+
+/* ---------- 피드백 ---------- */
+.fb{border:1px solid var(--rule); border-radius:3px; background:var(--card); box-shadow:var(--shadow); padding:20px 22px}
+.fb__q{font-size:15px; font-weight:600; margin:0 0 14px; letter-spacing:-.01em}
+.fb__btns{display:flex; gap:8px; flex-wrap:wrap}
+.fb__b{font-family:"IBM Plex Sans KR",sans-serif; font-size:13.5px; font-weight:500; color:var(--ink-2);
+       background:transparent; border:1px solid var(--rule); border-radius:2px; padding:8px 14px;
+       cursor:pointer; transition:border-color .12s, color .12s, background .12s}
+.fb__b:hover{border-color:var(--ink-2); color:var(--ink)}
+.fb__b[aria-pressed="true"]{border-color:var(--ink); background:var(--ink); color:var(--card)}
+.fb__b[aria-pressed="true"][data-k="안맞음"],.fb__b[aria-pressed="true"][data-k="오류"]{background:var(--up); border-color:var(--up); color:#fff}
+.fb__b[aria-pressed="true"][data-k="도움됨"]{background:var(--down); border-color:var(--down); color:#fff}
+.fb__body{margin-top:14px; display:none}
+.fb__body.on{display:block}
+.fb textarea{width:100%; min-height:86px; resize:vertical; font-family:"IBM Plex Sans KR",sans-serif;
+             font-size:14px; line-height:1.6; color:var(--ink); background:var(--bg);
+             border:1px solid var(--rule); border-radius:2px; padding:11px 13px}
+.fb textarea:focus{outline:2px solid var(--ink); outline-offset:-1px; border-color:transparent}
+.fb__foot{display:flex; align-items:center; justify-content:space-between; gap:14px; margin-top:11px; flex-wrap:wrap}
+.fb__send{font-family:"IBM Plex Sans KR",sans-serif; font-size:13.5px; font-weight:600; color:var(--card);
+          background:var(--ink); border:0; border-radius:2px; padding:9px 20px; cursor:pointer}
+.fb__send:hover{opacity:.85}
+.fb__note{font-size:12px; color:var(--muted); line-height:1.55; margin:0}
+.fb__ctx{margin-top:12px; font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--muted);
+         background:var(--bg); border:1px solid var(--rule-soft); border-radius:2px; padding:9px 11px; line-height:1.7}
+.fb__ctx b{color:var(--ink-2); font-weight:500}
+
 </style>
 </head>
 <body>
@@ -379,6 +406,29 @@ a:focus-visible,summary:focus-visible{outline:2px solid var(--up); outline-offse
   </details>
 </section>
 
+<section style="border-bottom:0; padding-top:0">
+  <h2>피드백</h2>
+  <p class="lede">맞았는지 틀렸는지 알려주시면 다음 갱신에 반영합니다.</p>
+  <div class="fb">
+    <p class="fb__q">이 리포트, 어땠나요?</p>
+    <div class="fb__btns" role="group" aria-label="피드백 유형">
+      <button type="button" class="fb__b" data-k="도움됨" aria-pressed="false">도움됐어요</button>
+      <button type="button" class="fb__b" data-k="안맞음" aria-pressed="false">판단이 안 맞았어요</button>
+      <button type="button" class="fb__b" data-k="제안" aria-pressed="false">이런 게 있으면</button>
+      <button type="button" class="fb__b" data-k="오류" aria-pressed="false">숫자·표시가 이상해요</button>
+    </div>
+    <div class="fb__body" id="fbBody">
+      <label for="fbText" class="visually-hidden" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">피드백 내용</label>
+      <textarea id="fbText" placeholder="구체적으로 적어주실수록 반영하기 좋습니다. (선택)"></textarea>
+      <div class="fb__ctx" id="fbCtx"></div>
+      <div class="fb__foot">
+        <p class="fb__note">보내기를 누르면 GitHub 이슈 작성 화면이 열립니다. 위 내용이 자동으로 채워져 있고, 확인 후 제출하면 등록됩니다. GitHub 계정이 필요합니다.</p>
+        <button type="button" class="fb__send" id="fbSend">보내기</button>
+      </div>
+    </div>
+  </div>
+</section>
+
 <footer style="padding-top:40px">
   <p class="eyebrow" style="margin-bottom:6px">출처</p>
   <ul class="srcs"><li><a href="https://m.stock.naver.com/marketindex/exchange/FX_USDKRW" rel="noopener">네이버 금융 — USD/KRW 매매기준율</a></li><li><a href="https://www.mt.co.kr/economy/2026/09/03/2026090315402477347" rel="noopener">머니투데이 — 반도체 호황에 달러 쌓인다, 환율 14개월 만에 1350원대</a></li><li><a href="https://www.edaily.co.kr/News/Read?newsId=03676886645576512" rel="noopener">이데일리 — 원·달러 환율 1355원까지 하락, 14개월 만에 최저</a></li><li><a href="https://www.g-enews.com/article/Finance/2026/08/20260827082446586bb91c46fcd_1" rel="noopener">글로벌이코노믹 — 한국은행 백투백 금리 인상, 기준금리 3.00%</a></li><li><a href="https://www.cnbc.com/2026/08/31/markets-see-warsh-endorsing-a-rate-hike-in-september-not-everyone-is-convinced.html" rel="noopener">CNBC — Markets see Warsh endorsing a rate hike in September</a></li><li><a href="https://www.forbes.com/sites/digital-assets/2026/08/31/cme-fedwatch-provides-a-66-chance-fed-will-hike-rates-in-september/" rel="noopener">Forbes — CME FedWatch provides a 66% chance Fed will hike rates in September</a></li><li><a href="https://v.daum.net/v/20260820180304951" rel="noopener">씨티 — 1390원 밑돌면 국민연금 환헤지 확대 중단 가능</a></li></ul>
@@ -389,7 +439,7 @@ a:focus-visible,summary:focus-visible{outline:2px solid var(--up); outline-offse
 </div>
 
 <script>
-const PAYLOAD = {"series": [{"d": "2026-07-08", "c": 1507.0}, {"d": "2026-07-09", "c": 1507.0}, {"d": "2026-07-10", "c": 1502.0}, {"d": "2026-07-13", "c": 1499.5}, {"d": "2026-07-14", "c": 1491.0}, {"d": "2026-07-15", "c": 1488.5}, {"d": "2026-07-16", "c": 1491.0}, {"d": "2026-07-20", "c": 1478.5}, {"d": "2026-07-21", "c": 1482.5}, {"d": "2026-07-22", "c": 1479.0}, {"d": "2026-07-23", "c": 1476.5}, {"d": "2026-07-24", "c": 1462.5}, {"d": "2026-07-27", "c": 1466.0}, {"d": "2026-07-28", "c": 1455.2}, {"d": "2026-07-29", "c": 1446.0}, {"d": "2026-07-30", "c": 1426.2}, {"d": "2026-07-31", "c": 1440.0}, {"d": "2026-08-03", "c": 1430.8}, {"d": "2026-08-04", "c": 1431.0}, {"d": "2026-08-05", "c": 1423.5}, {"d": "2026-08-06", "c": 1424.5}, {"d": "2026-08-07", "c": 1411.0}, {"d": "2026-08-10", "c": 1419.5}, {"d": "2026-08-11", "c": 1413.5}, {"d": "2026-08-12", "c": 1419.0}, {"d": "2026-08-13", "c": 1420.2}, {"d": "2026-08-14", "c": 1417.5}, {"d": "2026-08-18", "c": 1413.5}, {"d": "2026-08-19", "c": 1390.0}, {"d": "2026-08-20", "c": 1394.8}, {"d": "2026-08-21", "c": 1387.0}, {"d": "2026-08-24", "c": 1384.0}, {"d": "2026-08-25", "c": 1383.5}, {"d": "2026-08-26", "c": 1386.0}, {"d": "2026-08-27", "c": 1382.0}, {"d": "2026-08-28", "c": 1381.0}, {"d": "2026-08-31", "c": 1369.5}, {"d": "2026-09-01", "c": 1375.5}, {"d": "2026-09-02", "c": 1360.3}, {"d": "2026-09-03", "c": 1359.1}], "events": {"08/27": "한은 3.00% 인상", "08/28": "잭슨홀 매파", "08/31": "고용우려 낙폭 확대", "09/03": "14개월 최저"}, "year": "2026", "ladder": {"lo": 1290.0, "hi": 1420.0, "step": 10}};
+const PAYLOAD = {"series": [{"d": "2026-07-08", "c": 1507.0}, {"d": "2026-07-09", "c": 1507.0}, {"d": "2026-07-10", "c": 1502.0}, {"d": "2026-07-13", "c": 1499.5}, {"d": "2026-07-14", "c": 1491.0}, {"d": "2026-07-15", "c": 1488.5}, {"d": "2026-07-16", "c": 1491.0}, {"d": "2026-07-20", "c": 1478.5}, {"d": "2026-07-21", "c": 1482.5}, {"d": "2026-07-22", "c": 1479.0}, {"d": "2026-07-23", "c": 1476.5}, {"d": "2026-07-24", "c": 1462.5}, {"d": "2026-07-27", "c": 1466.0}, {"d": "2026-07-28", "c": 1455.2}, {"d": "2026-07-29", "c": 1446.0}, {"d": "2026-07-30", "c": 1426.2}, {"d": "2026-07-31", "c": 1440.0}, {"d": "2026-08-03", "c": 1430.8}, {"d": "2026-08-04", "c": 1431.0}, {"d": "2026-08-05", "c": 1423.5}, {"d": "2026-08-06", "c": 1424.5}, {"d": "2026-08-07", "c": 1411.0}, {"d": "2026-08-10", "c": 1419.5}, {"d": "2026-08-11", "c": 1413.5}, {"d": "2026-08-12", "c": 1419.0}, {"d": "2026-08-13", "c": 1420.2}, {"d": "2026-08-14", "c": 1417.5}, {"d": "2026-08-18", "c": 1413.5}, {"d": "2026-08-19", "c": 1390.0}, {"d": "2026-08-20", "c": 1394.8}, {"d": "2026-08-21", "c": 1387.0}, {"d": "2026-08-24", "c": 1384.0}, {"d": "2026-08-25", "c": 1383.5}, {"d": "2026-08-26", "c": 1386.0}, {"d": "2026-08-27", "c": 1382.0}, {"d": "2026-08-28", "c": 1381.0}, {"d": "2026-08-31", "c": 1369.5}, {"d": "2026-09-01", "c": 1375.5}, {"d": "2026-09-02", "c": 1360.3}, {"d": "2026-09-03", "c": 1359.1}], "events": {"08/27": "한은 3.00% 인상", "08/28": "잭슨홀 매파", "08/31": "고용우려 낙폭 확대", "09/03": "14개월 최저"}, "year": "2026", "ladder": {"lo": 1290.0, "hi": 1420.0, "step": 10}, "fb": {"repo": "yms9654/fx-report", "date": "2026-09-03", "px": "1,359.10", "chg": "-1.20", "verb": "기다린다", "amt": "", "stop": "1,345", "t1": "1,372", "t2": "1,395", "dataAt": "2026-09-03 19:14 KST"}};
 const D = PAYLOAD.series.map(r => [r.d.slice(5).replace('-','/'), r.c]);
 const EV = PAYLOAD.events || {};
 const L=52,R=22,T=14,B=64,W=1000,H=430, PW=W-L-R, PH=H-T-B;
@@ -451,6 +501,50 @@ if(ax){ const A=PAYLOAD.ladder;
     fd.insertAdjacentHTML("afterbegin",`<div class="ladder__grid" style="bottom:${pct}%"></div>`);
   }
 }
+
+// ---------- 피드백 → GitHub 이슈 ----------
+(function(){
+  const F = PAYLOAD.fb; if(!F) return;
+  const btns=[...document.querySelectorAll(".fb__b")], body=document.getElementById("fbBody"),
+        ta=document.getElementById("fbText"), ctx=document.getElementById("fbCtx"),
+        send=document.getElementById("fbSend");
+  let kind=null;
+
+  const LINES = [
+    ["리포트", F.date],
+    ["현재가", F.px + (F.chg ? " ("+F.chg+")" : "")],
+    ["오늘의 지시", F.verb + (F.amt ? " · "+F.amt : "")],
+    ["계획", "손절 "+F.stop+" / 1차 "+F.t1+" / 2차 "+F.t2],
+    ["데이터", F.dataAt]
+  ];
+  ctx.innerHTML = "자동 첨부되는 정보<br>" +
+    LINES.map(([k,v]) => "<b>"+k+"</b> " + v).join(" · ");
+
+  btns.forEach(b => b.addEventListener("click", () => {
+    kind = b.dataset.k;
+    btns.forEach(o => o.setAttribute("aria-pressed", String(o === b)));
+    body.classList.add("on");
+    ta.focus();
+  }));
+
+  send.addEventListener("click", () => {
+    if(!kind){ btns[0].focus(); return; }
+    const txt = ta.value.trim();
+    const first = txt.split("\n")[0].slice(0, 50);
+    const title = "[" + kind + "] " + (first || F.date + " 리포트");
+    const meta = LINES.map(([k,v]) => "| " + k + " | " + v + " |").join("\n");
+    const body_md =
+      (txt || "_(내용 없음)_") + "\n\n---\n\n<details><summary>제출 시점 정보</summary>\n\n" +
+      "| 항목 | 값 |\n|---|---|\n" + meta +
+      "\n| 화면폭 | " + window.innerWidth + "px |" +
+      "\n| 브라우저 | " + navigator.userAgent.slice(0,110) + " |\n\n</details>";
+    const url = "https://github.com/" + F.repo + "/issues/new"
+      + "?labels=" + encodeURIComponent(kind)
+      + "&title=" + encodeURIComponent(title)
+      + "&body="  + encodeURIComponent(body_md);
+    window.open(url, "_blank", "noopener");
+  });
+})();
 </script>
 </body>
 </html>

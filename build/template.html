@@ -265,6 +265,33 @@ a:focus-visible,summary:focus-visible{outline:2px solid var(--up); outline-offse
 .why .cal li.key{margin:0 -8px; padding-left:8px; padding-right:8px}
 /* 히어로 게이지 제거에 따른 여백 정리 */
 .now__rows{margin-bottom:0}
+
+/* ---------- 피드백 ---------- */
+.fb{border:1px solid var(--rule); border-radius:3px; background:var(--card); box-shadow:var(--shadow); padding:20px 22px}
+.fb__q{font-size:15px; font-weight:600; margin:0 0 14px; letter-spacing:-.01em}
+.fb__btns{display:flex; gap:8px; flex-wrap:wrap}
+.fb__b{font-family:"IBM Plex Sans KR",sans-serif; font-size:13.5px; font-weight:500; color:var(--ink-2);
+       background:transparent; border:1px solid var(--rule); border-radius:2px; padding:8px 14px;
+       cursor:pointer; transition:border-color .12s, color .12s, background .12s}
+.fb__b:hover{border-color:var(--ink-2); color:var(--ink)}
+.fb__b[aria-pressed="true"]{border-color:var(--ink); background:var(--ink); color:var(--card)}
+.fb__b[aria-pressed="true"][data-k="안맞음"],.fb__b[aria-pressed="true"][data-k="오류"]{background:var(--up); border-color:var(--up); color:#fff}
+.fb__b[aria-pressed="true"][data-k="도움됨"]{background:var(--down); border-color:var(--down); color:#fff}
+.fb__body{margin-top:14px; display:none}
+.fb__body.on{display:block}
+.fb textarea{width:100%; min-height:86px; resize:vertical; font-family:"IBM Plex Sans KR",sans-serif;
+             font-size:14px; line-height:1.6; color:var(--ink); background:var(--bg);
+             border:1px solid var(--rule); border-radius:2px; padding:11px 13px}
+.fb textarea:focus{outline:2px solid var(--ink); outline-offset:-1px; border-color:transparent}
+.fb__foot{display:flex; align-items:center; justify-content:space-between; gap:14px; margin-top:11px; flex-wrap:wrap}
+.fb__send{font-family:"IBM Plex Sans KR",sans-serif; font-size:13.5px; font-weight:600; color:var(--card);
+          background:var(--ink); border:0; border-radius:2px; padding:9px 20px; cursor:pointer}
+.fb__send:hover{opacity:.85}
+.fb__note{font-size:12px; color:var(--muted); line-height:1.55; margin:0}
+.fb__ctx{margin-top:12px; font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--muted);
+         background:var(--bg); border:1px solid var(--rule-soft); border-radius:2px; padding:9px 11px; line-height:1.7}
+.fb__ctx b{color:var(--ink-2); font-weight:500}
+
 </style>
 </head>
 <body>
@@ -330,6 +357,29 @@ a:focus-visible,summary:focus-visible{outline:2px solid var(--up); outline-offse
       <div class="tips"><ul><!--SLOT:TIPS--></ul></div>
     </div>
   </details>
+</section>
+
+<section style="border-bottom:0; padding-top:0">
+  <h2>피드백</h2>
+  <p class="lede">맞았는지 틀렸는지 알려주시면 다음 갱신에 반영합니다.</p>
+  <div class="fb">
+    <p class="fb__q">이 리포트, 어땠나요?</p>
+    <div class="fb__btns" role="group" aria-label="피드백 유형">
+      <button type="button" class="fb__b" data-k="도움됨" aria-pressed="false">도움됐어요</button>
+      <button type="button" class="fb__b" data-k="안맞음" aria-pressed="false">판단이 안 맞았어요</button>
+      <button type="button" class="fb__b" data-k="제안" aria-pressed="false">이런 게 있으면</button>
+      <button type="button" class="fb__b" data-k="오류" aria-pressed="false">숫자·표시가 이상해요</button>
+    </div>
+    <div class="fb__body" id="fbBody">
+      <label for="fbText" class="visually-hidden" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">피드백 내용</label>
+      <textarea id="fbText" placeholder="구체적으로 적어주실수록 반영하기 좋습니다. (선택)"></textarea>
+      <div class="fb__ctx" id="fbCtx"></div>
+      <div class="fb__foot">
+        <p class="fb__note">보내기를 누르면 GitHub 이슈 작성 화면이 열립니다. 위 내용이 자동으로 채워져 있고, 확인 후 제출하면 등록됩니다. GitHub 계정이 필요합니다.</p>
+        <button type="button" class="fb__send" id="fbSend">보내기</button>
+      </div>
+    </div>
+  </div>
 </section>
 
 <footer style="padding-top:40px">
@@ -404,6 +454,50 @@ if(ax){ const A=PAYLOAD.ladder;
     fd.insertAdjacentHTML("afterbegin",`<div class="ladder__grid" style="bottom:${pct}%"></div>`);
   }
 }
+
+// ---------- 피드백 → GitHub 이슈 ----------
+(function(){
+  const F = PAYLOAD.fb; if(!F) return;
+  const btns=[...document.querySelectorAll(".fb__b")], body=document.getElementById("fbBody"),
+        ta=document.getElementById("fbText"), ctx=document.getElementById("fbCtx"),
+        send=document.getElementById("fbSend");
+  let kind=null;
+
+  const LINES = [
+    ["리포트", F.date],
+    ["현재가", F.px + (F.chg ? " ("+F.chg+")" : "")],
+    ["오늘의 지시", F.verb + (F.amt ? " · "+F.amt : "")],
+    ["계획", "손절 "+F.stop+" / 1차 "+F.t1+" / 2차 "+F.t2],
+    ["데이터", F.dataAt]
+  ];
+  ctx.innerHTML = "자동 첨부되는 정보<br>" +
+    LINES.map(([k,v]) => "<b>"+k+"</b> " + v).join(" · ");
+
+  btns.forEach(b => b.addEventListener("click", () => {
+    kind = b.dataset.k;
+    btns.forEach(o => o.setAttribute("aria-pressed", String(o === b)));
+    body.classList.add("on");
+    ta.focus();
+  }));
+
+  send.addEventListener("click", () => {
+    if(!kind){ btns[0].focus(); return; }
+    const txt = ta.value.trim();
+    const first = txt.split("\n")[0].slice(0, 50);
+    const title = "[" + kind + "] " + (first || F.date + " 리포트");
+    const meta = LINES.map(([k,v]) => "| " + k + " | " + v + " |").join("\n");
+    const body_md =
+      (txt || "_(내용 없음)_") + "\n\n---\n\n<details><summary>제출 시점 정보</summary>\n\n" +
+      "| 항목 | 값 |\n|---|---|\n" + meta +
+      "\n| 화면폭 | " + window.innerWidth + "px |" +
+      "\n| 브라우저 | " + navigator.userAgent.slice(0,110) + " |\n\n</details>";
+    const url = "https://github.com/" + F.repo + "/issues/new"
+      + "?labels=" + encodeURIComponent(kind)
+      + "&title=" + encodeURIComponent(title)
+      + "&body="  + encodeURIComponent(body_md);
+    window.open(url, "_blank", "noopener");
+  });
+})();
 </script>
 </body>
 </html>

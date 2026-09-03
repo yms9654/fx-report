@@ -286,6 +286,18 @@ def main():
         "events": nar.get("events", {}),
         "year": pxdate[:4],
         "ladder": {"lo": alo, "hi": ahi, "step": int(lad.get("step", 10))},
+        "fb": {
+            "repo": "yms9654/fx-report",
+            "date": pxdate,
+            "px": f"{px:,.2f}",
+            "chg": f"{chg:+.2f}",
+            "verb": verb,
+            "amt": amt,
+            "stop": NUM(nar["triggers"]["stop"]),
+            "t1": NUM(nar["triggers"]["t1"]),
+            "t2": NUM(nar["triggers"]["t2"]),
+            "dataAt": data["fetched_at"][:16].replace("T", " ") + " KST",
+        },
     }, ensure_ascii=False)
 
     out = tmpl
