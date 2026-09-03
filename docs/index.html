@@ -292,6 +292,18 @@ a:focus-visible,summary:focus-visible{outline:2px solid var(--up); outline-offse
          background:var(--bg); border:1px solid var(--rule-soft); border-radius:2px; padding:9px 11px; line-height:1.7}
 .fb__ctx b{color:var(--ink-2); font-weight:500}
 
+
+.fb__out{display:none; margin-top:16px; padding-top:15px; border-top:1px solid var(--rule)}
+.fb__out.on{display:block}
+.fb__outk{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin:0 0 9px}
+.fb__outrow{display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:10px}
+.fb__outrow a{font-size:13.5px; color:var(--ink); text-decoration:none; border-bottom:1px solid var(--rule)}
+.fb__outrow a:hover{border-color:var(--ink)}
+.fb__copy{font-family:"IBM Plex Sans KR",sans-serif; font-size:12.5px; font-weight:500; color:var(--ink-2);
+          background:transparent; border:1px solid var(--rule); border-radius:2px; padding:6px 12px; cursor:pointer}
+.fb__copy:hover{border-color:var(--ink-2); color:var(--ink)}
+.fb__out textarea{font-family:"IBM Plex Mono",monospace; font-size:11.5px; min-height:0; color:var(--muted)}
+.fb__note code{font-family:"IBM Plex Mono",monospace; font-size:11px; background:var(--rule-soft); padding:1px 4px; border-radius:2px}
 </style>
 </head>
 <body>
@@ -425,6 +437,15 @@ a:focus-visible,summary:focus-visible{outline:2px solid var(--up); outline-offse
         <p class="fb__note">보내기를 누르면 GitHub 이슈 작성 화면이 열립니다. 위 내용이 자동으로 채워져 있고, 확인 후 제출하면 등록됩니다. GitHub 계정이 필요합니다.</p>
         <button type="button" class="fb__send" id="fbSend">보내기</button>
       </div>
+      <div class="fb__out" id="fbOut">
+        <p class="fb__outk">GitHub 탭이 열리지 않거나 오류가 나면</p>
+        <div class="fb__outrow">
+          <a id="fbLink" href="#" target="_blank" rel="noopener">이슈 작성 화면 직접 열기</a>
+          <button type="button" class="fb__copy" id="fbCopy">내용 복사</button>
+        </div>
+        <textarea id="fbCopyText" readonly rows="4" aria-label="복사용 피드백 내용"></textarea>
+        <p class="fb__note" style="margin-top:8px">복사한 내용을 <a href="https://github.com/yms9654/fx-report/issues/new" target="_blank" rel="noopener">빈 이슈 화면</a>에 붙여넣어도 됩니다. 제목의 <code>[유형]</code>을 보고 라벨이 자동으로 붙습니다.</p>
+      </div>
     </div>
   </div>
 </section>
@@ -507,7 +528,9 @@ if(ax){ const A=PAYLOAD.ladder;
   const F = PAYLOAD.fb; if(!F) return;
   const btns=[...document.querySelectorAll(".fb__b")], body=document.getElementById("fbBody"),
         ta=document.getElementById("fbText"), ctx=document.getElementById("fbCtx"),
-        send=document.getElementById("fbSend");
+        send=document.getElementById("fbSend"), out=document.getElementById("fbOut"),
+        outLink=document.getElementById("fbLink"), outText=document.getElementById("fbCopyText"),
+        copyBtn=document.getElementById("fbCopy");
   let kind=null;
 
   const LINES = [
@@ -517,8 +540,7 @@ if(ax){ const A=PAYLOAD.ladder;
     ["계획", "손절 "+F.stop+" / 1차 "+F.t1+" / 2차 "+F.t2],
     ["데이터", F.dataAt]
   ];
-  ctx.innerHTML = "자동 첨부되는 정보<br>" +
-    LINES.map(([k,v]) => "<b>"+k+"</b> " + v).join(" · ");
+  ctx.innerHTML = "자동 첨부되는 정보<br>" + LINES.map(([k,v]) => "<b>"+k+"</b> " + v).join(" · ");
 
   btns.forEach(b => b.addEventListener("click", () => {
     kind = b.dataset.k;
@@ -527,22 +549,40 @@ if(ax){ const A=PAYLOAD.ladder;
     ta.focus();
   }));
 
-  send.addEventListener("click", () => {
-    if(!kind){ btns[0].focus(); return; }
+  function compose(){
     const txt = ta.value.trim();
     const first = txt.split("\n")[0].slice(0, 50);
     const title = "[" + kind + "] " + (first || F.date + " 리포트");
     const meta = LINES.map(([k,v]) => "| " + k + " | " + v + " |").join("\n");
-    const body_md =
-      (txt || "_(내용 없음)_") + "\n\n---\n\n<details><summary>제출 시점 정보</summary>\n\n" +
-      "| 항목 | 값 |\n|---|---|\n" + meta +
-      "\n| 화면폭 | " + window.innerWidth + "px |" +
-      "\n| 브라우저 | " + navigator.userAgent.slice(0,110) + " |\n\n</details>";
+    const md = (txt || "_(내용 없음)_")
+      + "\n\n---\n\n<details><summary>제출 시점 정보</summary>\n\n"
+      + "| 항목 | 값 |\n|---|---|\n" + meta
+      + "\n| 화면폭 | " + window.innerWidth + "px |\n\n</details>";
+    return {title, md};
+  }
+
+  send.addEventListener("click", () => {
+    if(!kind){ btns[0].focus(); return; }
+    const {title, md} = compose();
+    // labels 파라미터는 넘기지 않는다 — 라벨은 제목의 [유형] 을 보고 Actions 가 붙인다
     const url = "https://github.com/" + F.repo + "/issues/new"
-      + "?labels=" + encodeURIComponent(kind)
-      + "&title=" + encodeURIComponent(title)
-      + "&body="  + encodeURIComponent(body_md);
-    window.open(url, "_blank", "noopener");
+      + "?title=" + encodeURIComponent(title)
+      + "&body="  + encodeURIComponent(md);
+    outLink.href = url;
+    outText.value = title + "\n\n" + md;
+    out.classList.add("on");
+    window.open(url, "_blank");
+  });
+
+  copyBtn.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(outText.value);
+      copyBtn.textContent = "복사됨";
+    } catch(e) {
+      outText.select();
+      copyBtn.textContent = "직접 복사하세요";
+    }
+    setTimeout(() => { copyBtn.textContent = "내용 복사"; }, 2200);
   });
 })();
 </script>
