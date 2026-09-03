@@ -225,6 +225,50 @@ a:focus-visible,summary:focus-visible{outline:2px solid var(--up); outline-offse
 .stale{color:var(--up); font-weight:600}
 .chg-up{color:var(--up)} .chg-dn{color:var(--down)}
 
+
+/* ---------- 오늘의 지시 (최상단) ---------- */
+.now{border:1px solid var(--rule); border-left:5px solid var(--muted); border-radius:3px;
+     background:var(--card); box-shadow:var(--shadow); padding:26px 28px 24px; margin:0 0 38px}
+.now--sell{border-left-color:var(--up)}
+.now--cut{border-left-color:var(--down)}
+.now--wait{border-left-color:var(--muted)}
+.now__k{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.18em;
+        text-transform:uppercase; color:var(--muted); margin-bottom:10px}
+.now__verb{font-size:clamp(46px,10vw,76px); font-weight:700; letter-spacing:-.045em;
+           line-height:.95; margin:0 0 12px; display:flex; align-items:baseline; gap:16px; flex-wrap:wrap}
+.now--sell .now__verb{color:var(--up)}
+.now--cut .now__verb{color:var(--down)}
+.now__amt{font-family:"IBM Plex Mono",monospace; font-size:clamp(20px,3.6vw,30px);
+          font-weight:600; letter-spacing:-.02em; color:var(--ink)}
+.now__why{margin:0; font-size:16px; color:var(--ink-2); line-height:1.55; max-width:52ch}
+.now__why b{font-weight:600; color:var(--ink)}
+.now__rows{margin-top:22px; padding-top:18px; border-top:1px solid var(--rule); display:grid;
+           grid-template-columns:1fr 1fr; gap:14px 26px}
+@media (max-width:600px){.now__rows{grid-template-columns:1fr}}
+.now__row{display:flex; gap:12px; align-items:baseline; font-size:14px}
+.now__row .rk{flex:none; font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.12em;
+              text-transform:uppercase; color:var(--muted); width:52px}
+.now__row .rv{color:var(--ink-2)}
+.now__row .rv b{font-family:"IBM Plex Mono",monospace; font-weight:600; color:var(--ink)}
+.now__row .rd{margin-left:auto; font-family:"IBM Plex Mono",monospace; font-size:13px; font-weight:500}
+
+/* 거리 게이지 */
+.gauge{position:relative; height:62px; margin:26px 4px 0}
+.gauge__track{position:absolute; left:0; right:0; top:30px; height:3px; background:var(--rule); border-radius:2px}
+.gauge__seg{position:absolute; top:30px; height:3px; border-radius:2px}
+.gauge__seg.s-sell{background:var(--up)}
+.gauge__seg.s-cut{background:var(--down)}
+.gauge__mk{position:absolute; top:24px; width:1px; height:15px; background:var(--rule)}
+.gauge__lb{position:absolute; top:44px; transform:translateX(-50%); white-space:nowrap;
+           font-family:"IBM Plex Mono",monospace; font-size:10.5px; color:var(--muted)}
+.gauge__lb.at-up{color:var(--up)} .gauge__lb.at-dn{color:var(--down)}
+.gauge__now{position:absolute; top:22px; width:3px; height:19px; background:var(--ink);
+            transform:translateX(-1.5px); border-radius:1px}
+.gauge__nowlb{position:absolute; top:0; transform:translateX(-50%); white-space:nowrap;
+              font-family:"IBM Plex Mono",monospace; font-size:12px; font-weight:600; color:var(--ink)}
+.metabar__verb{font-weight:700; letter-spacing:-.01em}
+.metabar__verb.v-sell{color:var(--up)} .metabar__verb.v-cut{color:var(--down)}
+
 </style>
 </head>
 <body>
@@ -232,7 +276,7 @@ a:focus-visible,summary:focus-visible{outline:2px solid var(--up); outline-offse
 <div class="metabar">
   <div class="metabar__in">
     <span><strong>USD/KRW</strong> 매도 타이밍 리포트</span>
-    <span class="metabar__px">1,359.10 <span class="chg-dn">-1.20</span> · 2026.09.03</span>
+    <span class="metabar__px"><span class="metabar__verb ">기다린다</span> · 1,359.10 <span class="chg-dn">-1.20</span> · 2026.09.03</span>
   </div>
 </div>
 
@@ -240,7 +284,7 @@ a:focus-visible,summary:focus-visible{outline:2px solid var(--up); outline-offse
 
 <header class="hero">
   <p class="eyebrow">한 달 매도 전략 · 자동 갱신 2026.09.03</p>
-  <div class="statusbar calm"><span class="statusbar__k">대기</span><span class="statusbar__t">트리거 미발동. 1차 <b>1,372</b>까지 12.9원, 손절 <b>1,345</b>까지 14.1원.<span>1,345 &lt; 1,359 &lt; 1,372</span></span></div>
+  <div class="now now--wait"><div class="now__k">오늘의 지시 · 2026.09.03</div><div class="now__verb">기다린다</div><p class="now__why">아직 계획한 어느 가격대에도 닿지 않았습니다. <b>오늘은 아무것도 하지 않습니다.</b> 지정가만 걸어두고 기다립니다.</p><div class="now__rows"><div class="now__row"><span class="rk">다음</span><span class="rv"><b>1,365</b> 도달 → 30% 매도</span><span class="rd chg-up">+5.9원</span></div><div class="now__row"><span class="rk">손절</span><span class="rv"><b>1,345</b> 이탈 → 잔여 전량 청산</span><span class="rd chg-dn">−14.1원</span></div></div><div class="gauge"><div class="gauge__track"></div><div class="gauge__seg s-cut" style="left:0; width:8.3%"></div><div class="gauge__seg s-sell" style="left:36.1%; width:18.1%"></div><div class="gauge__seg s-sell" style="left:70.8%; width:20.8%"></div><div class="gauge__mk" style="left:8.3%"></div><div class="gauge__lb at-dn" style="left:8.3%">1,345</div><div class="gauge__mk" style="left:36.1%"></div><div class="gauge__lb at-up" style="left:36.1%">1,365</div><div class="gauge__mk" style="left:70.8%"></div><div class="gauge__lb at-up" style="left:70.8%">1,390</div><div class="gauge__now" style="left:27.9%"></div><div class="gauge__nowlb" style="left:27.9%">1,359.10</div></div></div>
   <h1>1,385~1,400에 판다.<br><span class="thin">축은 여전히 9월 16일 FOMC.</span></h1>
   <p class="hero__sub">14개월 만의 최저치를 다시 갈아치웠습니다. 하락을 만든 반도체 수출기업의 네고 물량은 소진된 게 아니라 월말 집중에서 상시 출회로 바뀌었을 뿐입니다. 그래도 9월 16일 FOMC 인상 확률이 60%를 넘어선 건 살아있는 반등 재료입니다. 다만 지금 자리는 손절선에 바짝 붙어 있어, 관망보다 분할 매도가 안전합니다.</p>
 

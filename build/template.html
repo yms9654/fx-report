@@ -225,6 +225,50 @@ a:focus-visible,summary:focus-visible{outline:2px solid var(--up); outline-offse
 .stale{color:var(--up); font-weight:600}
 .chg-up{color:var(--up)} .chg-dn{color:var(--down)}
 
+
+/* ---------- 오늘의 지시 (최상단) ---------- */
+.now{border:1px solid var(--rule); border-left:5px solid var(--muted); border-radius:3px;
+     background:var(--card); box-shadow:var(--shadow); padding:26px 28px 24px; margin:0 0 38px}
+.now--sell{border-left-color:var(--up)}
+.now--cut{border-left-color:var(--down)}
+.now--wait{border-left-color:var(--muted)}
+.now__k{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.18em;
+        text-transform:uppercase; color:var(--muted); margin-bottom:10px}
+.now__verb{font-size:clamp(46px,10vw,76px); font-weight:700; letter-spacing:-.045em;
+           line-height:.95; margin:0 0 12px; display:flex; align-items:baseline; gap:16px; flex-wrap:wrap}
+.now--sell .now__verb{color:var(--up)}
+.now--cut .now__verb{color:var(--down)}
+.now__amt{font-family:"IBM Plex Mono",monospace; font-size:clamp(20px,3.6vw,30px);
+          font-weight:600; letter-spacing:-.02em; color:var(--ink)}
+.now__why{margin:0; font-size:16px; color:var(--ink-2); line-height:1.55; max-width:52ch}
+.now__why b{font-weight:600; color:var(--ink)}
+.now__rows{margin-top:22px; padding-top:18px; border-top:1px solid var(--rule); display:grid;
+           grid-template-columns:1fr 1fr; gap:14px 26px}
+@media (max-width:600px){.now__rows{grid-template-columns:1fr}}
+.now__row{display:flex; gap:12px; align-items:baseline; font-size:14px}
+.now__row .rk{flex:none; font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.12em;
+              text-transform:uppercase; color:var(--muted); width:52px}
+.now__row .rv{color:var(--ink-2)}
+.now__row .rv b{font-family:"IBM Plex Mono",monospace; font-weight:600; color:var(--ink)}
+.now__row .rd{margin-left:auto; font-family:"IBM Plex Mono",monospace; font-size:13px; font-weight:500}
+
+/* 거리 게이지 */
+.gauge{position:relative; height:62px; margin:26px 4px 0}
+.gauge__track{position:absolute; left:0; right:0; top:30px; height:3px; background:var(--rule); border-radius:2px}
+.gauge__seg{position:absolute; top:30px; height:3px; border-radius:2px}
+.gauge__seg.s-sell{background:var(--up)}
+.gauge__seg.s-cut{background:var(--down)}
+.gauge__mk{position:absolute; top:24px; width:1px; height:15px; background:var(--rule)}
+.gauge__lb{position:absolute; top:44px; transform:translateX(-50%); white-space:nowrap;
+           font-family:"IBM Plex Mono",monospace; font-size:10.5px; color:var(--muted)}
+.gauge__lb.at-up{color:var(--up)} .gauge__lb.at-dn{color:var(--down)}
+.gauge__now{position:absolute; top:22px; width:3px; height:19px; background:var(--ink);
+            transform:translateX(-1.5px); border-radius:1px}
+.gauge__nowlb{position:absolute; top:0; transform:translateX(-50%); white-space:nowrap;
+              font-family:"IBM Plex Mono",monospace; font-size:12px; font-weight:600; color:var(--ink)}
+.metabar__verb{font-weight:700; letter-spacing:-.01em}
+.metabar__verb.v-sell{color:var(--up)} .metabar__verb.v-cut{color:var(--down)}
+
 </style>
 </head>
 <body>
@@ -232,7 +276,7 @@ a:focus-visible,summary:focus-visible{outline:2px solid var(--up); outline-offse
 <div class="metabar">
   <div class="metabar__in">
     <span><strong>USD/KRW</strong> 매도 타이밍 리포트</span>
-    <span class="metabar__px"><!--SLOT:METAPX--></span>
+    <span class="metabar__px"><!--SLOT:METAVERB--> · <!--SLOT:METAPX--></span>
   </div>
 </div>
 
@@ -240,7 +284,7 @@ a:focus-visible,summary:focus-visible{outline:2px solid var(--up); outline-offse
 
 <header class="hero">
   <p class="eyebrow"><!--SLOT:EYEBROW--></p>
-  <!--SLOT:STATUS-->
+  <!--SLOT:VERDICTNOW-->
   <h1><!--SLOT:HEADLINE--></h1>
   <p class="hero__sub"><!--SLOT:SUB--></p>
 
