@@ -1,0 +1,12 @@
+name = "fx-report-feedback"
+main = "src/index.js"
+compatibility_date = "2026-09-01"
+
+[vars]
+GH_REPO = "yms9654/fx-report"
+ALLOW_ORIGIN = "https://yms9654.github.io"
+
+# 레이트리밋용 (선택). setup_feedback.sh 가 id 를 채운다.
+# [[kv_namespaces]]
+# binding = "RL"
+# id = ""

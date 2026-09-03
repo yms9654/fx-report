@@ -432,13 +432,15 @@ a:focus-visible,summary:focus-visible{outline:2px solid var(--up); outline-offse
     <div class="fb__body" id="fbBody">
       <label for="fbText" class="visually-hidden" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">피드백 내용</label>
       <textarea id="fbText" placeholder="구체적으로 적어주실수록 반영하기 좋습니다. (선택)"></textarea>
+      <input type="text" id="fbHp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true"
+             style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
       <div class="fb__ctx" id="fbCtx"></div>
       <div class="fb__foot">
-        <p class="fb__note">보내기를 누르면 GitHub 이슈 작성 화면이 열립니다. 위 내용이 자동으로 채워져 있고, 확인 후 제출하면 등록됩니다. GitHub 계정이 필요합니다.</p>
+        <p class="fb__note" id="fbNote"></p>
         <button type="button" class="fb__send" id="fbSend">보내기</button>
       </div>
       <div class="fb__out" id="fbOut">
-        <p class="fb__outk">GitHub 탭이 열리지 않거나 오류가 나면</p>
+        <p class="fb__outk" id="fbOutK">GitHub 탭이 열리지 않거나 오류가 나면</p>
         <div class="fb__outrow">
           <a id="fbLink" href="#" target="_blank" rel="noopener">이슈 작성 화면 직접 열기</a>
           <button type="button" class="fb__copy" id="fbCopy">내용 복사</button>
@@ -460,7 +462,7 @@ a:focus-visible,summary:focus-visible{outline:2px solid var(--up); outline-offse
 </div>
 
 <script>
-const PAYLOAD = {"series": [{"d": "2026-07-08", "c": 1507.0}, {"d": "2026-07-09", "c": 1507.0}, {"d": "2026-07-10", "c": 1502.0}, {"d": "2026-07-13", "c": 1499.5}, {"d": "2026-07-14", "c": 1491.0}, {"d": "2026-07-15", "c": 1488.5}, {"d": "2026-07-16", "c": 1491.0}, {"d": "2026-07-20", "c": 1478.5}, {"d": "2026-07-21", "c": 1482.5}, {"d": "2026-07-22", "c": 1479.0}, {"d": "2026-07-23", "c": 1476.5}, {"d": "2026-07-24", "c": 1462.5}, {"d": "2026-07-27", "c": 1466.0}, {"d": "2026-07-28", "c": 1455.2}, {"d": "2026-07-29", "c": 1446.0}, {"d": "2026-07-30", "c": 1426.2}, {"d": "2026-07-31", "c": 1440.0}, {"d": "2026-08-03", "c": 1430.8}, {"d": "2026-08-04", "c": 1431.0}, {"d": "2026-08-05", "c": 1423.5}, {"d": "2026-08-06", "c": 1424.5}, {"d": "2026-08-07", "c": 1411.0}, {"d": "2026-08-10", "c": 1419.5}, {"d": "2026-08-11", "c": 1413.5}, {"d": "2026-08-12", "c": 1419.0}, {"d": "2026-08-13", "c": 1420.2}, {"d": "2026-08-14", "c": 1417.5}, {"d": "2026-08-18", "c": 1413.5}, {"d": "2026-08-19", "c": 1390.0}, {"d": "2026-08-20", "c": 1394.8}, {"d": "2026-08-21", "c": 1387.0}, {"d": "2026-08-24", "c": 1384.0}, {"d": "2026-08-25", "c": 1383.5}, {"d": "2026-08-26", "c": 1386.0}, {"d": "2026-08-27", "c": 1382.0}, {"d": "2026-08-28", "c": 1381.0}, {"d": "2026-08-31", "c": 1369.5}, {"d": "2026-09-01", "c": 1375.5}, {"d": "2026-09-02", "c": 1360.3}, {"d": "2026-09-03", "c": 1359.1}], "events": {"08/27": "한은 3.00% 인상", "08/28": "잭슨홀 매파", "08/31": "고용우려 낙폭 확대", "09/03": "14개월 최저"}, "year": "2026", "ladder": {"lo": 1290.0, "hi": 1420.0, "step": 10}, "fb": {"repo": "yms9654/fx-report", "date": "2026-09-03", "px": "1,359.10", "chg": "-1.20", "verb": "기다린다", "amt": "", "stop": "1,345", "t1": "1,372", "t2": "1,395", "dataAt": "2026-09-03 19:14 KST"}};
+const PAYLOAD = {"series": [{"d": "2026-07-08", "c": 1507.0}, {"d": "2026-07-09", "c": 1507.0}, {"d": "2026-07-10", "c": 1502.0}, {"d": "2026-07-13", "c": 1499.5}, {"d": "2026-07-14", "c": 1491.0}, {"d": "2026-07-15", "c": 1488.5}, {"d": "2026-07-16", "c": 1491.0}, {"d": "2026-07-20", "c": 1478.5}, {"d": "2026-07-21", "c": 1482.5}, {"d": "2026-07-22", "c": 1479.0}, {"d": "2026-07-23", "c": 1476.5}, {"d": "2026-07-24", "c": 1462.5}, {"d": "2026-07-27", "c": 1466.0}, {"d": "2026-07-28", "c": 1455.2}, {"d": "2026-07-29", "c": 1446.0}, {"d": "2026-07-30", "c": 1426.2}, {"d": "2026-07-31", "c": 1440.0}, {"d": "2026-08-03", "c": 1430.8}, {"d": "2026-08-04", "c": 1431.0}, {"d": "2026-08-05", "c": 1423.5}, {"d": "2026-08-06", "c": 1424.5}, {"d": "2026-08-07", "c": 1411.0}, {"d": "2026-08-10", "c": 1419.5}, {"d": "2026-08-11", "c": 1413.5}, {"d": "2026-08-12", "c": 1419.0}, {"d": "2026-08-13", "c": 1420.2}, {"d": "2026-08-14", "c": 1417.5}, {"d": "2026-08-18", "c": 1413.5}, {"d": "2026-08-19", "c": 1390.0}, {"d": "2026-08-20", "c": 1394.8}, {"d": "2026-08-21", "c": 1387.0}, {"d": "2026-08-24", "c": 1384.0}, {"d": "2026-08-25", "c": 1383.5}, {"d": "2026-08-26", "c": 1386.0}, {"d": "2026-08-27", "c": 1382.0}, {"d": "2026-08-28", "c": 1381.0}, {"d": "2026-08-31", "c": 1369.5}, {"d": "2026-09-01", "c": 1375.5}, {"d": "2026-09-02", "c": 1360.3}, {"d": "2026-09-03", "c": 1359.1}], "events": {"08/27": "한은 3.00% 인상", "08/28": "잭슨홀 매파", "08/31": "고용우려 낙폭 확대", "09/03": "14개월 최저"}, "year": "2026", "ladder": {"lo": 1290.0, "hi": 1420.0, "step": 10}, "fb": {"repo": "yms9654/fx-report", "endpoint": "", "date": "2026-09-03", "px": "1,359.10", "chg": "-1.20", "verb": "기다린다", "amt": "", "stop": "1,345", "t1": "1,372", "t2": "1,395", "dataAt": "2026-09-03 19:14 KST"}};
 const D = PAYLOAD.series.map(r => [r.d.slice(5).replace('-','/'), r.c]);
 const EV = PAYLOAD.events || {};
 const L=52,R=22,T=14,B=64,W=1000,H=430, PW=W-L-R, PH=H-T-B;
@@ -561,17 +563,59 @@ if(ax){ const A=PAYLOAD.ladder;
     return {title, md};
   }
 
-  send.addEventListener("click", () => {
-    if(!kind){ btns[0].focus(); return; }
-    const {title, md} = compose();
-    // labels 파라미터는 넘기지 않는다 — 라벨은 제목의 [유형] 을 보고 Actions 가 붙인다
-    const url = "https://github.com/" + F.repo + "/issues/new"
-      + "?title=" + encodeURIComponent(title)
-      + "&body="  + encodeURIComponent(md);
-    outLink.href = url;
+  const note = document.getElementById("fbNote"), hp = document.getElementById("fbHp"),
+        outK = document.getElementById("fbOutK");
+  const ANON = !!F.endpoint;
+  note.textContent = ANON
+    ? "GitHub 계정 없이 익명으로 등록됩니다. 위 정보가 함께 저장되며, 시간당 5건까지 보낼 수 있습니다."
+    : "보내기를 누르면 GitHub 이슈 작성 화면이 열립니다. 확인 후 제출하면 등록됩니다. GitHub 계정이 필요합니다.";
+
+  function ghUrl(title, md){
+    return "https://github.com/" + F.repo + "/issues/new"
+      + "?title=" + encodeURIComponent(title) + "&body=" + encodeURIComponent(md);
+  }
+  function showFallback(title, md, msg){
+    outK.textContent = msg;
+    outLink.href = ghUrl(title, md);
     outText.value = title + "\n\n" + md;
     out.classList.add("on");
-    window.open(url, "_blank");
+  }
+
+  send.addEventListener("click", async () => {
+    if(!kind){ btns[0].focus(); return; }
+    const {title, md} = compose();
+
+    if(!ANON){
+      showFallback(title, md, "GitHub 탭이 열리지 않거나 오류가 나면");
+      window.open(ghUrl(title, md), "_blank");
+      return;
+    }
+
+    send.disabled = true; send.textContent = "보내는 중…";
+    try {
+      const r = await fetch(F.endpoint, {
+        method: "POST",
+        headers: {"content-type": "application/json"},
+        body: JSON.stringify({
+          kind, text: ta.value.trim(), date: F.date,
+          ctx: LINES, width: window.innerWidth, website: hp.value
+        })
+      });
+      const d = await r.json();
+      if(!r.ok || !d.ok) throw new Error(d.error || ("HTTP " + r.status));
+      out.classList.remove("on");
+      document.querySelector(".fb").innerHTML =
+        '<p class="fb__q">보냈습니다. 고맙습니다.</p>'
+        + '<p class="fb__note">' + (d.number
+            ? '<a href="' + d.url + '" target="_blank" rel="noopener">#' + d.number + '</a> 로 등록됐습니다.'
+            : '접수됐습니다.') + '</p>';
+      return;
+    } catch(err) {
+      showFallback(title, md, "익명 전송에 실패했습니다 (" + err.message + "). GitHub 계정으로 직접 보내려면");
+      window.open(ghUrl(title, md), "_blank");
+    } finally {
+      send.disabled = false; send.textContent = "보내기";
+    }
   });
 
   copyBtn.addEventListener("click", async () => {

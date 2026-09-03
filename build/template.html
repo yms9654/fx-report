@@ -385,13 +385,15 @@ a:focus-visible,summary:focus-visible{outline:2px solid var(--up); outline-offse
     <div class="fb__body" id="fbBody">
       <label for="fbText" class="visually-hidden" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">피드백 내용</label>
       <textarea id="fbText" placeholder="구체적으로 적어주실수록 반영하기 좋습니다. (선택)"></textarea>
+      <input type="text" id="fbHp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true"
+             style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
       <div class="fb__ctx" id="fbCtx"></div>
       <div class="fb__foot">
-        <p class="fb__note">보내기를 누르면 GitHub 이슈 작성 화면이 열립니다. 위 내용이 자동으로 채워져 있고, 확인 후 제출하면 등록됩니다. GitHub 계정이 필요합니다.</p>
+        <p class="fb__note" id="fbNote"></p>
         <button type="button" class="fb__send" id="fbSend">보내기</button>
       </div>
       <div class="fb__out" id="fbOut">
-        <p class="fb__outk">GitHub 탭이 열리지 않거나 오류가 나면</p>
+        <p class="fb__outk" id="fbOutK">GitHub 탭이 열리지 않거나 오류가 나면</p>
         <div class="fb__outrow">
           <a id="fbLink" href="#" target="_blank" rel="noopener">이슈 작성 화면 직접 열기</a>
           <button type="button" class="fb__copy" id="fbCopy">내용 복사</button>
@@ -514,17 +516,59 @@ if(ax){ const A=PAYLOAD.ladder;
     return {title, md};
   }
 
-  send.addEventListener("click", () => {
-    if(!kind){ btns[0].focus(); return; }
-    const {title, md} = compose();
-    // labels 파라미터는 넘기지 않는다 — 라벨은 제목의 [유형] 을 보고 Actions 가 붙인다
-    const url = "https://github.com/" + F.repo + "/issues/new"
-      + "?title=" + encodeURIComponent(title)
-      + "&body="  + encodeURIComponent(md);
-    outLink.href = url;
+  const note = document.getElementById("fbNote"), hp = document.getElementById("fbHp"),
+        outK = document.getElementById("fbOutK");
+  const ANON = !!F.endpoint;
+  note.textContent = ANON
+    ? "GitHub 계정 없이 익명으로 등록됩니다. 위 정보가 함께 저장되며, 시간당 5건까지 보낼 수 있습니다."
+    : "보내기를 누르면 GitHub 이슈 작성 화면이 열립니다. 확인 후 제출하면 등록됩니다. GitHub 계정이 필요합니다.";
+
+  function ghUrl(title, md){
+    return "https://github.com/" + F.repo + "/issues/new"
+      + "?title=" + encodeURIComponent(title) + "&body=" + encodeURIComponent(md);
+  }
+  function showFallback(title, md, msg){
+    outK.textContent = msg;
+    outLink.href = ghUrl(title, md);
     outText.value = title + "\n\n" + md;
     out.classList.add("on");
-    window.open(url, "_blank");
+  }
+
+  send.addEventListener("click", async () => {
+    if(!kind){ btns[0].focus(); return; }
+    const {title, md} = compose();
+
+    if(!ANON){
+      showFallback(title, md, "GitHub 탭이 열리지 않거나 오류가 나면");
+      window.open(ghUrl(title, md), "_blank");
+      return;
+    }
+
+    send.disabled = true; send.textContent = "보내는 중…";
+    try {
+      const r = await fetch(F.endpoint, {
+        method: "POST",
+        headers: {"content-type": "application/json"},
+        body: JSON.stringify({
+          kind, text: ta.value.trim(), date: F.date,
+          ctx: LINES, width: window.innerWidth, website: hp.value
+        })
+      });
+      const d = await r.json();
+      if(!r.ok || !d.ok) throw new Error(d.error || ("HTTP " + r.status));
+      out.classList.remove("on");
+      document.querySelector(".fb").innerHTML =
+        '<p class="fb__q">보냈습니다. 고맙습니다.</p>'
+        + '<p class="fb__note">' + (d.number
+            ? '<a href="' + d.url + '" target="_blank" rel="noopener">#' + d.number + '</a> 로 등록됐습니다.'
+            : '접수됐습니다.') + '</p>';
+      return;
+    } catch(err) {
+      showFallback(title, md, "익명 전송에 실패했습니다 (" + err.message + "). GitHub 계정으로 직접 보내려면");
+      window.open(ghUrl(title, md), "_blank");
+    } finally {
+      send.disabled = false; send.textContent = "보내기";
+    }
   });
 
   copyBtn.addEventListener("click", async () => {

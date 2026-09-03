@@ -174,6 +174,13 @@ def gauge(px, nar):
 
 
 def main():
+    cfg = {}
+    cfgp = ROOT / "config.json"
+    if cfgp.exists():
+        try:
+            cfg = json.loads(cfgp.read_text(encoding="utf-8"))
+        except Exception:                                    # noqa: BLE001
+            cfg = {}
     data = json.loads((ROOT / "data.json").read_text(encoding="utf-8"))
     nar = json.loads((ROOT / "narrative.json").read_text(encoding="utf-8"))
     tmpl = (ROOT / "build" / "template.html").read_text(encoding="utf-8")
@@ -288,6 +295,7 @@ def main():
         "ladder": {"lo": alo, "hi": ahi, "step": int(lad.get("step", 10))},
         "fb": {
             "repo": "yms9654/fx-report",
+            "endpoint": cfg.get("feedback_endpoint", ""),
             "date": pxdate,
             "px": f"{px:,.2f}",
             "chg": f"{chg:+.2f}",
