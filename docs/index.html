@@ -56,41 +56,16 @@ body{
 .metabar__px .dn{color:var(--down)}
 
 /* ---------- hero ---------- */
-.hero{padding:56px 0 40px; border-bottom:1px solid var(--rule)}
+.hero{padding:48px 0 36px; border-bottom:1px solid var(--rule)}
 .eyebrow{
   font-family:"IBM Plex Mono",monospace; font-size:11px; font-weight:500;
   letter-spacing:.16em; text-transform:uppercase; color:var(--muted); margin:0 0 18px;
 }
-h1{
-  font-size:clamp(30px,5.4vw,50px); line-height:1.12; font-weight:700;
-  letter-spacing:-.03em; margin:0 0 8px;
-}
-h1 .thin{font-weight:300; color:var(--ink-2)}
-.hero__sub{margin:0 0 40px; color:var(--ink-2); font-size:16px; max-width:48ch}
 
-.readout{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.15fr); gap:28px; align-items:end}
-@media (max-width:720px){.readout{grid-template-columns:1fr; gap:32px}}
-.px__label{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); margin-bottom:6px}
-.px__big{
-  font-family:"IBM Plex Mono",monospace; font-weight:600;
-  font-size:clamp(52px,11vw,84px); line-height:.92; letter-spacing:-.045em;
-  display:block; margin-bottom:14px;
-}
-.px__row{display:flex; flex-wrap:wrap; gap:8px 20px; font-family:"IBM Plex Mono",monospace; font-size:12.5px; color:var(--muted)}
-.px__row b{color:var(--ink-2); font-weight:500}
 
-.verdict{
-  background:var(--card); border:1px solid var(--rule); border-left:3px solid var(--up);
-  border-radius:3px; padding:22px 24px; box-shadow:var(--shadow);
-}
-.verdict__k{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); margin-bottom:12px}
-.verdict__band{font-family:"IBM Plex Mono",monospace; font-size:clamp(24px,4.6vw,32px); font-weight:600; letter-spacing:-.02em; color:var(--up); line-height:1.1; margin-bottom:10px}
-.verdict p{margin:0; font-size:14.5px; color:var(--ink-2); line-height:1.6}
-.verdict p + p{margin-top:8px}
-.verdict .cut{color:var(--down); font-weight:600}
 
 /* ---------- sections ---------- */
-section{padding:52px 0; border-bottom:1px solid var(--rule)}
+section{padding:44px 0; border-bottom:1px solid var(--rule)}
 section:last-of-type{border-bottom:0}
 h2{font-size:23px; font-weight:600; letter-spacing:-.02em; margin:0 0 6px}
 .lede{margin:0 0 30px; color:var(--muted); font-size:14.5px; max-width:62ch}
@@ -156,9 +131,9 @@ th{color:var(--muted); font-weight:500; letter-spacing:.08em; text-transform:upp
 .ladder{
   position:relative; display:grid; grid-template-columns:76px 1fr; gap:0;
   background:var(--card); border:1px solid var(--rule); border-radius:3px;
-  padding:26px 26px 26px 14px; box-shadow:var(--shadow); height:560px;
+  padding:22px 24px 22px 12px; box-shadow:var(--shadow); height:400px;
 }
-@media (max-width:720px){.ladder{height:640px; grid-template-columns:62px 1fr; padding-right:16px}}
+@media (max-width:720px){.ladder{height:460px; grid-template-columns:62px 1fr; padding-right:16px}}
 .ladder__axis{position:relative; border-right:1px solid var(--rule)}
 .ladder__tick{position:absolute; right:10px; transform:translateY(50%); font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--muted); letter-spacing:-.01em}
 .ladder__field{position:relative}
@@ -169,12 +144,12 @@ th{color:var(--muted); font-weight:500; letter-spacing:.08em; text-transform:upp
 .zone--cut{background:var(--down-wash); border:1px solid var(--down-edge)}
 .zone__in{position:absolute; left:14px; right:14px; top:50%; transform:translateY(-50%)}
 .zone__hd{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; margin-bottom:2px}
-.zone__pct{font-family:"IBM Plex Mono",monospace; font-size:26px; font-weight:700; letter-spacing:-.03em; line-height:1}
+.zone__pct{font-family:"IBM Plex Mono",monospace; font-size:23px; font-weight:700; letter-spacing:-.03em; line-height:1}
 .zone--t2 .zone__pct,.zone--t1 .zone__pct{color:var(--up)}
 .zone--cut .zone__pct{color:var(--down); font-size:20px}
 .zone__ttl{font-size:14px; font-weight:600}
 .zone__px{font-family:"IBM Plex Mono",monospace; font-size:12.5px; color:var(--ink-2); font-weight:500}
-.zone__note{font-size:12.5px; color:var(--muted); line-height:1.5; margin-top:3px}
+.zone__note{font-size:12.5px; color:var(--muted); line-height:1.45; margin-top:3px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden}
 .nowline{position:absolute; left:-76px; right:0; height:0; border-top:2px solid var(--ink); z-index:3}
 @media (max-width:720px){.nowline{left:-62px}}
 .nowline__tag{
@@ -208,23 +183,6 @@ th{color:var(--muted); font-weight:500; letter-spacing:.08em; text-transform:upp
 a:focus-visible,summary:focus-visible{outline:2px solid var(--up); outline-offset:3px; border-radius:2px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important; animation:none!important}}
 
-/* ---------- status banner (자동 트리거 판정) ---------- */
-.statusbar{margin:0 0 34px; border-radius:3px; padding:16px 20px; border:1px solid var(--rule); background:var(--card); box-shadow:var(--shadow); display:flex; gap:14px; align-items:flex-start}
-.statusbar.hit{border-left:3px solid var(--down); background:var(--down-wash)}
-.statusbar.near{border-left:3px solid var(--up); background:var(--up-wash)}
-.statusbar.calm{border-left:3px solid var(--rule)}
-.statusbar__k{flex:none; font-family:"IBM Plex Mono",monospace; font-size:10px; font-weight:600; letter-spacing:.14em; text-transform:uppercase; padding:3px 7px; border-radius:2px; margin-top:2px}
-.statusbar.hit .statusbar__k{background:var(--down); color:#fff}
-.statusbar.near .statusbar__k{background:var(--up); color:#fff}
-.statusbar.calm .statusbar__k{background:var(--rule); color:var(--muted)}
-.statusbar__t{font-size:14.5px; color:var(--ink); line-height:1.55}
-.statusbar__t b{font-weight:600}
-.statusbar__t span{display:block; color:var(--muted); font-size:13px; margin-top:3px; font-family:"IBM Plex Mono",monospace}
-.stamp{font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--muted); letter-spacing:-.01em}
-.stamp b{color:var(--ink-2); font-weight:500}
-.stale{color:var(--up); font-weight:600}
-.chg-up{color:var(--up)} .chg-dn{color:var(--down)}
-
 
 /* ---------- 오늘의 지시 (최상단) ---------- */
 .now{border:1px solid var(--rule); border-left:5px solid var(--muted); border-radius:3px;
@@ -252,28 +210,15 @@ a:focus-visible,summary:focus-visible{outline:2px solid var(--up); outline-offse
 .now__row .rv b{font-family:"IBM Plex Mono",monospace; font-weight:600; color:var(--ink)}
 .now__row .rd{margin-left:auto; font-family:"IBM Plex Mono",monospace; font-size:13px; font-weight:500}
 
-/* 거리 게이지 */
-.gauge{position:relative; height:62px; margin:26px 4px 0}
-.gauge__track{position:absolute; left:0; right:0; top:30px; height:3px; background:var(--rule); border-radius:2px}
-.gauge__seg{position:absolute; top:30px; height:3px; border-radius:2px}
-.gauge__seg.s-sell{background:var(--up)}
-.gauge__seg.s-cut{background:var(--down)}
-.gauge__mk{position:absolute; top:24px; width:1px; height:15px; background:var(--rule)}
-.gauge__lb{position:absolute; top:44px; transform:translateX(-50%); white-space:nowrap;
-           font-family:"IBM Plex Mono",monospace; font-size:10.5px; color:var(--muted)}
-.gauge__lb.at-up{color:var(--up)} .gauge__lb.at-dn{color:var(--down)}
-.gauge__now{position:absolute; top:22px; width:3px; height:19px; background:var(--ink);
-            transform:translateX(-1.5px); border-radius:1px}
-.gauge__nowlb{position:absolute; top:0; transform:translateX(-50%); white-space:nowrap;
-              font-family:"IBM Plex Mono",monospace; font-size:12px; font-weight:600; color:var(--ink)}
+
 .metabar__verb{font-weight:700; letter-spacing:-.01em}
 .metabar__verb.v-sell{color:var(--up)} .metabar__verb.v-cut{color:var(--down)}
 
 
 /* ---------- 주간 확률 ---------- */
 .probs{background:var(--card); border:1px solid var(--rule); border-radius:3px; padding:22px 24px; box-shadow:var(--shadow)}
-.pw{display:grid; grid-template-columns:78px 1fr 108px; gap:16px; align-items:center; padding:7px 0}
-@media (max-width:640px){.pw{grid-template-columns:62px 1fr; gap:10px} .pw__rng{grid-column:2; text-align:left; padding-left:2px}}
+.pw{display:grid; grid-template-columns:74px 1fr; gap:16px; align-items:center; padding:7px 0}
+@media (max-width:640px){.pw{grid-template-columns:58px 1fr; gap:10px}}
 .pw--hd{padding-bottom:10px; border-bottom:1px solid var(--rule); margin-bottom:6px}
 .pw--hd .pw__k,.pw--hd .pw__rng{font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted)}
 .pw--hd .pw__bar{display:flex; justify-content:space-between; background:none; height:auto}
@@ -301,13 +246,32 @@ a:focus-visible,summary:focus-visible{outline:2px solid var(--up); outline-offse
 .probs__note{margin:20px 0 0; padding-top:14px; border-top:1px solid var(--rule-soft); font-size:12.5px; color:var(--muted); line-height:1.6}
 .probs__note b{color:var(--ink-2); font-weight:600; font-family:"IBM Plex Mono",monospace}
 
+
+/* ---------- 근거 (접힘) ---------- */
+.why{border:1px solid var(--rule); border-radius:3px; background:var(--card); box-shadow:var(--shadow); margin-top:6px}
+.why > summary{cursor:pointer; padding:16px 22px; list-style:none; display:flex; align-items:center; justify-content:space-between; gap:12px}
+.why > summary::-webkit-details-marker{display:none}
+.why > summary .s-t{font-size:15px; font-weight:600; letter-spacing:-.01em}
+.why > summary .s-h{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted)}
+.why > summary:hover .s-h{color:var(--ink)}
+.why[open] > summary{border-bottom:1px solid var(--rule)}
+.why[open] > summary .s-h::after{content:" ▲"}
+.why:not([open]) > summary .s-h::after{content:" ▼"}
+.why__in{padding:22px}
+.why__in h3.wh{font-size:13px; font-weight:600; margin:26px 0 12px; letter-spacing:-.01em}
+.why__in h3.wh:first-child{margin-top:0}
+.why .force{box-shadow:none}
+.why .scen,.why .tips{box-shadow:none; padding:18px 20px}
+.why .cal li.key{margin:0 -8px; padding-left:8px; padding-right:8px}
+/* 히어로 게이지 제거에 따른 여백 정리 */
+.now__rows{margin-bottom:0}
 </style>
 </head>
 <body>
 
 <div class="metabar">
   <div class="metabar__in">
-    <span><strong>USD/KRW</strong> 매도 타이밍 리포트</span>
+    <span><strong>USD/KRW</strong> 매도 리포트</span>
     <span class="metabar__px"><span class="metabar__verb ">기다린다</span> · 1,359.10 <span class="chg-dn">-1.20</span> · 2026.09.03</span>
   </div>
 </div>
@@ -316,27 +280,55 @@ a:focus-visible,summary:focus-visible{outline:2px solid var(--up); outline-offse
 
 <header class="hero">
   <p class="eyebrow">한 달 매도 전략 · 자동 갱신 2026.09.03</p>
-  <div class="now now--wait"><div class="now__k">오늘의 지시 · 2026.09.03</div><div class="now__verb">기다린다</div><p class="now__why">아직 계획한 어느 가격대에도 닿지 않았습니다. <b>오늘은 아무것도 하지 않습니다.</b> 지정가만 걸어두고 기다립니다.</p><div class="now__rows"><div class="now__row"><span class="rk">다음</span><span class="rv"><b>1,365</b> 도달 → 30% 매도</span><span class="rd chg-up">+5.9원</span></div><div class="now__row"><span class="rk">손절</span><span class="rv"><b>1,345</b> 이탈 → 잔여 전량 청산</span><span class="rd chg-dn">−14.1원</span></div></div><div class="gauge"><div class="gauge__track"></div><div class="gauge__seg s-cut" style="left:0; width:8.3%"></div><div class="gauge__seg s-sell" style="left:36.1%; width:18.1%"></div><div class="gauge__seg s-sell" style="left:70.8%; width:20.8%"></div><div class="gauge__mk" style="left:8.3%"></div><div class="gauge__lb at-dn" style="left:8.3%">1,345</div><div class="gauge__mk" style="left:36.1%"></div><div class="gauge__lb at-up" style="left:36.1%">1,365</div><div class="gauge__mk" style="left:70.8%"></div><div class="gauge__lb at-up" style="left:70.8%">1,390</div><div class="gauge__now" style="left:27.9%"></div><div class="gauge__nowlb" style="left:27.9%">1,359.10</div></div></div>
-  <h1>1,385~1,400에 판다.<br><span class="thin">축은 여전히 9월 16일 FOMC.</span></h1>
-  <p class="hero__sub">14개월 만의 최저치를 다시 갈아치웠습니다. 하락을 만든 반도체 수출기업의 네고 물량은 소진된 게 아니라 월말 집중에서 상시 출회로 바뀌었을 뿐입니다. 그래도 9월 16일 FOMC 인상 확률이 60%를 넘어선 건 살아있는 반등 재료입니다. 다만 지금 자리는 손절선에 바짝 붙어 있어, 관망보다 분할 매도가 안전합니다.</p>
-
-  <div class="readout">
-    <div>
-      <div class="px__label">현재가 2026.09.03</div>
-      <span class="px__big">1,359<span style="font-size:.5em">.10</span></span>
-      <div class="px__row"><span>전일비 <b class="chg-dn">-1.20</b></span><span>52주 <b>1,359.10 – 1,562.47</b></span><span>40영업일 <b>-9.8%</b></span></div>
-    </div>
-    <div class="verdict">
-      <div class="verdict__k">결론</div>
-      <div class="verdict__band">1,385 – 1,400</div>
-      <p>지금 <b>40%</b>만 시장가로 정리하고, 나머지 <b>60%</b>는 1,372 지정가로 걸어 FOMC 반등을 받습니다.</p><p><span class="cut">1,345 하향 이탈 시 즉시 전량 청산.</span> 미체결분은 10/2에 무조건 정리.</p>
-    </div>
-  </div>
+  <div class="now now--wait"><div class="now__k">오늘의 지시 · 2026.09.03</div><div class="now__verb">기다린다</div><p class="now__why">아직 계획한 어느 가격대에도 닿지 않았습니다. <b>오늘은 아무것도 하지 않습니다.</b> 지정가만 걸어두고 기다립니다.</p><div class="now__rows"><div class="now__row"><span class="rk">현재</span><span class="rv"><b>1,359.10</b></span></div><div class="now__row"><span class="rk">다음</span><span class="rv"><b>1,365</b> 도달 → 30% 매도</span><span class="rd chg-up">+5.9원</span></div><div class="now__row"><span class="rk">손절</span><span class="rv"><b>1,345</b> 이탈 → 잔여 전량 청산</span><span class="rd chg-dn">−14.1원</span></div></div></div>
 </header>
 
-<section id="chart">
+<section>
+  <h2>계획</h2>
+  <p class="lede">가격 축은 실제 눈금입니다. 굵은 선이 현재가.</p>
+  <div class="ladder"><div class="ladder__axis" id="axis"></div><div class="ladder__field" id="field"><div class="zone zone--t2" style="bottom:76.9%; height:11.5%"><div class="zone__in"><div class="zone__hd"><span class="zone__pct">20%</span><span class="zone__ttl">2차 — FOMC 직후</span><span class="zone__px">1,390 – 1,405</span></div><div class="zone__note">9/17~9/25. 인상 시 나오는 스파이크를 받는 구간. 지정가 1,390을 미리 걸어두면 한국시간 새벽 급등을 놓치지 않습니다.</div></div></div><div class="zone zone--t2" style="bottom:57.7%; height:10.0%"><div class="zone__in"><div class="zone__hd"><span class="zone__pct">30%</span><span class="zone__ttl">1차 — 단기 되돌림</span><span class="zone__px">1,365 – 1,378</span></div><div class="zone__note">기한 9/11. 그날까지 이 구간에 닿지 않으면 시장가로 집행.</div></div></div><div class="zone zone--cut" style="bottom:11.5%; height:30.8%"><div class="zone__in"><div class="zone__hd"><span class="zone__pct">전량</span><span class="zone__ttl">하락추세 재개</span><span class="zone__px">1,305 – 1,345</span></div><div class="zone__note">여기서는 기다릴수록 손해입니다. 미련 없이 청산.</div></div></div><div class="nowline" style="bottom:53.2%"><span class="nowline__tag">현재 1,359.10</span></div></div></div>
+</section>
+
+<section>
+  <h2>주간 확률</h2>
+  <p class="lede">앞으로 4주. 아래 두 줄은 그 기간 안에 계획 가격을 한 번이라도 건드릴 확률입니다.</p>
+  <div class="probs">
+      <div class="pw pw--hd"><div class="pw__k">기간</div>
+        <div class="pw__bar"><span class="hd-up">오를 확률</span><span class="hd-dn">내릴 확률</span></div></div>
+      <div class="pw">
+          <div class="pw__k">1주<span>~09/10</span></div>
+          <div class="pw__bar">
+            <div class="pw__seg s-up" style="flex:58"><span>58%</span></div>
+            <div class="pw__seg s-dn" style="flex:42"><span>42%</span></div>
+          </div>
+        </div><div class="pw">
+          <div class="pw__k">2주<span>~09/17</span></div>
+          <div class="pw__bar">
+            <div class="pw__seg s-up" style="flex:62"><span>62%</span></div>
+            <div class="pw__seg s-dn" style="flex:38"><span>38%</span></div>
+          </div>
+        </div><div class="pw">
+          <div class="pw__k">3주<span>~09/24</span></div>
+          <div class="pw__bar">
+            <div class="pw__seg s-up" style="flex:64"><span>64%</span></div>
+            <div class="pw__seg s-dn" style="flex:36"><span>36%</span></div>
+          </div>
+        </div><div class="pw">
+          <div class="pw__k">4주<span>~10/01</span></div>
+          <div class="pw__bar">
+            <div class="pw__seg s-up" style="flex:66"><span>66%</span></div>
+            <div class="pw__seg s-dn" style="flex:34"><span>34%</span></div>
+          </div>
+        </div>
+      <div class="probs__split"><div class="probs__splitk">누적 도달 확률 — 기간 안에 한 번이라도 닿을 확률</div><div class="pt"><div class="pt__k up">1,365 터치<span>30% 매도</span></div><div class="pt__v"><span>1주</span><b>78%</b></div><div class="pt__v"><span>2주</span><b>86%</b></div><div class="pt__v"><span>3주</span><b>89%</b></div><div class="pt__v"><span>4주</span><b>92%</b></div></div><div class="pt"><div class="pt__k dn">1,345 이탈<span>전량 청산</span></div><div class="pt__v"><span>1주</span><b>32%</b></div><div class="pt__v"><span>2주</span><b>45%</b></div><div class="pt__v"><span>3주</span><b>51%</b></div><div class="pt__v"><span>4주</span><b>54%</b></div></div></div>
+      <p class="probs__note">일간 실현변동성 <b>0.55%</b> (연율 8.7%, 최근 39개 수익률)와
+      분석 기대값(한 달 <b>+1.1%</b>)을 드리프트로 둔 로그정규 모델 추정치입니다.
+      시장이 이 가정대로 움직인다는 보장은 없고, 이벤트 리스크는 반영되지 않습니다.</p>
+    </div>
+</section>
+
+<section>
   <h2>최근 흐름</h2>
-  <p class="lede">7월 말 1,465에서 5주 넘게 이어진 하락 끝에 1,357원대, 14개월 최저치입니다. 하락을 만든 재료는 사라지지 않았고, 반등 재료만 새로 늘었습니다. 두 힘이 차트 위에 함께 있습니다.</p>
   <div class="chart">
     <svg id="svg" viewBox="0 0 1000 430" role="img" aria-label="원달러 환율 일별 종가 추이">
       <g id="grid"></g><g id="events"></g>
@@ -354,16 +346,16 @@ a:focus-visible,summary:focus-visible{outline:2px solid var(--up); outline-offse
   </details>
 </section>
 
-<section>
-  <h2>지금의 힘겨루기</h2>
-  <p class="lede">네고 물량이 월말 집중에서 상시 출회로 바뀐 게 지난주 이후 가장 큰 변화입니다. 동시에 Fed의 매파 강도도 함께 세졌습니다.</p>
-  <div class="tug"><div class="force force--dn"><h3>원화 강세</h3><div class="dir">환율 하락 압력</div><ul><li><span class="tag tag--std">정책</span><span>한은 기준금리 <b>3.00%</b>로 2연속 인상 (7명 중 6명 찬성) → 한미 금리차 축소</span></li><li><span class="tag tag--new">수급</span><span>수출기업 네고 물량이 월말 집중에서 <b>상시 출회</b>로 전환 — 하단을 계속 눌러 14개월 최저 재경신</span></li><li><span class="tag tag--std">수출</span><span>반도체 수출 호조 지속, 무역흑자 기조 유지</span></li><li><span class="tag tag--std">자금</span><span>WGBI 편입에 따른 외국인 채권자금 유입</span></li></ul></div><div class="force force--up"><h3>달러 강세</h3><div class="dir">환율 상승 압력</div><ul><li><span class="tag tag--new">연준</span><span>Fed 매파 기조 지속 → <b>9/16 FOMC 인상 확률 60%대</b>로 재차 상승 (CME FedWatch, 지난주 40%→57%→60%대)</span></li><li><span class="tag tag--new">고용</span><span>9/4 미 8월 고용지표 발표 — 서프라이즈 시 FOMC 확률 급변동 가능</span></li><li><span class="tag tag--std">기술</span><span>5주 넘는 연속 하락으로 과매도 심화, 200주선(1,382) 큰 폭 이탈 후 되돌림 압력 확대</span></li><li><span class="tag tag--std">수급</span><span>1,357원대는 이미 국민연금 환헤지 중단 거론 구간(1,390) 아래 — 저가 매수 유입 가능성 (씨티)</span></li></ul></div></div>
-</section>
-
-<section>
-  <h2>한 달 뒤 어디에 있나</h2>
-  <p class="lede">9월 16일 FOMC 결과가 이번 달의 거의 전부지만, 9/4 고용지표와 9/11 CPI가 그 확률을 먼저 흔듭니다.</p>
-  <div class="scen">
+<section style="border-bottom:0">
+  <h2>왜 이렇게 보나</h2>
+  <p class="lede">판단의 근거입니다. 매일 갱신되지만 결론만 보려면 펼치지 않아도 됩니다.</p>
+  <details class="why">
+    <summary><span class="s-t">힘겨루기 · 시나리오 · 일정 · 체결 비용</span><span class="s-h">펼치기</span></summary>
+    <div class="why__in">
+      <h3 class="wh">지금의 힘겨루기</h3>
+      <div class="tug"><div class="force force--dn"><h3>원화 강세</h3><div class="dir">환율 하락 압력</div><ul><li><span class="tag tag--std">정책</span><span>한은 기준금리 <b>3.00%</b>로 2연속 인상 (7명 중 6명 찬성) → 한미 금리차 축소</span></li><li><span class="tag tag--new">수급</span><span>수출기업 네고 물량이 월말 집중에서 <b>상시 출회</b>로 전환 — 하단을 계속 눌러 14개월 최저 재경신</span></li><li><span class="tag tag--std">수출</span><span>반도체 수출 호조 지속, 무역흑자 기조 유지</span></li><li><span class="tag tag--std">자금</span><span>WGBI 편입에 따른 외국인 채권자금 유입</span></li></ul></div><div class="force force--up"><h3>달러 강세</h3><div class="dir">환율 상승 압력</div><ul><li><span class="tag tag--new">연준</span><span>Fed 매파 기조 지속 → <b>9/16 FOMC 인상 확률 60%대</b>로 재차 상승 (CME FedWatch, 지난주 40%→57%→60%대)</span></li><li><span class="tag tag--new">고용</span><span>9/4 미 8월 고용지표 발표 — 서프라이즈 시 FOMC 확률 급변동 가능</span></li><li><span class="tag tag--std">기술</span><span>5주 넘는 연속 하락으로 과매도 심화, 200주선(1,382) 큰 폭 이탈 후 되돌림 압력 확대</span></li><li><span class="tag tag--std">수급</span><span>1,357원대는 이미 국민연금 환헤지 중단 거론 구간(1,390) 아래 — 저가 매수 유입 가능성 (씨티)</span></li></ul></div></div>
+      <h3 class="wh">한 달 뒤 어디에 있나</h3>
+      <div class="scen">
       <div class="probbar" role="img" aria-label="연준 인상 62퍼센트, 연준 동결 38퍼센트">
         <div class="p-up" style="flex:62">62% 연준 인상</div>
         <div class="p-dn" style="flex:38">38% 연준 동결</div>
@@ -379,69 +371,15 @@ a:focus-visible,summary:focus-visible{outline:2px solid var(--up); outline-offse
         <div><div class="k">한 달 예상 범위</div><div class="v">1,325 – 1,405</div></div>
         <div><div class="k">현재가 대비</div><div class="v" style="color:var(--up)">+15원</div></div>
       </div></div>
-</section>
-
-<section>
-  <h2>주간 확률</h2>
-  <p class="lede">앞으로 4주, 각 시점에 지금보다 위에 있을 확률과 아래에 있을 확률. 아래쪽은 그 기간 안에 계획 가격을 한 번이라도 건드릴 확률입니다.</p>
-  <div class="probs">
-      <div class="pw pw--hd"><div class="pw__k">기간</div>
-        <div class="pw__bar"><span class="hd-up">오를 확률</span><span class="hd-dn">내릴 확률</span></div>
-        <div class="pw__rng">80% 구간</div></div>
-      <div class="pw">
-          <div class="pw__k">1주<span>~09/10</span></div>
-          <div class="pw__bar">
-            <div class="pw__seg s-up" style="flex:58"><span>58%</span></div>
-            <div class="pw__seg s-dn" style="flex:42"><span>42%</span></div>
-          </div>
-          <div class="pw__rng">1,341 – 1,384</div>
-        </div><div class="pw">
-          <div class="pw__k">2주<span>~09/17</span></div>
-          <div class="pw__bar">
-            <div class="pw__seg s-up" style="flex:62"><span>62%</span></div>
-            <div class="pw__seg s-dn" style="flex:38"><span>38%</span></div>
-          </div>
-          <div class="pw__rng">1,336 – 1,397</div>
-        </div><div class="pw">
-          <div class="pw__k">3주<span>~09/24</span></div>
-          <div class="pw__bar">
-            <div class="pw__seg s-up" style="flex:64"><span>64%</span></div>
-            <div class="pw__seg s-dn" style="flex:36"><span>36%</span></div>
-          </div>
-          <div class="pw__rng">1,333 – 1,407</div>
-        </div><div class="pw">
-          <div class="pw__k">4주<span>~10/01</span></div>
-          <div class="pw__bar">
-            <div class="pw__seg s-up" style="flex:66"><span>66%</span></div>
-            <div class="pw__seg s-dn" style="flex:34"><span>34%</span></div>
-          </div>
-          <div class="pw__rng">1,331 – 1,417</div>
-        </div>
-      <div class="probs__split"><div class="probs__splitk">누적 도달 확률 — 기간 안에 한 번이라도 닿을 확률</div><div class="pt"><div class="pt__k up">1,365 터치<span>30% 매도</span></div><div class="pt__v"><span>1주</span><b>78%</b></div><div class="pt__v"><span>2주</span><b>86%</b></div><div class="pt__v"><span>3주</span><b>89%</b></div><div class="pt__v"><span>4주</span><b>92%</b></div></div><div class="pt"><div class="pt__k dn">1,345 이탈<span>전량 청산</span></div><div class="pt__v"><span>1주</span><b>32%</b></div><div class="pt__v"><span>2주</span><b>45%</b></div><div class="pt__v"><span>3주</span><b>51%</b></div><div class="pt__v"><span>4주</span><b>54%</b></div></div></div>
-      <p class="probs__note">일간 실현변동성 <b>0.55%</b> (연율 8.7%, 최근 39개 수익률)와
-      분석 기대값(한 달 <b>+1.1%</b>)을 드리프트로 둔 로그정규 모델 추정치입니다.
-      시장이 이 가정대로 움직인다는 보장은 없고, 이벤트 리스크는 반영되지 않습니다.</p>
+      <h3 class="wh">이 날짜만 보면 됩니다</h3>
+      <ul class="cal"><li><span class="d">9/4 금</span><span class="t"><b>미 8월 고용지표</b><span>내일 발표. 서프라이즈 시 FOMC 확률이 가장 먼저 흔들리는 변수.</span></span></li><li><span class="d">9/11 금</span><span class="t"><b>미국 CPI</b><span>FOMC 확률이 마지막으로 조정되는 지점. 1차 매도 기한과 같은 날.</span></span></li><li class="key"><span class="d">9/16 수</span><span class="t"><b>FOMC</b><span>한국시간 9/17 새벽 3시. 이번 달 전부가 여기 걸려 있습니다.</span></span></li><li><span class="d">9/25–30</span><span class="t"><b>분기말 수출 네고</b><span>계절적 하락 압력. 매도를 마쳐야 하는 구간.</span></span></li><li><span class="d">10/1–2</span><span class="t"><b>9월 수출입 통계</b><span>잔여 물량 정리 마감.</span></span></li></ul>
+      <h3 class="wh">체결 비용도 환율입니다</h3>
+      <div class="tips"><ul><li>달러예금 보유 중이면 <b>전신환 매도(스프레드 약 1%)</b>가 현찰(약 1.75%)보다 유리합니다.</li><li>환율우대 90% 적용 시 1만 달러 기준 약 <b>12만원</b> 차이 — 환율 12원 움직임과 같은 크기입니다.</li><li>은행 앱의 <b>지정가 자동환전</b>을 걸어두면 새벽 스파이크를 자는 동안 잡습니다.</li></ul></div>
     </div>
+  </details>
 </section>
 
-<section>
-  <h2>매도 사다리</h2>
-  <p class="lede">가격 축은 실제 눈금입니다. 각 블록의 높이가 그 구간의 실제 폭이고, 굵은 선이 현재가입니다.</p>
-  <div class="ladder"><div class="ladder__axis" id="axis"></div><div class="ladder__field" id="field"><div class="zone zone--t2" style="bottom:76.9%; height:11.5%"><div class="zone__in"><div class="zone__hd"><span class="zone__pct">20%</span><span class="zone__ttl">2차 — FOMC 직후</span><span class="zone__px">1,390 – 1,405</span></div><div class="zone__note">9/17~9/25. 인상 시 나오는 스파이크를 받는 구간. 지정가 1,390을 미리 걸어두면 한국시간 새벽 급등을 놓치지 않습니다.</div></div></div><div class="zone zone--t2" style="bottom:57.7%; height:10.0%"><div class="zone__in"><div class="zone__hd"><span class="zone__pct">30%</span><span class="zone__ttl">1차 — 단기 되돌림</span><span class="zone__px">1,365 – 1,378</span></div><div class="zone__note">기한 9/11. 그날까지 이 구간에 닿지 않으면 시장가로 집행.</div></div></div><div class="zone zone--cut" style="bottom:11.5%; height:30.8%"><div class="zone__in"><div class="zone__hd"><span class="zone__pct">전량</span><span class="zone__ttl">하락추세 재개</span><span class="zone__px">1,305 – 1,345</span></div><div class="zone__note">여기서는 기다릴수록 손해입니다. 미련 없이 청산.</div></div></div><div class="nowline" style="bottom:53.2%"><span class="nowline__tag">현재 1,359.10</span></div></div></div>
-  <p class="ladder__caption">남는 <b>10%</b>는 9/30~10/2에 잔여 정리. 분기말 네고로 다시 눌릴 수 있어 10/2가 마감 기한입니다.</p>
-</section>
-
-<section>
-  <h2>이 날짜만 보면 됩니다</h2>
-  <ul class="cal"><li><span class="d">9/4 금</span><span class="t"><b>미 8월 고용지표</b><span>내일 발표. 서프라이즈 시 FOMC 확률이 가장 먼저 흔들리는 변수.</span></span></li><li><span class="d">9/11 금</span><span class="t"><b>미국 CPI</b><span>FOMC 확률이 마지막으로 조정되는 지점. 1차 매도 기한과 같은 날.</span></span></li><li class="key"><span class="d">9/16 수</span><span class="t"><b>FOMC</b><span>한국시간 9/17 새벽 3시. 이번 달 전부가 여기 걸려 있습니다.</span></span></li><li><span class="d">9/25–30</span><span class="t"><b>분기말 수출 네고</b><span>계절적 하락 압력. 매도를 마쳐야 하는 구간.</span></span></li><li><span class="d">10/1–2</span><span class="t"><b>9월 수출입 통계</b><span>잔여 물량 정리 마감.</span></span></li></ul>
-</section>
-
-<section>
-  <h2>체결 비용도 환율입니다</h2>
-  <div class="tips"><ul><li>달러예금 보유 중이면 <b>전신환 매도(스프레드 약 1%)</b>가 현찰(약 1.75%)보다 유리합니다.</li><li>환율우대 90% 적용 시 1만 달러 기준 약 <b>12만원</b> 차이 — 환율 12원 움직임과 같은 크기입니다.</li><li>은행 앱의 <b>지정가 자동환전</b>을 걸어두면 새벽 스파이크를 자는 동안 잡습니다.</li></ul></div>
-</section>
-
-<footer style="padding-top:44px">
+<footer style="padding-top:40px">
   <p class="eyebrow" style="margin-bottom:6px">출처</p>
   <ul class="srcs"><li><a href="https://m.stock.naver.com/marketindex/exchange/FX_USDKRW" rel="noopener">네이버 금융 — USD/KRW 매매기준율</a></li><li><a href="https://www.mt.co.kr/economy/2026/09/03/2026090315402477347" rel="noopener">머니투데이 — 반도체 호황에 달러 쌓인다, 환율 14개월 만에 1350원대</a></li><li><a href="https://www.edaily.co.kr/News/Read?newsId=03676886645576512" rel="noopener">이데일리 — 원·달러 환율 1355원까지 하락, 14개월 만에 최저</a></li><li><a href="https://www.g-enews.com/article/Finance/2026/08/20260827082446586bb91c46fcd_1" rel="noopener">글로벌이코노믹 — 한국은행 백투백 금리 인상, 기준금리 3.00%</a></li><li><a href="https://www.cnbc.com/2026/08/31/markets-see-warsh-endorsing-a-rate-hike-in-september-not-everyone-is-convinced.html" rel="noopener">CNBC — Markets see Warsh endorsing a rate hike in September</a></li><li><a href="https://www.forbes.com/sites/digital-assets/2026/08/31/cme-fedwatch-provides-a-66-chance-fed-will-hike-rates-in-september/" rel="noopener">Forbes — CME FedWatch provides a 66% chance Fed will hike rates in September</a></li><li><a href="https://v.daum.net/v/20260820180304951" rel="noopener">씨티 — 1390원 밑돌면 국민연금 환헤지 확대 중단 가능</a></li></ul>
   <p class="disc">공개 데이터 기반 자동 생성 리포트이며 투자 권유가 아닙니다. 환율 예측은 본질적으로 불확실하고, 분석은 매일 자동으로 재작성되므로 사람의 검토를 거치지 않습니다. 매매 판단의 책임은 이용자 본인에게 있습니다.</p>

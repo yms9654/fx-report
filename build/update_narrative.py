@@ -45,6 +45,14 @@ def build_prompt(data, prev):
 - 숫자는 문자열이 아니라 숫자로 쓴다.
 - sources 는 실제로 확인한 URL 3~8개.
 - 톤: 단정하고 구체적으로. 실행 가능한 가격과 날짜를 반드시 포함.
+
+## 분량 제한 (페이지가 복잡해지지 않도록 엄수)
+- ladder.zones[].note: 각 **60자 이내** 한 문장. 페이지에서 2줄로 잘린다.
+- forces.down / forces.up: 각 **최대 4개**. 항목당 60자 이내.
+- calendar: **최대 4개**. note 는 40자 이내.
+- tips: **최대 3개**.
+- scenario.up_text / dn_text: 각 80자 이내.
+- sub, headline: headline 은 20자 이내, sub 는 90자 이내.
 """
 
 

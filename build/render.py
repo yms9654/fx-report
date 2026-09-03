@@ -84,7 +84,6 @@ def probs_html(w):
             <div class="pw__seg s-up" style="flex:{max(x['up'],1)}"><span>{x['up']}%</span></div>
             <div class="pw__seg s-dn" style="flex:{max(x['dn'],1)}"><span>{x['dn']}%</span></div>
           </div>
-          <div class="pw__rng">{x['lo']:,.0f} – {x['hi']:,.0f}</div>
         </div>"""
     tgt = w["target"]
     trow = lambda key, cls, label, vals: (
@@ -98,8 +97,7 @@ def probs_html(w):
         touch += trow("t_dn", "dn", f'{NUM(w["stop"])} 이탈<span>전량 청산</span>', None)
     return f"""<div class="probs">
       <div class="pw pw--hd"><div class="pw__k">기간</div>
-        <div class="pw__bar"><span class="hd-up">오를 확률</span><span class="hd-dn">내릴 확률</span></div>
-        <div class="pw__rng">80% 구간</div></div>
+        <div class="pw__bar"><span class="hd-up">오를 확률</span><span class="hd-dn">내릴 확률</span></div></div>
       {rows}
       <div class="probs__split"><div class="probs__splitk">누적 도달 확률 — 기간 안에 한 번이라도 닿을 확률</div>{touch}</div>
       <p class="probs__note">일간 실현변동성 <b>{w['sig_d']:.2f}%</b> (연율 {w['sig_a']:.1f}%, 최근 {w['n']}개 수익률)와
@@ -123,21 +121,23 @@ def decide(px, nar):
     hit_cut = zone_at(cuts) or (cuts[0] if px <= stop and cuts else None)
     hit_sell = zone_at(sells)
 
+    cur = ("현재", f"<b>{px:,.2f}</b>", "", "")
+
     if hit_cut:
         return ("cut", "판다", "잔여 전량",
                 f"손절선 <b>{NUM(stop)}</b>을 이탈했습니다. 계획대로라면 여기서는 "
                 f"버티지 않고 남은 물량을 전부 정리합니다.",
-                [("현재", f"<b>{px:,.2f}</b> — 손절선 대비 {px-stop:+,.1f}원", "", "dn")])
+                [cur, ("손절", f"<b>{NUM(stop)}</b> 이탈함", f"{px-stop:+,.1f}원", "dn")])
 
     if hit_sell:
         return ("sell", "판다", f"{hit_sell['pct']} 매도",
                 f"{E(hit_sell['title'])} 구간(<b>{NUM(hit_sell['lo'])}–{NUM(hit_sell['hi'])}</b>)에 "
                 f"들어왔습니다. 계획 비중 <b>{E(hit_sell['pct'])}</b>를 지금 집행합니다.",
-                [("현재", f"<b>{px:,.2f}</b>", "", "up")])
+                [cur, ("구간", f"<b>{NUM(hit_sell['lo'])}–{NUM(hit_sell['hi'])}</b> 안", "", "up")])
 
     # 대기: 위로 가장 가까운 매도 구간과 아래 손절까지의 거리를 보여준다
     nxt = next((z for z in sells if float(z["lo"]) > px), None)
-    rows = []
+    rows = [cur]
     if nxt:
         d = float(nxt["lo"]) - px
         rows.append(("다음", f"<b>{NUM(nxt['lo'])}</b> 도달 → {E(nxt['pct'])} 매도",
@@ -209,23 +209,9 @@ def main():
         + (f'<span class="now__amt">{amt}</span>' if amt else "")
         + f'</div><p class="now__why">{why}</p>'
         f'<div class="now__rows">{rows_html}</div>'
-        f'{gauge(px, nar)}</div>')
-    S["HEADLINE"] = (E(nar["headline"]) +
-                     (f'<br><span class="thin">{E(nar["headline_thin"])}</span>'
-                      if nar.get("headline_thin") else ""))
-    S["SUB"] = E(nar["sub"])
-    S["PXDATE"] = pxdate.replace("-", ".")
+        f'</div>')
     ip, fp = f"{px:,.2f}".split(".")
-    S["PXBIG"] = f'{ip}<span style="font-size:.5em">.{fp}</span>'
-    S["PXROW"] = (
-        f'<span>전일비 <b class="{chg_cls}">{chg:+.2f}</b></span>'
-        f'<span>52주 <b>{data["w52"]["lo"]:,.2f} – {data["w52"]["hi"]:,.2f}</b></span>'
-        f'<span>{data["span_days"]}영업일 <b>{data["span_pct"]:+.1f}%</b></span>')
-    S["BAND"] = f'{NUM(nar["verdict"]["band_lo"])} – {NUM(nar["verdict"]["band_hi"])}'
-    S["VERDICT"] = "".join(f"<p>{p}</p>" for p in nar["verdict"]["paras"])
-    S["CHARTLEDE"] = E(nar.get("chart_lede", ""))
     S["NDAYS"] = str(data["span_days"])
-    S["FORCELEDE"] = E(nar.get("force_lede", ""))
 
     def force(side, cls, title, direction):
         items = "".join(
@@ -238,7 +224,6 @@ def main():
                    force("up", "up", "달러 강세", "환율 상승 압력"))
 
     sc = nar["scenario"]
-    S["SCENLEDE"] = E(nar.get("scen_lede", ""))
     S["SCENARIO"] = f"""<div class="scen">
       <div class="probbar" role="img" aria-label="{E(sc['up_label'])} {sc['up_prob']}퍼센트, {E(sc['dn_label'])} {100-sc['up_prob']}퍼센트">
         <div class="p-up" style="flex:{sc['up_prob']}">{sc['up_prob']}% {E(sc['up_label'])}</div>
@@ -278,7 +263,6 @@ def main():
                    f'<div class="ladder__field" id="field">{zones}'
                    f'<div class="nowline" style="bottom:{npos:.1f}%">'
                    f'<span class="nowline__tag">현재 {px:,.2f}</span></div></div></div>')
-    S["LADDERCAP"] = nar.get("ladder_caption", "")
 
     S["CALENDAR"] = "".join(
         f'<li{" class=\"key\"" if c.get("key") else ""}><span class="d">{E(c["d"])}</span>'
