@@ -1,11 +1,111 @@
 #!/usr/bin/env python3
 """data.json + narrative.json -> docs/index.html"""
-import json, sys, html, pathlib, datetime, zoneinfo
+import json, sys, html, math, pathlib, datetime, statistics, zoneinfo
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 KST = zoneinfo.ZoneInfo("Asia/Seoul")
 E = lambda s: html.escape(str(s), quote=False)
 NUM = lambda v: f"{float(v):,.0f}"
+
+
+
+# ---------- 주간 확률 (실현변동성 + 분석 기대값 드리프트) ----------
+PHI = lambda z: 0.5 * (1.0 + math.erf(z / math.sqrt(2.0)))
+TD_WEEK, TD_MONTH, Z80 = 5, 21, 1.2816
+
+
+def _touch_up(b, mu, sig, T):
+    """b>0 (로그거리). 기간 내 상단 배리어를 한 번이라도 건드릴 확률."""
+    sT = sig * math.sqrt(T)
+    if sT <= 0:
+        return 1.0 if mu * T >= b else 0.0
+    p = PHI((mu * T - b) / sT) + math.exp(min(2 * mu * b / sig ** 2, 700)) * PHI((-b - mu * T) / sT)
+    return min(max(p, 0.0), 1.0)
+
+
+def _touch_dn(b, mu, sig, T):
+    """b<0. 기간 내 하단 배리어를 한 번이라도 건드릴 확률."""
+    sT = sig * math.sqrt(T)
+    if sT <= 0:
+        return 1.0 if mu * T <= b else 0.0
+    p = PHI((b - mu * T) / sT) + math.exp(min(2 * mu * b / sig ** 2, 700)) * PHI((b + mu * T) / sT)
+    return min(max(p, 0.0), 1.0)
+
+
+def weekly_probs(data, nar, px):
+    closes = [r["c"] for r in data["series"]]
+    rets = [math.log(b / a) for a, b in zip(closes, closes[1:]) if a > 0 and b > 0]
+    if len(rets) < 10:
+        return None
+    sig = statistics.stdev(rets)                     # 일간 실현변동성
+    if sig <= 0:
+        return None
+    ev = float(nar["scenario"]["ev"])
+    mu = math.log(ev / px) / TD_MONTH                # 한 달 기대값 → 일간 드리프트
+
+    sells = sorted((z for z in nar["ladder"]["zones"] if z["kind"] == "sell"),
+                   key=lambda z: float(z["lo"]))
+    nxt = next((z for z in sells if float(z["lo"]) > px), sells[-1] if sells else None)
+    stop = float(nar["triggers"]["stop"])
+    b_up = math.log(float(nxt["lo"]) / px) if nxt else None
+    b_dn = math.log(stop / px)
+
+    weeks = []
+    base = datetime.date.fromisoformat(data["latest"]["d"])
+    for k in range(1, 5):
+        T = TD_WEEK * k
+        sT, mT = sig * math.sqrt(T), mu * T
+        up = PHI(mT / sT)
+        weeks.append({
+            "k": k,
+            "until": (base + datetime.timedelta(days=7 * k)).strftime("%m/%d"),
+            "up": round(up * 100),
+            "dn": round((1 - up) * 100),
+            "lo": px * math.exp(mT - Z80 * sT),
+            "hi": px * math.exp(mT + Z80 * sT),
+            "t_up": round(_touch_up(b_up, mu, sig, T) * 100) if b_up and b_up > 0 else None,
+            "t_dn": round(_touch_dn(b_dn, mu, sig, T) * 100) if b_dn < 0 else None,
+        })
+    return {"weeks": weeks, "sig_d": sig * 100, "sig_a": sig * math.sqrt(252) * 100,
+            "mu_m": (math.exp(mu * TD_MONTH) - 1) * 100, "n": len(rets),
+            "target": float(nxt["lo"]) if nxt else None, "target_pct": nxt["pct"] if nxt else None,
+            "stop": stop}
+
+
+def probs_html(w):
+    if not w:
+        return '<p class="lede">확률 계산에 필요한 데이터가 부족합니다.</p>'
+    rows = ""
+    for x in w["weeks"]:
+        lead = "up" if x["up"] >= x["dn"] else "dn"
+        rows += f"""<div class="pw">
+          <div class="pw__k">{x['k']}주<span>~{x['until']}</span></div>
+          <div class="pw__bar">
+            <div class="pw__seg s-up" style="flex:{max(x['up'],1)}"><span>{x['up']}%</span></div>
+            <div class="pw__seg s-dn" style="flex:{max(x['dn'],1)}"><span>{x['dn']}%</span></div>
+          </div>
+          <div class="pw__rng">{x['lo']:,.0f} – {x['hi']:,.0f}</div>
+        </div>"""
+    tgt = w["target"]
+    trow = lambda key, cls, label, vals: (
+        f'<div class="pt"><div class="pt__k {cls}">{label}</div>'
+        + "".join(f'<div class="pt__v"><span>{x["k"]}주</span>'
+                  f'<b>{x[key]}%</b></div>' for x in w["weeks"]) + '</div>')
+    touch = ""
+    if tgt and w["weeks"][0]["t_up"] is not None:
+        touch += trow("t_up", "up", f'{NUM(tgt)} 터치<span>{E(w["target_pct"])} 매도</span>', None)
+    if w["weeks"][0]["t_dn"] is not None:
+        touch += trow("t_dn", "dn", f'{NUM(w["stop"])} 이탈<span>전량 청산</span>', None)
+    return f"""<div class="probs">
+      <div class="pw pw--hd"><div class="pw__k">기간</div>
+        <div class="pw__bar"><span class="hd-up">오를 확률</span><span class="hd-dn">내릴 확률</span></div>
+        <div class="pw__rng">80% 구간</div></div>
+      {rows}
+      <div class="probs__split"><div class="probs__splitk">누적 도달 확률 — 기간 안에 한 번이라도 닿을 확률</div>{touch}</div>
+      <p class="probs__note">일간 실현변동성 <b>{w['sig_d']:.2f}%</b> (연율 {w['sig_a']:.1f}%, 최근 {w['n']}개 수익률)와
+      분석 기대값(한 달 <b>{w['mu_m']:+.1f}%</b>)을 드리프트로 둔 로그정규 모델 추정치입니다.
+      시장이 이 가정대로 움직인다는 보장은 없고, 이벤트 리스크는 반영되지 않습니다.</p>
+    </div>"""
 
 
 def decide(px, nar):
@@ -155,6 +255,8 @@ def main():
         <div><div class="k">한 달 예상 범위</div><div class="v">{NUM(sc['range_lo'])} – {NUM(sc['range_hi'])}</div></div>
         <div><div class="k">현재가 대비</div><div class="v" style="color:var(--{'up' if sc['ev']>=px else 'down'})">{sc['ev']-px:+,.0f}원</div></div>
       </div></div>"""
+
+    S["PROBS"] = probs_html(weekly_probs(data, nar, px))
 
     lad = nar["ladder"]
     alo, ahi = float(lad["lo"]), float(lad["hi"])

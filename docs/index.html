@@ -269,6 +269,38 @@ a:focus-visible,summary:focus-visible{outline:2px solid var(--up); outline-offse
 .metabar__verb{font-weight:700; letter-spacing:-.01em}
 .metabar__verb.v-sell{color:var(--up)} .metabar__verb.v-cut{color:var(--down)}
 
+
+/* ---------- 주간 확률 ---------- */
+.probs{background:var(--card); border:1px solid var(--rule); border-radius:3px; padding:22px 24px; box-shadow:var(--shadow)}
+.pw{display:grid; grid-template-columns:78px 1fr 108px; gap:16px; align-items:center; padding:7px 0}
+@media (max-width:640px){.pw{grid-template-columns:62px 1fr; gap:10px} .pw__rng{grid-column:2; text-align:left; padding-left:2px}}
+.pw--hd{padding-bottom:10px; border-bottom:1px solid var(--rule); margin-bottom:6px}
+.pw--hd .pw__k,.pw--hd .pw__rng{font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted)}
+.pw--hd .pw__bar{display:flex; justify-content:space-between; background:none; height:auto}
+.pw--hd .pw__bar span{font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.12em; text-transform:uppercase}
+.hd-up{color:var(--up)} .hd-dn{color:var(--down)}
+.pw__k{font-family:"IBM Plex Mono",monospace; font-size:14px; font-weight:600; letter-spacing:-.01em}
+.pw__k span{display:block; font-size:10.5px; font-weight:400; color:var(--muted); letter-spacing:0}
+.pw__bar{display:flex; gap:2px; height:30px; border-radius:2px; overflow:hidden}
+.pw__seg{display:flex; align-items:center; min-width:0; padding:0 9px}
+.pw__seg span{font-family:"IBM Plex Mono",monospace; font-size:12.5px; font-weight:600; color:#fff; white-space:nowrap}
+.pw__seg.s-up{background:var(--up)}
+.pw__seg.s-dn{background:var(--down); justify-content:flex-end}
+.pw__rng{font-family:"IBM Plex Mono",monospace; font-size:12.5px; color:var(--ink-2); text-align:right; letter-spacing:-.01em}
+.probs__split{margin-top:22px; padding-top:18px; border-top:1px solid var(--rule)}
+.probs__splitk{font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); margin-bottom:12px}
+.pt{display:grid; grid-template-columns:150px repeat(4,1fr); gap:10px; align-items:center; padding:8px 0; border-top:1px solid var(--rule-soft)}
+.pt:first-of-type{border-top:0}
+@media (max-width:640px){.pt{grid-template-columns:1fr 1fr; gap:6px} .pt__k{grid-column:1/-1}}
+.pt__k{font-family:"IBM Plex Mono",monospace; font-size:13px; font-weight:600; letter-spacing:-.01em}
+.pt__k.up{color:var(--up)} .pt__k.dn{color:var(--down)}
+.pt__k span{display:block; font-family:"IBM Plex Sans KR",sans-serif; font-size:11px; font-weight:400; color:var(--muted); letter-spacing:0}
+.pt__v{display:flex; align-items:baseline; gap:6px}
+.pt__v span{font-family:"IBM Plex Mono",monospace; font-size:10px; color:var(--muted); letter-spacing:.06em}
+.pt__v b{font-family:"IBM Plex Mono",monospace; font-size:16px; font-weight:600; letter-spacing:-.02em}
+.probs__note{margin:20px 0 0; padding-top:14px; border-top:1px solid var(--rule-soft); font-size:12.5px; color:var(--muted); line-height:1.6}
+.probs__note b{color:var(--ink-2); font-weight:600; font-family:"IBM Plex Mono",monospace}
+
 </style>
 </head>
 <body>
@@ -347,6 +379,49 @@ a:focus-visible,summary:focus-visible{outline:2px solid var(--up); outline-offse
         <div><div class="k">한 달 예상 범위</div><div class="v">1,325 – 1,405</div></div>
         <div><div class="k">현재가 대비</div><div class="v" style="color:var(--up)">+15원</div></div>
       </div></div>
+</section>
+
+<section>
+  <h2>주간 확률</h2>
+  <p class="lede">앞으로 4주, 각 시점에 지금보다 위에 있을 확률과 아래에 있을 확률. 아래쪽은 그 기간 안에 계획 가격을 한 번이라도 건드릴 확률입니다.</p>
+  <div class="probs">
+      <div class="pw pw--hd"><div class="pw__k">기간</div>
+        <div class="pw__bar"><span class="hd-up">오를 확률</span><span class="hd-dn">내릴 확률</span></div>
+        <div class="pw__rng">80% 구간</div></div>
+      <div class="pw">
+          <div class="pw__k">1주<span>~09/10</span></div>
+          <div class="pw__bar">
+            <div class="pw__seg s-up" style="flex:58"><span>58%</span></div>
+            <div class="pw__seg s-dn" style="flex:42"><span>42%</span></div>
+          </div>
+          <div class="pw__rng">1,341 – 1,384</div>
+        </div><div class="pw">
+          <div class="pw__k">2주<span>~09/17</span></div>
+          <div class="pw__bar">
+            <div class="pw__seg s-up" style="flex:62"><span>62%</span></div>
+            <div class="pw__seg s-dn" style="flex:38"><span>38%</span></div>
+          </div>
+          <div class="pw__rng">1,336 – 1,397</div>
+        </div><div class="pw">
+          <div class="pw__k">3주<span>~09/24</span></div>
+          <div class="pw__bar">
+            <div class="pw__seg s-up" style="flex:64"><span>64%</span></div>
+            <div class="pw__seg s-dn" style="flex:36"><span>36%</span></div>
+          </div>
+          <div class="pw__rng">1,333 – 1,407</div>
+        </div><div class="pw">
+          <div class="pw__k">4주<span>~10/01</span></div>
+          <div class="pw__bar">
+            <div class="pw__seg s-up" style="flex:66"><span>66%</span></div>
+            <div class="pw__seg s-dn" style="flex:34"><span>34%</span></div>
+          </div>
+          <div class="pw__rng">1,331 – 1,417</div>
+        </div>
+      <div class="probs__split"><div class="probs__splitk">누적 도달 확률 — 기간 안에 한 번이라도 닿을 확률</div><div class="pt"><div class="pt__k up">1,365 터치<span>30% 매도</span></div><div class="pt__v"><span>1주</span><b>78%</b></div><div class="pt__v"><span>2주</span><b>86%</b></div><div class="pt__v"><span>3주</span><b>89%</b></div><div class="pt__v"><span>4주</span><b>92%</b></div></div><div class="pt"><div class="pt__k dn">1,345 이탈<span>전량 청산</span></div><div class="pt__v"><span>1주</span><b>32%</b></div><div class="pt__v"><span>2주</span><b>45%</b></div><div class="pt__v"><span>3주</span><b>51%</b></div><div class="pt__v"><span>4주</span><b>54%</b></div></div></div>
+      <p class="probs__note">일간 실현변동성 <b>0.55%</b> (연율 8.7%, 최근 39개 수익률)와
+      분석 기대값(한 달 <b>+1.1%</b>)을 드리프트로 둔 로그정규 모델 추정치입니다.
+      시장이 이 가정대로 움직인다는 보장은 없고, 이벤트 리스크는 반영되지 않습니다.</p>
+    </div>
 </section>
 
 <section>
