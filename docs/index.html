@@ -1,0 +1,399 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>USD/KRW 매도 타이밍 리포트</title>
+<meta name="description" content="원/달러 환율 매도 전략 — 매일 자동 갱신">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+
+:root{
+  --bg:#EDEFF3; --card:#FFFFFF; --ink:#121A24; --ink-2:#3C4757; --muted:#697485;
+  --rule:#D7DBE2; --rule-soft:#E6E9EE;
+  --up:#C8342B; --down:#2062C4;
+  --up-wash:rgba(200,52,43,.10); --down-wash:rgba(32,98,196,.10);
+  --up-edge:rgba(200,52,43,.32); --down-edge:rgba(32,98,196,.32);
+  --shadow:0 1px 2px rgba(18,26,36,.06), 0 8px 24px -12px rgba(18,26,36,.16);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0E1218; --card:#151B23; --ink:#E7EBF1; --ink-2:#BAC4D0; --muted:#8B96A5;
+    --rule:#242D3A; --rule-soft:#1D2530;
+    --up:#E4574B; --down:#4E90F5;
+    --up-wash:rgba(228,87,75,.14); --down-wash:rgba(78,144,245,.14);
+    --up-edge:rgba(228,87,75,.38); --down-edge:rgba(78,144,245,.38);
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.6);
+  }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:"IBM Plex Sans KR",system-ui,-apple-system,sans-serif;
+  font-weight:400; line-height:1.65; letter-spacing:-.005em;
+  font-feature-settings:"tnum" 1;
+}
+.mono{font-family:"IBM Plex Mono",ui-monospace,monospace}
+.wrap{max-width:960px; margin:0 auto; padding:0 20px 80px}
+
+/* ---------- meta bar ---------- */
+.metabar{
+  border-bottom:1px solid var(--rule); background:var(--card);
+  position:sticky; top:0; z-index:20;
+}
+.metabar__in{
+  max-width:960px; margin:0 auto; padding:11px 20px;
+  display:flex; gap:16px; align-items:baseline; justify-content:space-between;
+  font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.09em;
+  text-transform:uppercase; color:var(--muted);
+}
+.metabar strong{color:var(--ink); font-weight:600}
+.metabar__px{color:var(--ink); font-weight:600; letter-spacing:.02em; text-transform:none; font-size:12px}
+.metabar__px .dn{color:var(--down)}
+
+/* ---------- hero ---------- */
+.hero{padding:56px 0 40px; border-bottom:1px solid var(--rule)}
+.eyebrow{
+  font-family:"IBM Plex Mono",monospace; font-size:11px; font-weight:500;
+  letter-spacing:.16em; text-transform:uppercase; color:var(--muted); margin:0 0 18px;
+}
+h1{
+  font-size:clamp(30px,5.4vw,50px); line-height:1.12; font-weight:700;
+  letter-spacing:-.03em; margin:0 0 8px;
+}
+h1 .thin{font-weight:300; color:var(--ink-2)}
+.hero__sub{margin:0 0 40px; color:var(--ink-2); font-size:16px; max-width:48ch}
+
+.readout{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.15fr); gap:28px; align-items:end}
+@media (max-width:720px){.readout{grid-template-columns:1fr; gap:32px}}
+.px__label{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); margin-bottom:6px}
+.px__big{
+  font-family:"IBM Plex Mono",monospace; font-weight:600;
+  font-size:clamp(52px,11vw,84px); line-height:.92; letter-spacing:-.045em;
+  display:block; margin-bottom:14px;
+}
+.px__row{display:flex; flex-wrap:wrap; gap:8px 20px; font-family:"IBM Plex Mono",monospace; font-size:12.5px; color:var(--muted)}
+.px__row b{color:var(--ink-2); font-weight:500}
+
+.verdict{
+  background:var(--card); border:1px solid var(--rule); border-left:3px solid var(--up);
+  border-radius:3px; padding:22px 24px; box-shadow:var(--shadow);
+}
+.verdict__k{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); margin-bottom:12px}
+.verdict__band{font-family:"IBM Plex Mono",monospace; font-size:clamp(24px,4.6vw,32px); font-weight:600; letter-spacing:-.02em; color:var(--up); line-height:1.1; margin-bottom:10px}
+.verdict p{margin:0; font-size:14.5px; color:var(--ink-2); line-height:1.6}
+.verdict p + p{margin-top:8px}
+.verdict .cut{color:var(--down); font-weight:600}
+
+/* ---------- sections ---------- */
+section{padding:52px 0; border-bottom:1px solid var(--rule)}
+section:last-of-type{border-bottom:0}
+h2{font-size:23px; font-weight:600; letter-spacing:-.02em; margin:0 0 6px}
+.lede{margin:0 0 30px; color:var(--muted); font-size:14.5px; max-width:62ch}
+
+/* ---------- chart ---------- */
+.chart{position:relative; background:var(--card); border:1px solid var(--rule); border-radius:3px; padding:18px 14px 8px; box-shadow:var(--shadow)}
+.chart svg{display:block; width:100%; height:auto; overflow:visible}
+.tt{
+  position:absolute; pointer-events:none; opacity:0; transition:opacity .12s;
+  background:var(--card); border:1px solid var(--rule); border-radius:3px;
+  padding:8px 11px; box-shadow:var(--shadow); font-family:"IBM Plex Mono",monospace;
+  font-size:12px; white-space:nowrap; transform:translate(-50%,-124%); z-index:5;
+}
+.tt b{display:block; font-size:15px; font-weight:600; letter-spacing:-.01em}
+.tt i{font-style:normal; color:var(--muted); font-size:10.5px; letter-spacing:.08em}
+details.tbl{margin-top:16px}
+details.tbl summary{
+  cursor:pointer; font-family:"IBM Plex Mono",monospace; font-size:11px;
+  letter-spacing:.12em; text-transform:uppercase; color:var(--muted); padding:6px 0;
+}
+details.tbl summary:hover{color:var(--ink)}
+table{border-collapse:collapse; width:100%; margin-top:10px; font-family:"IBM Plex Mono",monospace; font-size:12px}
+th,td{text-align:right; padding:5px 10px; border-bottom:1px solid var(--rule-soft)}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--muted); font-weight:500; letter-spacing:.08em; text-transform:uppercase; font-size:10px}
+
+/* ---------- tug of war ---------- */
+.tug{display:grid; grid-template-columns:1fr 1fr; gap:18px}
+@media (max-width:720px){.tug{grid-template-columns:1fr}}
+.force{background:var(--card); border:1px solid var(--rule); border-radius:3px; padding:20px 22px; box-shadow:var(--shadow)}
+.force--dn{border-top:3px solid var(--down)}
+.force--up{border-top:3px solid var(--up)}
+.force h3{margin:0 0 3px; font-size:14px; font-weight:600; letter-spacing:-.01em}
+.force--dn h3{color:var(--down)} .force--up h3{color:var(--up)}
+.force .dir{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); margin-bottom:16px}
+.force ul{margin:0; padding:0; list-style:none}
+.force li{padding:9px 0; border-top:1px solid var(--rule-soft); font-size:14px; color:var(--ink-2); display:flex; gap:10px; align-items:baseline}
+.force li:first-child{border-top:0; padding-top:0}
+.force li .tag{
+  flex:none; font-family:"IBM Plex Mono",monospace; font-size:9.5px; font-weight:500;
+  letter-spacing:.08em; padding:2px 5px; border-radius:2px; text-transform:uppercase;
+}
+.tag--new{background:var(--up-wash); color:var(--up); border:1px solid var(--up-edge)}
+.tag--std{background:var(--rule-soft); color:var(--muted); border:1px solid var(--rule)}
+
+/* ---------- scenario ---------- */
+.scen{background:var(--card); border:1px solid var(--rule); border-radius:3px; padding:24px; box-shadow:var(--shadow)}
+.probbar{display:flex; height:38px; border-radius:2px; overflow:hidden; gap:2px; margin-bottom:14px}
+.probbar > div{display:flex; align-items:center; padding:0 14px; font-family:"IBM Plex Mono",monospace; font-size:13px; font-weight:600; color:#fff}
+.probbar .p-up{background:var(--up); flex:60}
+.probbar .p-dn{background:var(--down); flex:40}
+.scen__grid{display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-top:20px}
+@media (max-width:640px){.scen__grid{grid-template-columns:1fr}}
+.scen__col h4{margin:0 0 4px; font-size:13.5px; font-weight:600}
+.scen__col.up h4{color:var(--up)} .scen__col.dn h4{color:var(--down)}
+.scen__col p{margin:0; font-size:14px; color:var(--ink-2)}
+.scen__col .rng{font-family:"IBM Plex Mono",monospace; font-size:19px; font-weight:600; letter-spacing:-.02em; display:block; margin:8px 0 4px}
+.ev{margin-top:22px; padding-top:18px; border-top:1px solid var(--rule); display:flex; flex-wrap:wrap; gap:26px}
+.ev div .k{font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted)}
+.ev div .v{font-family:"IBM Plex Mono",monospace; font-size:20px; font-weight:600; letter-spacing:-.02em}
+
+/* ---------- SIGNATURE: 매도 사다리 ---------- */
+.ladder{
+  position:relative; display:grid; grid-template-columns:76px 1fr; gap:0;
+  background:var(--card); border:1px solid var(--rule); border-radius:3px;
+  padding:26px 26px 26px 14px; box-shadow:var(--shadow); height:560px;
+}
+@media (max-width:720px){.ladder{height:640px; grid-template-columns:62px 1fr; padding-right:16px}}
+.ladder__axis{position:relative; border-right:1px solid var(--rule)}
+.ladder__tick{position:absolute; right:10px; transform:translateY(50%); font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--muted); letter-spacing:-.01em}
+.ladder__field{position:relative}
+.ladder__grid{position:absolute; left:0; right:0; border-top:1px dashed var(--rule-soft)}
+.zone{position:absolute; left:0; right:0; border-radius:2px}
+.zone--t2{background:var(--up-wash); border:1px solid var(--up-edge)}
+.zone--t1{background:var(--up-wash); border:1px solid var(--up-edge)}
+.zone--cut{background:var(--down-wash); border:1px solid var(--down-edge)}
+.zone__in{position:absolute; left:14px; right:14px; top:50%; transform:translateY(-50%)}
+.zone__hd{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; margin-bottom:2px}
+.zone__pct{font-family:"IBM Plex Mono",monospace; font-size:26px; font-weight:700; letter-spacing:-.03em; line-height:1}
+.zone--t2 .zone__pct,.zone--t1 .zone__pct{color:var(--up)}
+.zone--cut .zone__pct{color:var(--down); font-size:20px}
+.zone__ttl{font-size:14px; font-weight:600}
+.zone__px{font-family:"IBM Plex Mono",monospace; font-size:12.5px; color:var(--ink-2); font-weight:500}
+.zone__note{font-size:12.5px; color:var(--muted); line-height:1.5; margin-top:3px}
+.nowline{position:absolute; left:-76px; right:0; height:0; border-top:2px solid var(--ink); z-index:3}
+@media (max-width:720px){.nowline{left:-62px}}
+.nowline__tag{
+  position:absolute; right:0; top:0; transform:translateY(-50%);
+  background:var(--ink); color:var(--card); font-family:"IBM Plex Mono",monospace;
+  font-size:11.5px; font-weight:600; padding:3px 9px; border-radius:2px; letter-spacing:-.01em; white-space:nowrap;
+}
+.ladder__caption{margin-top:14px; font-size:13px; color:var(--muted)}
+
+/* ---------- calendar ---------- */
+.cal{list-style:none; margin:0; padding:0; border-top:1px solid var(--rule)}
+.cal li{display:grid; grid-template-columns:96px 1fr; gap:20px; padding:15px 0; border-bottom:1px solid var(--rule); align-items:baseline}
+@media (max-width:560px){.cal li{grid-template-columns:1fr; gap:4px}}
+.cal .d{font-family:"IBM Plex Mono",monospace; font-size:13px; font-weight:600; letter-spacing:-.01em}
+.cal .t{font-size:14.5px}
+.cal .t b{font-weight:600}
+.cal .t span{display:block; color:var(--muted); font-size:13px; margin-top:2px}
+.cal li.key .d{color:var(--up)}
+.cal li.key{background:var(--up-wash); margin:0 -14px; padding-left:14px; padding-right:14px}
+
+/* ---------- tips + footer ---------- */
+.tips{background:var(--card); border:1px solid var(--rule); border-radius:3px; padding:22px 24px; box-shadow:var(--shadow)}
+.tips ul{margin:0; padding-left:18px}
+.tips li{font-size:14.5px; color:var(--ink-2); padding:5px 0}
+.srcs{list-style:none; margin:14px 0 0; padding:0; columns:2; column-gap:32px}
+@media (max-width:640px){.srcs{columns:1}}
+.srcs li{break-inside:avoid; padding:4px 0; font-size:13px}
+.srcs a{color:var(--ink-2); text-decoration:none; border-bottom:1px solid var(--rule)}
+.srcs a:hover{color:var(--ink); border-color:var(--ink)}
+.disc{margin-top:34px; padding:16px 18px; border:1px solid var(--rule); border-radius:3px; font-size:13px; color:var(--muted); background:transparent}
+a:focus-visible,summary:focus-visible{outline:2px solid var(--up); outline-offset:3px; border-radius:2px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important; animation:none!important}}
+
+/* ---------- status banner (자동 트리거 판정) ---------- */
+.statusbar{margin:0 0 34px; border-radius:3px; padding:16px 20px; border:1px solid var(--rule); background:var(--card); box-shadow:var(--shadow); display:flex; gap:14px; align-items:flex-start}
+.statusbar.hit{border-left:3px solid var(--down); background:var(--down-wash)}
+.statusbar.near{border-left:3px solid var(--up); background:var(--up-wash)}
+.statusbar.calm{border-left:3px solid var(--rule)}
+.statusbar__k{flex:none; font-family:"IBM Plex Mono",monospace; font-size:10px; font-weight:600; letter-spacing:.14em; text-transform:uppercase; padding:3px 7px; border-radius:2px; margin-top:2px}
+.statusbar.hit .statusbar__k{background:var(--down); color:#fff}
+.statusbar.near .statusbar__k{background:var(--up); color:#fff}
+.statusbar.calm .statusbar__k{background:var(--rule); color:var(--muted)}
+.statusbar__t{font-size:14.5px; color:var(--ink); line-height:1.55}
+.statusbar__t b{font-weight:600}
+.statusbar__t span{display:block; color:var(--muted); font-size:13px; margin-top:3px; font-family:"IBM Plex Mono",monospace}
+.stamp{font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--muted); letter-spacing:-.01em}
+.stamp b{color:var(--ink-2); font-weight:500}
+.stale{color:var(--up); font-weight:600}
+.chg-up{color:var(--up)} .chg-dn{color:var(--down)}
+
+</style>
+</head>
+<body>
+
+<div class="metabar">
+  <div class="metabar__in">
+    <span><strong>USD/KRW</strong> 매도 타이밍 리포트</span>
+    <span class="metabar__px">1,357.70 <span class="chg-dn">-2.60</span> · 2026.09.03</span>
+  </div>
+</div>
+
+<div class="wrap">
+
+<header class="hero">
+  <p class="eyebrow">한 달 매도 전략 · 자동 갱신 2026.09.03</p>
+  <div class="statusbar calm"><span class="statusbar__k">대기</span><span class="statusbar__t">트리거 미발동. 1차 <b>1,372</b>까지 14.3원, 손절 <b>1,345</b>까지 12.7원.<span>1,345 &lt; 1,358 &lt; 1,372</span></span></div>
+  <h1>1,385~1,400에 판다.<br><span class="thin">축은 여전히 9월 16일 FOMC.</span></h1>
+  <p class="hero__sub">14개월 만의 최저치를 다시 갈아치웠습니다. 하락을 만든 반도체 수출기업의 네고 물량은 소진된 게 아니라 월말 집중에서 상시 출회로 바뀌었을 뿐입니다. 그래도 9월 16일 FOMC 인상 확률이 60%를 넘어선 건 살아있는 반등 재료입니다. 다만 지금 자리는 손절선에 바짝 붙어 있어, 관망보다 분할 매도가 안전합니다.</p>
+
+  <div class="readout">
+    <div>
+      <div class="px__label">현재가 2026.09.03</div>
+      <span class="px__big">1,357<span style="font-size:.5em">.70</span></span>
+      <div class="px__row"><span>전일비 <b class="chg-dn">-2.60</b></span><span>52주 <b>1,357.70 – 1,507.00</b></span><span>40영업일 <b>-9.9%</b></span></div>
+    </div>
+    <div class="verdict">
+      <div class="verdict__k">결론</div>
+      <div class="verdict__band">1,385 – 1,400</div>
+      <p>지금 <b>40%</b>만 시장가로 정리하고, 나머지 <b>60%</b>는 1,372 지정가로 걸어 FOMC 반등을 받습니다.</p><p><span class="cut">1,345 하향 이탈 시 즉시 전량 청산.</span> 미체결분은 10/2에 무조건 정리.</p>
+    </div>
+  </div>
+</header>
+
+<section id="chart">
+  <h2>최근 흐름</h2>
+  <p class="lede">7월 말 1,465에서 5주 넘게 이어진 하락 끝에 1,357원대, 14개월 최저치입니다. 하락을 만든 재료는 사라지지 않았고, 반등 재료만 새로 늘었습니다. 두 힘이 차트 위에 함께 있습니다.</p>
+  <div class="chart">
+    <svg id="svg" viewBox="0 0 1000 430" role="img" aria-label="원달러 환율 일별 종가 추이">
+      <g id="grid"></g><g id="events"></g>
+      <path id="line" fill="none" stroke="var(--ink)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"></path>
+      <g id="xlab"></g>
+      <line id="cross" y1="14" y2="366" stroke="var(--muted)" stroke-width="1" stroke-dasharray="3 3" opacity="0"></line>
+      <circle id="dot" r="5" fill="var(--ink)" stroke="var(--card)" stroke-width="2" opacity="0"></circle>
+      <rect id="hit" x="0" y="0" width="1000" height="430" fill="transparent" style="cursor:crosshair"></rect>
+    </svg>
+    <div class="tt" id="tt"><b></b><i></i></div>
+  </div>
+  <details class="tbl">
+    <summary>표로 보기 — 일별 종가 40영업일</summary>
+    <table><thead><tr><th>일자</th><th>종가</th><th>전일비</th></tr></thead><tbody id="tbody"></tbody></table>
+  </details>
+</section>
+
+<section>
+  <h2>지금의 힘겨루기</h2>
+  <p class="lede">네고 물량이 월말 집중에서 상시 출회로 바뀐 게 지난주 이후 가장 큰 변화입니다. 동시에 Fed의 매파 강도도 함께 세졌습니다.</p>
+  <div class="tug"><div class="force force--dn"><h3>원화 강세</h3><div class="dir">환율 하락 압력</div><ul><li><span class="tag tag--std">정책</span><span>한은 기준금리 <b>3.00%</b>로 2연속 인상 (7명 중 6명 찬성) → 한미 금리차 축소</span></li><li><span class="tag tag--new">수급</span><span>수출기업 네고 물량이 월말 집중에서 <b>상시 출회</b>로 전환 — 하단을 계속 눌러 14개월 최저 재경신</span></li><li><span class="tag tag--std">수출</span><span>반도체 수출 호조 지속, 무역흑자 기조 유지</span></li><li><span class="tag tag--std">자금</span><span>WGBI 편입에 따른 외국인 채권자금 유입</span></li></ul></div><div class="force force--up"><h3>달러 강세</h3><div class="dir">환율 상승 압력</div><ul><li><span class="tag tag--new">연준</span><span>Fed 매파 기조 지속 → <b>9/16 FOMC 인상 확률 60%대</b>로 재차 상승 (CME FedWatch, 지난주 40%→57%→60%대)</span></li><li><span class="tag tag--new">고용</span><span>9/4 미 8월 고용지표 발표 — 서프라이즈 시 FOMC 확률 급변동 가능</span></li><li><span class="tag tag--std">기술</span><span>5주 넘는 연속 하락으로 과매도 심화, 200주선(1,382) 큰 폭 이탈 후 되돌림 압력 확대</span></li><li><span class="tag tag--std">수급</span><span>1,357원대는 이미 국민연금 환헤지 중단 거론 구간(1,390) 아래 — 저가 매수 유입 가능성 (씨티)</span></li></ul></div></div>
+</section>
+
+<section>
+  <h2>한 달 뒤 어디에 있나</h2>
+  <p class="lede">9월 16일 FOMC 결과가 이번 달의 거의 전부지만, 9/4 고용지표와 9/11 CPI가 그 확률을 먼저 흔듭니다.</p>
+  <div class="scen">
+      <div class="probbar" role="img" aria-label="연준 인상 62퍼센트, 연준 동결 38퍼센트">
+        <div class="p-up" style="flex:62">62% 연준 인상</div>
+        <div class="p-dn" style="flex:38">38% 연준 동결</div>
+      </div>
+      <div class="scen__grid">
+        <div class="scen__col up"><h4>연준 인상</h4>
+          <span class="rng">1,385 – 1,405</span><p>달러 급반등, 1,390대 안착 시도. 다만 반도체 네고 물량이 상단을 계속 누를 가능성이 있어 예전만큼의 스파이크는 기대하기 어렵습니다.</p></div>
+        <div class="scen__col dn"><h4>연준 동결</h4>
+          <span class="rng">1,325 – 1,350</span><p>달러 재약세에 네고 물량까지 겹쳐 1,330원대까지 하향 이탈 가능. 기다린 물량은 지금보다 나쁜 값에 팔게 됩니다.</p></div>
+      </div>
+      <div class="ev">
+        <div><div class="k">확률가중 기대값</div><div class="v">1,374원</div></div>
+        <div><div class="k">한 달 예상 범위</div><div class="v">1,325 – 1,405</div></div>
+        <div><div class="k">현재가 대비</div><div class="v" style="color:var(--up)">+16원</div></div>
+      </div></div>
+</section>
+
+<section>
+  <h2>매도 사다리</h2>
+  <p class="lede">가격 축은 실제 눈금입니다. 각 블록의 높이가 그 구간의 실제 폭이고, 굵은 선이 현재가입니다.</p>
+  <div class="ladder"><div class="ladder__axis" id="axis"></div><div class="ladder__field" id="field"><div class="zone zone--t2" style="bottom:76.9%; height:11.5%"><div class="zone__in"><div class="zone__hd"><span class="zone__pct">20%</span><span class="zone__ttl">2차 — FOMC 직후</span><span class="zone__px">1,390 – 1,405</span></div><div class="zone__note">9/17~9/25. 인상 시 나오는 스파이크를 받는 구간. 지정가 1,390을 미리 걸어두면 한국시간 새벽 급등을 놓치지 않습니다.</div></div></div><div class="zone zone--t2" style="bottom:57.7%; height:10.0%"><div class="zone__in"><div class="zone__hd"><span class="zone__pct">30%</span><span class="zone__ttl">1차 — 단기 되돌림</span><span class="zone__px">1,365 – 1,378</span></div><div class="zone__note">기한 9/11. 그날까지 이 구간에 닿지 않으면 시장가로 집행.</div></div></div><div class="zone zone--cut" style="bottom:11.5%; height:30.8%"><div class="zone__in"><div class="zone__hd"><span class="zone__pct">전량</span><span class="zone__ttl">하락추세 재개</span><span class="zone__px">1,305 – 1,345</span></div><div class="zone__note">여기서는 기다릴수록 손해입니다. 미련 없이 청산.</div></div></div><div class="nowline" style="bottom:52.1%"><span class="nowline__tag">현재 1,357.70</span></div></div></div>
+  <p class="ladder__caption">남는 <b>10%</b>는 9/30~10/2에 잔여 정리. 분기말 네고로 다시 눌릴 수 있어 10/2가 마감 기한입니다.</p>
+</section>
+
+<section>
+  <h2>이 날짜만 보면 됩니다</h2>
+  <ul class="cal"><li><span class="d">9/4 금</span><span class="t"><b>미 8월 고용지표</b><span>내일 발표. 서프라이즈 시 FOMC 확률이 가장 먼저 흔들리는 변수.</span></span></li><li><span class="d">9/11 금</span><span class="t"><b>미국 CPI</b><span>FOMC 확률이 마지막으로 조정되는 지점. 1차 매도 기한과 같은 날.</span></span></li><li class="key"><span class="d">9/16 수</span><span class="t"><b>FOMC</b><span>한국시간 9/17 새벽 3시. 이번 달 전부가 여기 걸려 있습니다.</span></span></li><li><span class="d">9/25–30</span><span class="t"><b>분기말 수출 네고</b><span>계절적 하락 압력. 매도를 마쳐야 하는 구간.</span></span></li><li><span class="d">10/1–2</span><span class="t"><b>9월 수출입 통계</b><span>잔여 물량 정리 마감.</span></span></li></ul>
+</section>
+
+<section>
+  <h2>체결 비용도 환율입니다</h2>
+  <div class="tips"><ul><li>달러예금 보유 중이면 <b>전신환 매도(스프레드 약 1%)</b>가 현찰(약 1.75%)보다 유리합니다.</li><li>환율우대 90% 적용 시 1만 달러 기준 약 <b>12만원</b> 차이 — 환율 12원 움직임과 같은 크기입니다.</li><li>은행 앱의 <b>지정가 자동환전</b>을 걸어두면 새벽 스파이크를 자는 동안 잡습니다.</li></ul></div>
+</section>
+
+<footer style="padding-top:44px">
+  <p class="eyebrow" style="margin-bottom:6px">출처</p>
+  <ul class="srcs"><li><a href="https://m.stock.naver.com/marketindex/exchange/FX_USDKRW" rel="noopener">네이버 금융 — USD/KRW 매매기준율</a></li><li><a href="https://www.mt.co.kr/economy/2026/09/03/2026090315402477347" rel="noopener">머니투데이 — 반도체 호황에 달러 쌓인다, 환율 14개월 만에 1350원대</a></li><li><a href="https://www.edaily.co.kr/News/Read?newsId=03676886645576512" rel="noopener">이데일리 — 원·달러 환율 1355원까지 하락, 14개월 만에 최저</a></li><li><a href="https://www.g-enews.com/article/Finance/2026/08/20260827082446586bb91c46fcd_1" rel="noopener">글로벌이코노믹 — 한국은행 백투백 금리 인상, 기준금리 3.00%</a></li><li><a href="https://www.cnbc.com/2026/08/31/markets-see-warsh-endorsing-a-rate-hike-in-september-not-everyone-is-convinced.html" rel="noopener">CNBC — Markets see Warsh endorsing a rate hike in September</a></li><li><a href="https://www.forbes.com/sites/digital-assets/2026/08/31/cme-fedwatch-provides-a-66-chance-fed-will-hike-rates-in-september/" rel="noopener">Forbes — CME FedWatch provides a 66% chance Fed will hike rates in September</a></li><li><a href="https://v.daum.net/v/20260820180304951" rel="noopener">씨티 — 1390원 밑돌면 국민연금 환헤지 확대 중단 가능</a></li></ul>
+  <p class="disc">공개 데이터 기반 자동 생성 리포트이며 투자 권유가 아닙니다. 환율 예측은 본질적으로 불확실하고, 분석은 매일 자동으로 재작성되므로 사람의 검토를 거치지 않습니다. 매매 판단의 책임은 이용자 본인에게 있습니다.</p>
+  <p class="stamp" style="margin-top:14px">데이터 <b>네이버 매매기준율 (서울 종가)</b> · 수집 2026-09-03 17:43 KST · 분석 갱신 2026-09-03 17:50 KST</p>
+</footer>
+
+</div>
+
+<script>
+const PAYLOAD = {"series": [{"d": "2026-07-08", "c": 1507.0}, {"d": "2026-07-09", "c": 1507.0}, {"d": "2026-07-10", "c": 1502.0}, {"d": "2026-07-13", "c": 1499.5}, {"d": "2026-07-14", "c": 1491.0}, {"d": "2026-07-15", "c": 1488.5}, {"d": "2026-07-16", "c": 1491.0}, {"d": "2026-07-20", "c": 1478.5}, {"d": "2026-07-21", "c": 1482.5}, {"d": "2026-07-22", "c": 1479.0}, {"d": "2026-07-23", "c": 1476.5}, {"d": "2026-07-24", "c": 1462.5}, {"d": "2026-07-27", "c": 1466.0}, {"d": "2026-07-28", "c": 1455.2}, {"d": "2026-07-29", "c": 1446.0}, {"d": "2026-07-30", "c": 1426.2}, {"d": "2026-07-31", "c": 1440.0}, {"d": "2026-08-03", "c": 1430.8}, {"d": "2026-08-04", "c": 1431.0}, {"d": "2026-08-05", "c": 1423.5}, {"d": "2026-08-06", "c": 1424.5}, {"d": "2026-08-07", "c": 1411.0}, {"d": "2026-08-10", "c": 1419.5}, {"d": "2026-08-11", "c": 1413.5}, {"d": "2026-08-12", "c": 1419.0}, {"d": "2026-08-13", "c": 1420.2}, {"d": "2026-08-14", "c": 1417.5}, {"d": "2026-08-18", "c": 1413.5}, {"d": "2026-08-19", "c": 1390.0}, {"d": "2026-08-20", "c": 1394.8}, {"d": "2026-08-21", "c": 1387.0}, {"d": "2026-08-24", "c": 1384.0}, {"d": "2026-08-25", "c": 1383.5}, {"d": "2026-08-26", "c": 1386.0}, {"d": "2026-08-27", "c": 1382.0}, {"d": "2026-08-28", "c": 1381.0}, {"d": "2026-08-31", "c": 1369.5}, {"d": "2026-09-01", "c": 1375.5}, {"d": "2026-09-02", "c": 1360.3}, {"d": "2026-09-03", "c": 1357.7}], "events": {"08/27": "한은 3.00% 인상", "08/28": "잭슨홀 매파", "08/31": "고용우려 낙폭 확대", "09/03": "14개월 최저"}, "year": "2026", "ladder": {"lo": 1290.0, "hi": 1420.0, "step": 10}};
+const D = PAYLOAD.series.map(r => [r.d.slice(5).replace('-','/'), r.c]);
+const EV = PAYLOAD.events || {};
+const L=52,R=22,T=14,B=64,W=1000,H=430, PW=W-L-R, PH=H-T-B;
+const vals=D.map(d=>d[1]), pad=(Math.max(...vals)-Math.min(...vals))*0.14 || 5;
+const lo=Math.floor((Math.min(...vals)-pad)/10)*10, hi=Math.ceil((Math.max(...vals)+pad)/10)*10;
+const step=Math.max(10, Math.ceil((hi-lo)/6/10)*10);
+const X=i=>L+i*PW/(D.length-1), Y=v=>T+(hi-v)/(hi-lo)*PH;
+const ns="http://www.w3.org/2000/svg", mk=(t,a)=>{const e=document.createElementNS(ns,t);for(const k in a)e.setAttribute(k,a[k]);return e;};
+
+const g=document.getElementById("grid");
+for(let v=Math.ceil(lo/step)*step; v<=hi; v+=step){
+  g.appendChild(mk("line",{x1:L,x2:L+PW,y1:Y(v),y2:Y(v),stroke:"var(--rule-soft)","stroke-width":1}));
+  const t=mk("text",{x:L-9,y:Y(v)+4,"text-anchor":"end",fill:"var(--muted)","font-size":12,"font-family":"IBM Plex Mono, monospace"});
+  t.textContent=v.toLocaleString(); g.appendChild(t);
+}
+document.getElementById("line").setAttribute("d", D.map((d,i)=>(i?"L":"M")+X(i).toFixed(1)+" "+Y(d[1]).toFixed(1)).join(" "));
+
+const ev=document.getElementById("events");
+D.forEach((d,i)=>{ if(!EV[d[0]]) return;
+  const x=X(i), y=Y(d[1]);
+  ev.appendChild(mk("line",{x1:x,x2:x,y1:y,y2:T+PH+2,stroke:"var(--up-edge)","stroke-width":1,"stroke-dasharray":"2 3"}));
+  ev.appendChild(mk("circle",{cx:x,cy:y,r:4.5,fill:"var(--up)",stroke:"var(--card)","stroke-width":2}));
+  const anchor = i>D.length-6 ? "end" : (i<4 ? "start" : "middle");
+  const t=mk("text",{x:x+(anchor==="end"?6:anchor==="start"?-4:0),y:y-14,"text-anchor":anchor,fill:"var(--up)","font-size":12.5,"font-weight":600,"font-family":"IBM Plex Sans KR, sans-serif"});
+  t.textContent=EV[d[0]]; ev.appendChild(t);
+});
+
+const xl=document.getElementById("xlab"), N=D.length;
+[...new Set([0,Math.floor(N*0.2),Math.floor(N*0.4),Math.floor(N*0.6),Math.floor(N*0.8),N-1])].forEach(i=>{
+  const t=mk("text",{x:X(i),y:T+PH+24,"text-anchor":"middle",fill:"var(--muted)","font-size":12,"font-family":"IBM Plex Mono, monospace"});
+  t.textContent=D[i][0]; xl.appendChild(t);
+});
+
+const tb=document.getElementById("tbody");
+D.forEach((d,i)=>{const p=i?d[1]-D[i-1][1]:0;
+  tb.insertAdjacentHTML("beforeend",`<tr><td>${d[0]}</td><td>${d[1].toFixed(2)}</td><td style="color:${i?(p>0?"var(--up)":"var(--down)"):"var(--muted)"}">${i?(p>0?"+":"")+p.toFixed(2):"—"}</td></tr>`);
+});
+
+const svg=document.getElementById("svg"),cr=document.getElementById("cross"),dt=document.getElementById("dot"),tt=document.getElementById("tt");
+function move(e){
+  const r=svg.getBoundingClientRect(), px=(e.clientX-r.left)/r.width*W;
+  let i=Math.round((px-L)/(PW/(D.length-1))); i=Math.max(0,Math.min(D.length-1,i));
+  const x=X(i),y=Y(D[i][1]);
+  cr.setAttribute("x1",x); cr.setAttribute("x2",x); cr.setAttribute("opacity",1);
+  dt.setAttribute("cx",x); dt.setAttribute("cy",y); dt.setAttribute("opacity",1);
+  tt.style.opacity=1; tt.style.left=(x/W*r.width)+"px"; tt.style.top=(y/H*r.height)+"px";
+  tt.querySelector("b").textContent=D[i][1].toFixed(2);
+  tt.querySelector("i").textContent=PAYLOAD.year+" · "+D[i][0]+(EV[D[i][0]]?" · "+EV[D[i][0]]:"");
+}
+function out(){cr.setAttribute("opacity",0);dt.setAttribute("opacity",0);tt.style.opacity=0;}
+svg.addEventListener("mousemove",move); svg.addEventListener("mouseleave",out);
+svg.addEventListener("touchmove",e=>move(e.touches[0]),{passive:true}); svg.addEventListener("touchend",out);
+
+const ax=document.getElementById("axis"), fd=document.getElementById("field");
+if(ax){ const A=PAYLOAD.ladder;
+  for(let v=A.lo; v<=A.hi; v+=A.step){
+    const pct=(v-A.lo)/(A.hi-A.lo)*100;
+    ax.insertAdjacentHTML("beforeend",`<div class="ladder__tick" style="bottom:${pct}%">${v.toLocaleString()}</div>`);
+    fd.insertAdjacentHTML("afterbegin",`<div class="ladder__grid" style="bottom:${pct}%"></div>`);
+  }
+}
+</script>
+</body>
+</html>
