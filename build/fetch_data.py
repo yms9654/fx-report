@@ -4,6 +4,7 @@ import json, sys, urllib.request, datetime, pathlib, zoneinfo
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 OUT = ROOT / "data.json"
+HIST = ROOT / "history.json"
 KST = zoneinfo.ZoneInfo("Asia/Seoul")
 UA = {"User-Agent": "Mozilla/5.0 (fx-report daily updater)"}
 DAYS = 40  # 차트에 담을 영업일 수
@@ -61,15 +62,20 @@ def main():
     latest = series[-1]
     prev = series[-2]["c"] if len(series) > 1 else latest["c"]
 
-    # 52주 범위: 기존 파일의 값과 병합해 유지 (API가 40일치만 주므로)
-    lo, hi = min(closes), max(closes)
-    if OUT.exists():
+    # 52주 범위: 누적 히스토리에서 계산 (API가 40일치만 주므로 매 실행마다 병합)
+    hist = {}
+    if HIST.exists():
         try:
-            old = json.loads(OUT.read_text(encoding="utf-8")).get("w52", {})
-            lo = min(lo, float(old.get("lo", lo)))
-            hi = max(hi, float(old.get("hi", hi)))
+            hist = json.loads(HIST.read_text(encoding="utf-8"))
         except Exception:                            # noqa: BLE001
-            pass
+            hist = {}
+    hist.update({r["d"]: r["c"] for r in series})
+    cutoff = (datetime.date.fromisoformat(latest["d"]) - datetime.timedelta(days=365)).isoformat()
+    hist = {d: c for d, c in hist.items() if d >= cutoff}   # 365일 지난 값은 버린다
+    tmp_h = HIST.with_suffix(".json.tmp")
+    tmp_h.write_text(json.dumps(dict(sorted(hist.items())), indent=0), encoding="utf-8")
+    tmp_h.replace(HIST)
+    lo, hi = min(hist.values()), max(hist.values())
 
     first = closes[0]
     doc = {
@@ -81,6 +87,7 @@ def main():
         "w52": {"lo": round(lo, 2), "hi": round(hi, 2)},
         "span_pct": round((latest["c"] - first) / first * 100, 2),
         "span_days": len(series),
+        "hist_days": len(hist),
     }
     tmp = OUT.with_suffix(".json.tmp")
     tmp.write_text(json.dumps(doc, ensure_ascii=False, indent=1), encoding="utf-8")
