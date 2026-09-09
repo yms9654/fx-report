@@ -2,6 +2,9 @@
 """data.json + narrative.json -> docs/index.html"""
 import json, sys, html, math, pathlib, datetime, statistics, zoneinfo
 
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+from analysis import technicals, forecast, trigger_drift, sma
+
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 KST = zoneinfo.ZoneInfo("Asia/Seoul")
 E = lambda s: html.escape(str(s), quote=False)
@@ -106,6 +109,41 @@ def probs_html(w):
     </div>"""
 
 
+def tech_html(t):
+    if not t:
+        return ""
+    cls = {"down": "dn", "up": "up", "flat": ""}[t["trend"]]
+    momcls = "dn" if t["mom"] == "과매도" else "up" if t["mom"] == "과매수" else ""
+    cells = [
+        ("추세", f'<b class="t-{cls}">{t["tlabel"]}</b>',
+         f'{sum(1 for _, v in t["signals"] if v < 0)}/{len(t["signals"])} 하락 신호'),
+        ("RSI(14)", f'<b class="t-{momcls}">{t["rsi"]:.0f}</b>', t["mom"] or ""),
+        ("MA20 대비", f'<b class="t-{"dn" if t["vs20"] < 0 else "up"}">{t["vs20"]:+.1f}%</b>',
+         f'MA20 {t["ma20"]:,.0f}'),
+        ("MA60 대비", f'<b class="t-{"dn" if t["vs60"] < 0 else "up"}">{t["vs60"]:+.1f}%</b>',
+         f'MA60 {t["ma60"]:,.0f}'),
+    ]
+    if t["bb"]:
+        b = t["bb"]
+        where = "하단 이탈" if b["pctb"] < 0 else "하단권" if b["pctb"] < 0.2 \
+            else "상단권" if b["pctb"] > 0.8 else "중앙권"
+        cells.append(("볼린저 %B", f'<b>{b["pctb"]:.2f}</b>', where))
+    return '<div class="tech">' + "".join(
+        f'<div class="tech__c"><div class="tech__k">{k}</div>'
+        f'<div class="tech__v">{v}</div><div class="tech__s">{E(sub)}</div></div>'
+        for k, v, sub in cells) + '</div>'
+
+
+def drift_html(d):
+    if not d:
+        return ""
+    return (f'<div class="warn"><span class="warn__k">계획 점검</span>'
+            f'<span class="warn__t">최근 {d["days"]}회 중 <b>{d["n"]}번</b> 손절선이 낮아졌습니다 '
+            f'(<b>{NUM(d["from"])} → {NUM(d["to"])}</b>, {NUM(d["drop"])}원). '
+            f'가격을 따라 손절이 내려가면 계획은 영원히 발동하지 않습니다. '
+            f'지금 값이 아니라 <b>처음 정한 {NUM(d["from"])}</b>을 기준으로 판단하세요.</span></div>')
+
+
 def decide(px, nar):
     """현재가를 계획(사다리 구간 + 트리거)과 대조해 오늘의 지시를 정한다.
     반환: (kind, verb, amount, why, rows) — kind 는 sell/cut/wait."""
@@ -194,6 +232,29 @@ def main():
     age = (now.date() - datetime.date.fromisoformat(data["fetched_at"][:10])).days
     stale = age >= 2
 
+    hist = data.get("history") or data["series"]
+    tech = technicals(hist)
+    fc = forecast(hist, px, nar["scenario"]["ev"])
+
+    # 트리거 이력 — 손절선이 가격을 따라 내려가는지 감시
+    tlog_p = ROOT / "triggers_log.json"
+    tlog = []
+    if tlog_p.exists():
+        try:
+            tlog = json.loads(tlog_p.read_text(encoding="utf-8"))
+        except Exception:                                    # noqa: BLE001
+            tlog = []
+    tg = nar["triggers"]
+    entry = {"d": pxdate, "px": px, "stop": float(tg["stop"]),
+             "t1": float(tg["t1"]), "t2": float(tg["t2"])}
+    if not tlog or tlog[-1].get("d") != pxdate:
+        tlog.append(entry)
+    else:
+        tlog[-1] = entry
+    tlog = tlog[-60:]
+    tlog_p.write_text(json.dumps(tlog, ensure_ascii=False, indent=0), encoding="utf-8")
+    drift = trigger_drift(tlog, float(tg["stop"]))
+
     kind, verb, amt, why, rows = decide(px, nar)
     chg_cls = "chg-up" if chg > 0 else "chg-dn"
     S = {}
@@ -216,7 +277,9 @@ def main():
         + (f'<span class="now__amt">{amt}</span>' if amt else "")
         + f'</div><p class="now__why">{why}</p>'
         f'<div class="now__rows">{rows_html}</div>'
-        f'</div>')
+        + drift_html(drift)
+        + f'</div>')
+    S["TECH"] = tech_html(tech)
     ip, fp = f"{px:,.2f}".split(".")
     S["NDAYS"] = str(data["span_days"])
 
@@ -288,8 +351,18 @@ def main():
         stamp += ' · <span class="stale">분석 재작성 실패, 직전 분석 유지</span>'
     S["STAMP"] = stamp
 
+    hc = [r["c"] for r in hist]
+    hidx = {r["d"]: i for i, r in enumerate(hist)}
+    ma20_series = []
+    for r in data["series"]:
+        i = hidx.get(r["d"])
+        ma20_series.append(round(sma(hc[:i + 1], 20), 2) if i is not None and i >= 19 else None)
+
     S["PAYLOAD"] = json.dumps({
         "series": data["series"],
+        "ma20": ma20_series,
+        "fc": [{k: round(v, 2) for k, v in p.items()} for p in fc["pts"]] if fc else None,
+        "levels": {"stop": float(tg["stop"]), "t1": float(tg["t1"]), "t2": float(tg["t2"])},
         "events": nar.get("events", {}),
         "year": pxdate[:4],
         "ladder": {"lo": alo, "hi": ahi, "step": int(lad.get("step", 10))},
@@ -319,7 +392,7 @@ def main():
     dst.parent.mkdir(exist_ok=True)
     dst.write_text(out, encoding="utf-8")
     (ROOT / "docs" / ".nojekyll").touch()
-    print(f"OK rendered {len(out):,} bytes | px {px:,.2f} | 지시 {verb} {amt}")
+    print(f"OK rendered {len(out):,} bytes | px {px:,.2f} | 지시 {verb} {amt} | {tech['tlabel']} RSI {tech['rsi']:.0f}")
     return 0
 
 

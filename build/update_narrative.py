@@ -2,6 +2,9 @@
 """claude -p 로 분석(narrative.json)을 재작성. 실패하면 직전 분석을 그대로 유지한다."""
 import json, os, subprocess, sys, pathlib, datetime, zoneinfo
 
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+from analysis import technicals
+
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 NAR = ROOT / "narrative.json"
 KST = zoneinfo.ZoneInfo("Asia/Seoul")
@@ -12,9 +15,19 @@ REQUIRED = ["headline", "sub", "verdict", "forces", "scenario",
             "ladder", "calendar", "tips", "sources", "triggers"]
 
 
-def build_prompt(data, prev):
+def build_prompt(data, prev, tlog):
     s = data["series"]
     recent = " ".join(f"{r['d'][5:]}:{r['c']:.2f}" for r in s[-15:])
+    t = technicals(data.get("history") or s)
+    tech = (f"- 추세: {t['tlabel']} (하락신호 "
+            f"{sum(1 for _, v in t['signals'] if v < 0)}/{len(t['signals'])})\n"
+            f"- MA20 {t['ma20']:,.1f} (종가 대비 {t['vs20']:+.2f}%) · "
+            f"MA60 {t['ma60']:,.1f} ({t['vs60']:+.2f}%)\n"
+            f"- RSI(14) {t['rsi']:.1f} ({t['mom']})"
+            + (f" · 볼린저 %B {t['bb']['pctb']:.2f}" if t['bb'] else ""))
+    hist = "\n".join(
+        f"  {e['d']}  종가 {e['px']:,.2f}  손절 {e['stop']:,.0f}  1차 {e['t1']:,.0f}"
+        for e in tlog[-6:]) or "  (이력 없음)"
     return f"""너는 원/달러 환율 매도 타이밍 리포트를 매일 갱신하는 애널리스트다.
 오늘은 {datetime.datetime.now(KST):%Y-%m-%d}이다.
 
@@ -25,8 +38,22 @@ def build_prompt(data, prev):
 - 최근 {data['span_days']}영업일 변화: {data['span_pct']:+.2f}%
 - 최근 15영업일 종가: {recent}
 
+## 기술적 지표 (가격에서만 계산됨, 반박 불가)
+{tech}
+
+## 내가 지난 며칠 제시한 계획
+{hist}
+
+## 반드시 지킬 것 — 손절선을 가격에 맞춰 내리지 말 것
+위 이력에서 손절선이 계속 낮아졌다면 그것은 잘못이다. 손절은 "여기까지 오면 판단이 틀린
+것으로 보고 정리한다"는 선이므로, 가격이 그쪽으로 갔다고 선을 옮기면 아무 의미가 없다.
+- 직전 손절선이 이미 닿았거나 뚫렸다면, 낮추지 말고 그 사실을 결론에 명시하라.
+- 손절선을 내리려면 가격이 내렸다는 것 말고 **새로운 근거**가 있어야 한다. 없으면 유지하라.
+- 기술적 추세가 하락인데 "기다린다"를 반복하고 있다면, 계획 자체가 틀렸을 가능성을 검토하라.
+
 ## 할 일
 1. WebSearch/WebFetch로 원/달러 환율, 연준·한국은행 정책, 국내 수급을 오늘 기준으로 조사한다.
+   위 기술적 지표와 뉴스가 어긋나면 그 사실을 결론에 반영한다.
 2. 아래 '직전 분석'을 오늘의 가격과 새 뉴스에 맞게 고쳐 쓴다. 가격이 크게 움직였거나 전제가 깨졌으면 결론·트리거·사다리 숫자를 실제로 바꿔라. 변한 게 없으면 유지해도 된다.
 3. 결과를 JSON 하나로만 출력한다.
 
@@ -89,11 +116,18 @@ def main():
     data = json.loads((ROOT / "data.json").read_text(encoding="utf-8"))
     prev = json.loads(NAR.read_text(encoding="utf-8"))
     px = float(data["latest"]["c"])
+    tlp = ROOT / "triggers_log.json"
+    tlog = []
+    if tlp.exists():
+        try:
+            tlog = json.loads(tlp.read_text(encoding="utf-8"))
+        except Exception:                                    # noqa: BLE001
+            tlog = []
 
     env = {"HOME": os.path.expanduser("~"),
            "PATH": os.environ.get("PATH", "/usr/bin:/bin"),
            "LANG": "ko_KR.UTF-8"}
-    cmd = ["claude", "-p", build_prompt(data, prev),
+    cmd = ["claude", "-p", build_prompt(data, prev, tlog),
            "--output-format", "json", "--model", MODEL,
            "--allowedTools", "WebSearch", "WebFetch"]
     try:
