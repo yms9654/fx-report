@@ -192,24 +192,7 @@ a:focus-visible,summary:focus-visible{outline:2px solid var(--up); outline-offse
 .now--wait{border-left-color:var(--muted)}
 .now__k{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.18em;
         text-transform:uppercase; color:var(--muted); margin-bottom:10px}
-.now__verb{font-size:clamp(46px,10vw,76px); font-weight:700; letter-spacing:-.045em;
-           line-height:.95; margin:0 0 12px; display:flex; align-items:baseline; gap:16px; flex-wrap:wrap}
-.now--sell .now__verb{color:var(--up)}
-.now--cut .now__verb{color:var(--down)}
-.now__amt{font-family:"IBM Plex Mono",monospace; font-size:clamp(20px,3.6vw,30px);
-          font-weight:600; letter-spacing:-.02em; color:var(--ink)}
-.now__why{margin:0; font-size:16px; color:var(--ink-2); line-height:1.55; max-width:52ch}
-.now__why b{font-weight:600; color:var(--ink)}
-.now__rows{margin-top:22px; padding-top:18px; border-top:1px solid var(--rule); display:grid;
-           grid-template-columns:1fr 1fr; gap:14px 26px}
-@media (max-width:600px){.now__rows{grid-template-columns:1fr}}
-.now__row{display:flex; gap:12px; align-items:baseline; font-size:14px}
-.now__row .rk{flex:none; font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.12em;
-              text-transform:uppercase; color:var(--muted); width:52px}
-.now__row .rv{color:var(--ink-2)}
-.now__row .rv b{font-family:"IBM Plex Mono",monospace; font-weight:600; color:var(--ink)}
-.now__row .rd{margin-left:auto; font-family:"IBM Plex Mono",monospace; font-size:13px; font-weight:500}
-
+.now--sell .now--cut 
 
 .metabar__verb{font-weight:700; letter-spacing:-.01em}
 .metabar__verb.v-sell{color:var(--up)} .metabar__verb.v-cut{color:var(--down)}
@@ -264,7 +247,6 @@ a:focus-visible,summary:focus-visible{outline:2px solid var(--up); outline-offse
 .why .scen,.why .tips{box-shadow:none; padding:18px 20px}
 .why .cal li.key{margin:0 -8px; padding-left:8px; padding-right:8px}
 /* 히어로 게이지 제거에 따른 여백 정리 */
-.now__rows{margin-bottom:0}
 
 /* ---------- 피드백 ---------- */
 .fb{border:1px solid var(--rule); border-radius:3px; background:var(--card); box-shadow:var(--shadow); padding:20px 22px}
@@ -338,6 +320,36 @@ a:focus-visible,summary:focus-visible{outline:2px solid var(--up); outline-offse
 .chart__lg .lg-alt{background:repeating-linear-gradient(90deg,
   var(--up) 0 3px, transparent 3px 7px); opacity:.9}
 .chart__lg .lg-band{height:10px; border-radius:2px; background:var(--ink); opacity:.22}
+
+/* ---------- 계획 상태 게이지 ---------- */
+.now__k{display:flex; align-items:center; justify-content:space-between; gap:10px}
+.dcount{font-family:"IBM Plex Mono",monospace; font-size:13px; font-weight:700; letter-spacing:-.02em;
+        color:var(--ink); text-transform:none}
+.now--cut .dcount{color:var(--down)}
+.gg__px{font-family:"IBM Plex Mono",monospace; font-size:clamp(38px,7.5vw,56px); font-weight:600;
+        letter-spacing:-.04em; line-height:1; margin:14px 0 8px}
+.gg__head{margin:0 0 4px; font-size:16px; font-weight:600; letter-spacing:-.01em}
+.now--cut .gg__head{color:var(--down)}
+.now--sell .gg__head{color:var(--up)}
+.gg__head b{font-family:"IBM Plex Mono",monospace; font-weight:600}
+.gg__rows{margin-top:16px}
+.gg{display:grid; grid-template-columns:74px 88px 92px 1fr; gap:14px; align-items:baseline;
+    padding:10px 0; border-top:1px solid var(--rule-soft)}
+@media (max-width:640px){
+  .gg{grid-template-columns:70px 1fr auto; gap:8px 10px}
+  .gg__s{grid-column:1/-1; padding-left:80px; margin-top:-4px}
+}
+.gg--stop{border-top:1px solid var(--rule)}
+.gg__k{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.1em;
+       text-transform:uppercase; color:var(--muted)}
+.gg__v{font-family:"IBM Plex Mono",monospace; font-size:17px; font-weight:600; letter-spacing:-.02em;
+       text-align:right; white-space:nowrap}
+.gg__v .u{font-size:11px; font-weight:400; color:var(--muted); letter-spacing:0}
+.gg__s{font-size:12.5px; color:var(--muted); line-height:1.45}
+.bar{display:block; height:6px; border-radius:3px; background:var(--rule); overflow:hidden}
+.bar i{display:block; height:100%; background:var(--ink-2); border-radius:3px}
+.bar.b-warn i{background:var(--down)}
+@media (max-width:640px){.bar{margin-top:5px}}
 </style>
 </head>
 <body>
@@ -358,7 +370,7 @@ a:focus-visible,summary:focus-visible{outline:2px solid var(--up); outline-offse
 
 <section>
   <h2>계획</h2>
-  <p class="lede">가격 축은 실제 눈금입니다. 굵은 선이 현재가.</p>
+  <p class="lede">9/3에 정한 계획입니다. 가격이 움직였다는 이유로 눈금을 옮기지 않습니다. 굵은 선이 현재가.</p>
   <!--SLOT:LADDER-->
 </section>
 
@@ -404,7 +416,7 @@ a:focus-visible,summary:focus-visible{outline:2px solid var(--up); outline-offse
     <div class="why__in">
       <h3 class="wh">지금의 힘겨루기</h3>
       <div class="tug"><!--SLOT:FORCES--></div>
-      <h3 class="wh">한 달 뒤 어디에 있나</h3>
+      <h3 class="wh">오늘 분석이 보는 구간 (참고용, 계획을 바꾸지 않음)</h3>
       <!--SLOT:SCENARIO-->
       <h3 class="wh">이 날짜만 보면 됩니다</h3>
       <ul class="cal"><!--SLOT:CALENDAR--></ul>

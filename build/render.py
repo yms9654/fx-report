@@ -4,6 +4,7 @@ import json, sys, html, math, pathlib, datetime, statistics, zoneinfo
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from analysis import technicals, forecast, trigger_drift, sma
+from plan_state import ensure as plan_ensure, state as plan_state
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 KST = zoneinfo.ZoneInfo("Asia/Seoul")
@@ -35,7 +36,7 @@ def _touch_dn(b, mu, sig, T):
     return min(max(p, 0.0), 1.0)
 
 
-def weekly_probs(data, nar, px, mu_month=None, sig_override=None, vol_src=None):
+def weekly_probs(data, nar, px, mu_month=None, sig_override=None, vol_src=None, plan=None):
     closes = [r["c"] for r in data["series"]]
     rets = [math.log(b / a) for a, b in zip(closes, closes[1:]) if a > 0 and b > 0]
     if len(rets) < 10:
@@ -48,10 +49,16 @@ def weekly_probs(data, nar, px, mu_month=None, sig_override=None, vol_src=None):
     ev = float(mu_month if mu_month else nar["scenario"]["ev"])
     mu = math.log(ev / px) / TD_MONTH                # 한 달 기준값 → 일간 드리프트
 
-    sells = sorted((z for z in nar["ladder"]["zones"] if z["kind"] == "sell"),
-                   key=lambda z: float(z["lo"]))
+    # 도달 확률은 동결된 계획 눈금 기준. 서술이 매일 바뀌어도 확률의 기준은 고정.
+    if plan:
+        sells = sorted(({"lo": r["lo"], "pct": r["pct"]} for r in plan["rungs"]),
+                       key=lambda z: float(z["lo"]))
+        stop = float(plan["stop"])
+    else:
+        sells = sorted((z for z in nar["ladder"]["zones"] if z["kind"] == "sell"),
+                       key=lambda z: float(z["lo"]))
+        stop = float(nar["triggers"]["stop"])
     nxt = next((z for z in sells if float(z["lo"]) > px), sells[-1] if sells else None)
-    stop = float(nar["triggers"]["stop"])
     b_up = math.log(float(nxt["lo"]) / px) if nxt else None
     b_dn = math.log(stop / px)
 
@@ -156,71 +163,62 @@ def drift_html(d):
             f'지금 값이 아니라 <b>처음 정한 {NUM(d["from"])}</b>을 기준으로 판단하세요.</span></div>')
 
 
-def decide(px, nar):
-    """현재가를 계획(사다리 구간 + 트리거)과 대조해 오늘의 지시를 정한다.
-    반환: (kind, verb, amount, why, rows) — kind 는 sell/cut/wait."""
-    trg = nar["triggers"]
-    stop, t1, t2 = float(trg["stop"]), float(trg["t1"]), float(trg["t2"])
-    zones = nar["ladder"]["zones"]
-    sells = sorted((z for z in zones if z["kind"] == "sell"), key=lambda z: float(z["lo"]))
-    cuts = [z for z in zones if z["kind"] == "cut"]
-
-    def zone_at(zs):
-        return next((z for z in zs if float(z["lo"]) <= px <= float(z["hi"])), None)
-
-    hit_cut = zone_at(cuts) or (cuts[0] if px <= stop and cuts else None)
-    hit_sell = zone_at(sells)
-
-    cur = ("현재", f"<b>{px:,.2f}</b>", "", "")
-
-    if hit_cut:
-        return ("cut", "판다", "잔여 전량",
-                f"손절선 <b>{NUM(stop)}</b>을 이탈했습니다. 계획대로라면 여기서는 "
-                f"버티지 않고 남은 물량을 전부 정리합니다.",
-                [cur, ("손절", f"<b>{NUM(stop)}</b> 이탈함", f"{px-stop:+,.1f}원", "dn")])
-
-    if hit_sell:
-        return ("sell", "판다", f"{hit_sell['pct']} 매도",
-                f"{E(hit_sell['title'])} 구간(<b>{NUM(hit_sell['lo'])}–{NUM(hit_sell['hi'])}</b>)에 "
-                f"들어왔습니다. 계획 비중 <b>{E(hit_sell['pct'])}</b>를 지금 집행합니다.",
-                [cur, ("구간", f"<b>{NUM(hit_sell['lo'])}–{NUM(hit_sell['hi'])}</b> 안", "", "up")])
-
-    # 대기: 위로 가장 가까운 매도 구간과 아래 손절까지의 거리를 보여준다
-    nxt = next((z for z in sells if float(z["lo"]) > px), None)
-    rows = [cur]
-    if nxt:
-        d = float(nxt["lo"]) - px
-        rows.append(("다음", f"<b>{NUM(nxt['lo'])}</b> 도달 → {E(nxt['pct'])} 매도",
-                     f"+{d:,.1f}원", "up"))
-    rows.append(("손절", f"<b>{NUM(stop)}</b> 이탈 → 잔여 전량 청산",
-                 f"−{px-stop:,.1f}원", "dn"))
-    why = ("아직 계획한 어느 가격대에도 닿지 않았습니다. "
-           "<b>오늘은 아무것도 하지 않습니다.</b> 지정가만 걸어두고 기다립니다.")
-    return ("wait", "기다린다", "", why, rows)
+def bar(pct, cls=""):
+    v = max(0.0, min(100.0, float(pct)))
+    return (f'<span class="bar {cls}"><i style="width:{v:.1f}%"></i></span>')
 
 
-def gauge(px, nar):
-    """손절 ~ 최상단 매도구간 사이에서 현재가 위치를 보여주는 가로 게이지."""
-    trg = nar["triggers"]
-    stop, t2 = float(trg["stop"]), float(trg["t2"])
-    sells = sorted((z for z in nar["ladder"]["zones"] if z["kind"] == "sell"),
-                   key=lambda z: float(z["lo"]))
-    top = max([t2] + [float(z["hi"]) for z in sells])
-    g_lo, g_hi = min(stop, px) - 6, max(top, px) + 6
-    span = g_hi - g_lo
-    P = lambda v: (float(v) - g_lo) / span * 100
+def gauge_html(st, nar):
+    """이분법 지시 대신 상태를 숫자로 보여준다.
+    '오늘 팔까'를 매일 다시 판단하게 만드는 것이 기준 표류의 통로였다."""
+    px, hi, nx = st["px"], st["hi"], st["next"]
+    dd = lambda x: x.replace("-", ".")[2:]
 
-    parts = [f'<div class="gauge__track"></div>']
-    parts.append(f'<div class="gauge__seg s-cut" style="left:0; width:{P(stop):.1f}%"></div>')
-    for z in sells:
-        l, w = P(z["lo"]), P(z["hi"]) - P(z["lo"])
-        parts.append(f'<div class="gauge__seg s-sell" style="left:{l:.1f}%; width:{w:.1f}%"></div>')
-    for v, cls in [(stop, "at-dn")] + [(float(z["lo"]), "at-up") for z in sells]:
-        parts.append(f'<div class="gauge__mk" style="left:{P(v):.1f}%"></div>')
-        parts.append(f'<div class="gauge__lb {cls}" style="left:{P(v):.1f}%">{NUM(v)}</div>')
-    parts.append(f'<div class="gauge__now" style="left:{P(px):.1f}%"></div>')
-    parts.append(f'<div class="gauge__nowlb" style="left:{P(px):.1f}%">{px:,.2f}</div>')
-    return '<div class="gauge">' + "".join(parts) + "</div>"
+    if st["below_stop"]:
+        kind, head = "cut", f'손절선 <b>{NUM(st["stop"])}</b> 이탈'
+    elif st["reached"] >= st["plan_w"] - 1e-9:
+        kind, head = "sell", "계획 눈금 전부 도달"
+    elif st["time_pct"] > (st["reached"] / st["plan_w"] * 100 if st["plan_w"] else 0) + 20:
+        kind, head = "cut", "진도 뒤처짐"
+    else:
+        kind, head = "wait", "진도 정상"
+
+    rows = [
+        ("분포 위치",
+         bar(st["pct_rank"] or 0),
+         f'{st["pct_rank"]:.0f}<span class="u">%ile</span>' if st["pct_rank"] is not None else "—",
+         f'계획 시점 예상 분포의 하위 {st["pct_rank"]:.0f}%' if st["pct_rank"] is not None else ""),
+        ("창내 고점", "", f'{hi:,.2f}',
+         f'{px-hi:+,.1f}원 · {dd(st["hi_d"])} 기록'),
+        ("계획 진도",
+         bar(st["reached"] / st["plan_w"] * 100 if st["plan_w"] else 0,
+             "b-warn" if kind == "cut" else ""),
+         f'{st["reached"]:.0f}<span class="u">/{st["plan_w"]:.0f}%</span>',
+         f'시간은 {st["time_pct"]:.0f}% 지남'),
+        ("다음 눈금", "",
+         f'{NUM(nx["lo"])}' if nx else "—",
+         (f'도달 시 {E(nx["pct"])} 매도 · {nx["lo"]-px:+,.1f}원' if nx else "남은 눈금 없음")),
+    ]
+    body = "".join(
+        f'<div class="gg"><span class="gg__k">{k}</span>'
+        f'<span class="gg__b">{b}</span>'
+        f'<span class="gg__v">{v}</span>'
+        f'<span class="gg__s">{sub}</span></div>'
+        for k, b, v, sub in rows)
+
+    stopline = (f'<div class="gg gg--stop"><span class="gg__k">손절선</span>'
+                f'<span class="gg__b"></span>'
+                f'<span class="gg__v">{NUM(st["stop"])}</span>'
+                f'<span class="gg__s">{px-st["stop"]:+,.1f}원'
+                + (" · 이탈 상태" if st["below_stop"] else "") + '</span></div>')
+
+    return (f'<div class="now now--{kind}">'
+            f'<div class="now__k">계획 상태 · D-0 {dd(st["d0"])} → 마감 {dd(st["deadline"])}'
+            f'<span class="dcount">D-{st["rem"]}</span></div>'
+            f'<div class="gg__px">{px:,.2f}</div>'
+            f'<p class="gg__head">{head}</p>'
+            f'<div class="gg__rows">{body}{stopline}</div>')
+
 
 
 def main():
@@ -276,30 +274,17 @@ def main():
     tlog_p.write_text(json.dumps(tlog, ensure_ascii=False, indent=0), encoding="utf-8")
     drift = trigger_drift(tlog, float(tg["stop"]))
 
-    kind, verb, amt, why, rows = decide(px, nar)
+    plan, opened = plan_ensure(data, nar, fwd, (fc["sig_d"] / 100) if fc else 0.005)
+    st = plan_state(plan, data)
     chg_cls = "chg-up" if chg > 0 else "chg-dn"
     S = {}
 
     S["METAPX"] = (f'{px:,.2f} <span class="{chg_cls}">{chg:+.2f}</span> · '
                    f'{pxdate.replace("-", ".")}')
     S["EYEBROW"] = E(nar.get("eyebrow", "매도 전략")) + f" · 자동 갱신 {now:%Y.%m.%d}"
-    verb_cls = {"sell": "v-sell", "cut": "v-cut", "wait": ""}[kind]
-    S["METAVERB"] = f'<span class="metabar__verb {verb_cls}">{verb}</span>'
-    rows_html = "".join(
-        f'<div class="now__row"><span class="rk">{rk}</span>'
-        f'<span class="rv">{rv}</span>'
-        + (f'<span class="rd chg-{cc}">{rd}</span>' if rd else "")
-        + '</div>'
-        for rk, rv, rd, cc in rows)
-    S["VERDICTNOW"] = (
-        f'<div class="now now--{kind}">'
-        f'<div class="now__k">오늘의 지시 · {pxdate.replace("-", ".")}</div>'
-        f'<div class="now__verb">{verb}'
-        + (f'<span class="now__amt">{amt}</span>' if amt else "")
-        + f'</div><p class="now__why">{why}</p>'
-        f'<div class="now__rows">{rows_html}</div>'
-        + drift_html(drift)
-        + f'</div>')
+    S["METAVERB"] = (f'<span class="metabar__verb '
+                     + ("v-cut" if st["below_stop"] else "") + f'">D-{st["rem"]}</span>')
+    S["VERDICTNOW"] = gauge_html(st, nar) + drift_html(drift) + "</div>"
     ser = data["series"]
     kchg = ((ser[-1]["c"] / ser[-21]["c"] - 1) * 100) if len(ser) > 21 else None
     S["TECH"] = tech_html(tech, data.get("dxy"), kchg)
@@ -337,9 +322,21 @@ def main():
     S["PROBS"] = probs_html(
         weekly_probs(data, nar, px, mu_month,
                      sig_override=(fc["sig_d"] / 100) if fc else None,
-                     vol_src=fc["vol_src"] if fc else None), fwd)
+                     vol_src=fc["vol_src"] if fc else None, plan=plan), fwd)
 
-    lad = nar["ladder"]
+    # 사다리는 동결된 계획에서 그린다. 서술은 매일 바뀌어도 계획은 안 바뀐다.
+    plan_zones = ([{"kind": "sell", "lo": r["lo"], "hi": r["hi"], "pct": r["pct"],
+                    "title": r["title"], "note": ""} for r in plan["rungs"]]
+                  + [{"kind": "cut", "lo": plan["stop"] - 40, "hi": plan["stop"],
+                      "pct": "전량", "title": "손절 — 계획 종료",
+                      "note": "여기 닿으면 판단이 틀린 것으로 보고 정리한다."}])
+    for z in plan_zones:                                     # 서술만 오늘 분석에서 빌려온다
+        for nz in nar["ladder"]["zones"]:
+            if abs(float(nz["lo"]) - z["lo"]) < 12 and nz["kind"] == z["kind"]:
+                z["note"] = nz.get("note", z["note"])
+    lad = {"lo": min(z["lo"] for z in plan_zones) - 10,
+           "hi": max(z["hi"] for z in plan_zones) + 15,
+           "step": 10, "zones": plan_zones}
     alo, ahi = float(lad["lo"]), float(lad["hi"])
     span = ahi - alo
     pos = lambda v: (float(v) - alo) / span * 100
@@ -398,8 +395,8 @@ def main():
             "date": pxdate,
             "px": f"{px:,.2f}",
             "chg": f"{chg:+.2f}",
-            "verb": verb,
-            "amt": amt,
+            "verb": f"D-{st['rem']}",
+            "amt": f"진도 {st['reached']:.0f}/{st['plan_w']:.0f}%",
             "stop": NUM(nar["triggers"]["stop"]),
             "t1": NUM(nar["triggers"]["t1"]),
             "t2": NUM(nar["triggers"]["t2"]),
@@ -418,7 +415,7 @@ def main():
     dst.parent.mkdir(exist_ok=True)
     dst.write_text(out, encoding="utf-8")
     (ROOT / "docs" / ".nojekyll").touch()
-    print(f"OK rendered {len(out):,} bytes | px {px:,.2f} | 지시 {verb} {amt} | {tech['tlabel']} RSI {tech['rsi']:.0f}")
+    print(f"OK rendered {len(out):,} bytes | px {px:,.2f} | D-{st['rem']} 진도 {st['reached']:.0f}/{st['plan_w']:.0f}% | {tech['tlabel']} RSI {tech['rsi']:.0f}")
     return 0
 
 

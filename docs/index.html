@@ -192,24 +192,7 @@ a:focus-visible,summary:focus-visible{outline:2px solid var(--up); outline-offse
 .now--wait{border-left-color:var(--muted)}
 .now__k{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.18em;
         text-transform:uppercase; color:var(--muted); margin-bottom:10px}
-.now__verb{font-size:clamp(46px,10vw,76px); font-weight:700; letter-spacing:-.045em;
-           line-height:.95; margin:0 0 12px; display:flex; align-items:baseline; gap:16px; flex-wrap:wrap}
-.now--sell .now__verb{color:var(--up)}
-.now--cut .now__verb{color:var(--down)}
-.now__amt{font-family:"IBM Plex Mono",monospace; font-size:clamp(20px,3.6vw,30px);
-          font-weight:600; letter-spacing:-.02em; color:var(--ink)}
-.now__why{margin:0; font-size:16px; color:var(--ink-2); line-height:1.55; max-width:52ch}
-.now__why b{font-weight:600; color:var(--ink)}
-.now__rows{margin-top:22px; padding-top:18px; border-top:1px solid var(--rule); display:grid;
-           grid-template-columns:1fr 1fr; gap:14px 26px}
-@media (max-width:600px){.now__rows{grid-template-columns:1fr}}
-.now__row{display:flex; gap:12px; align-items:baseline; font-size:14px}
-.now__row .rk{flex:none; font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.12em;
-              text-transform:uppercase; color:var(--muted); width:52px}
-.now__row .rv{color:var(--ink-2)}
-.now__row .rv b{font-family:"IBM Plex Mono",monospace; font-weight:600; color:var(--ink)}
-.now__row .rd{margin-left:auto; font-family:"IBM Plex Mono",monospace; font-size:13px; font-weight:500}
-
+.now--sell .now--cut 
 
 .metabar__verb{font-weight:700; letter-spacing:-.01em}
 .metabar__verb.v-sell{color:var(--up)} .metabar__verb.v-cut{color:var(--down)}
@@ -264,7 +247,6 @@ a:focus-visible,summary:focus-visible{outline:2px solid var(--up); outline-offse
 .why .scen,.why .tips{box-shadow:none; padding:18px 20px}
 .why .cal li.key{margin:0 -8px; padding-left:8px; padding-right:8px}
 /* 히어로 게이지 제거에 따른 여백 정리 */
-.now__rows{margin-bottom:0}
 
 /* ---------- 피드백 ---------- */
 .fb{border:1px solid var(--rule); border-radius:3px; background:var(--card); box-shadow:var(--shadow); padding:20px 22px}
@@ -338,6 +320,36 @@ a:focus-visible,summary:focus-visible{outline:2px solid var(--up); outline-offse
 .chart__lg .lg-alt{background:repeating-linear-gradient(90deg,
   var(--up) 0 3px, transparent 3px 7px); opacity:.9}
 .chart__lg .lg-band{height:10px; border-radius:2px; background:var(--ink); opacity:.22}
+
+/* ---------- 계획 상태 게이지 ---------- */
+.now__k{display:flex; align-items:center; justify-content:space-between; gap:10px}
+.dcount{font-family:"IBM Plex Mono",monospace; font-size:13px; font-weight:700; letter-spacing:-.02em;
+        color:var(--ink); text-transform:none}
+.now--cut .dcount{color:var(--down)}
+.gg__px{font-family:"IBM Plex Mono",monospace; font-size:clamp(38px,7.5vw,56px); font-weight:600;
+        letter-spacing:-.04em; line-height:1; margin:14px 0 8px}
+.gg__head{margin:0 0 4px; font-size:16px; font-weight:600; letter-spacing:-.01em}
+.now--cut .gg__head{color:var(--down)}
+.now--sell .gg__head{color:var(--up)}
+.gg__head b{font-family:"IBM Plex Mono",monospace; font-weight:600}
+.gg__rows{margin-top:16px}
+.gg{display:grid; grid-template-columns:74px 88px 92px 1fr; gap:14px; align-items:baseline;
+    padding:10px 0; border-top:1px solid var(--rule-soft)}
+@media (max-width:640px){
+  .gg{grid-template-columns:70px 1fr auto; gap:8px 10px}
+  .gg__s{grid-column:1/-1; padding-left:80px; margin-top:-4px}
+}
+.gg--stop{border-top:1px solid var(--rule)}
+.gg__k{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.1em;
+       text-transform:uppercase; color:var(--muted)}
+.gg__v{font-family:"IBM Plex Mono",monospace; font-size:17px; font-weight:600; letter-spacing:-.02em;
+       text-align:right; white-space:nowrap}
+.gg__v .u{font-size:11px; font-weight:400; color:var(--muted); letter-spacing:0}
+.gg__s{font-size:12.5px; color:var(--muted); line-height:1.45}
+.bar{display:block; height:6px; border-radius:3px; background:var(--rule); overflow:hidden}
+.bar i{display:block; height:100%; background:var(--ink-2); border-radius:3px}
+.bar.b-warn i{background:var(--down)}
+@media (max-width:640px){.bar{margin-top:5px}}
 </style>
 </head>
 <body>
@@ -345,7 +357,7 @@ a:focus-visible,summary:focus-visible{outline:2px solid var(--up); outline-offse
 <div class="metabar">
   <div class="metabar__in">
     <span><strong>USD/KRW</strong> 매도 리포트</span>
-    <span class="metabar__px"><span class="metabar__verb ">기다린다</span> · 1,336.90 <span class="chg-dn">-4.60</span> · 2026.09.09</span>
+    <span class="metabar__px"><span class="metabar__verb v-cut">D-17</span> · 1,336.90 <span class="chg-dn">-4.60</span> · 2026.09.09</span>
   </div>
 </div>
 
@@ -353,13 +365,13 @@ a:focus-visible,summary:focus-visible{outline:2px solid var(--up); outline-offse
 
 <header class="hero">
   <p class="eyebrow">한 달 매도 전략 · 자동 갱신 2026.09.09</p>
-  <div class="now now--wait"><div class="now__k">오늘의 지시 · 2026.09.09</div><div class="now__verb">기다린다</div><p class="now__why">아직 계획한 어느 가격대에도 닿지 않았습니다. <b>오늘은 아무것도 하지 않습니다.</b> 지정가만 걸어두고 기다립니다.</p><div class="now__rows"><div class="now__row"><span class="rk">현재</span><span class="rv"><b>1,336.90</b></span></div><div class="now__row"><span class="rk">다음</span><span class="rv"><b>1,345</b> 도달 → 30% 매도</span><span class="rd chg-up">+8.1원</span></div><div class="now__row"><span class="rk">손절</span><span class="rv"><b>1,310</b> 이탈 → 잔여 전량 청산</span><span class="rd chg-dn">−26.9원</span></div></div><div class="warn"><span class="warn__k">계획 점검</span><span class="warn__t">최근 4회 중 <b>3번</b> 손절선이 낮아졌습니다 (<b>1,345 → 1,310</b>, 35원). 가격을 따라 손절이 내려가면 계획은 영원히 발동하지 않습니다. 지금 값이 아니라 <b>처음 정한 1,345</b>을 기준으로 판단하세요.</span></div></div>
+  <div class="now now--cut"><div class="now__k">계획 상태 · D-0 26.09.03 → 마감 26.10.03<span class="dcount">D-17</span></div><div class="gg__px">1,336.90</div><p class="gg__head">손절선 <b>1,345</b> 이탈</p><div class="gg__rows"><div class="gg"><span class="gg__k">분포 위치</span><span class="gg__b"><span class="bar "><i style="width:10.9%"></i></span></span><span class="gg__v">11<span class="u">%ile</span></span><span class="gg__s">계획 시점 예상 분포의 하위 11%</span></div><div class="gg"><span class="gg__k">창내 고점</span><span class="gg__b"></span><span class="gg__v">1,358.50</span><span class="gg__s">-21.6원 · 26.09.03 기록</span></div><div class="gg"><span class="gg__k">계획 진도</span><span class="gg__b"><span class="bar b-warn"><i style="width:0.0%"></i></span></span><span class="gg__v">0<span class="u">/50%</span></span><span class="gg__s">시간은 19% 지남</span></div><div class="gg"><span class="gg__k">다음 눈금</span><span class="gg__b"></span><span class="gg__v">1,365</span><span class="gg__s">도달 시 30% 매도 · +28.1원</span></div><div class="gg gg--stop"><span class="gg__k">손절선</span><span class="gg__b"></span><span class="gg__v">1,345</span><span class="gg__s">-8.1원 · 이탈 상태</span></div></div><div class="warn"><span class="warn__k">계획 점검</span><span class="warn__t">최근 4회 중 <b>3번</b> 손절선이 낮아졌습니다 (<b>1,345 → 1,310</b>, 35원). 가격을 따라 손절이 내려가면 계획은 영원히 발동하지 않습니다. 지금 값이 아니라 <b>처음 정한 1,345</b>을 기준으로 판단하세요.</span></div></div>
 </header>
 
 <section>
   <h2>계획</h2>
-  <p class="lede">가격 축은 실제 눈금입니다. 굵은 선이 현재가.</p>
-  <div class="ladder"><div class="ladder__axis" id="axis"></div><div class="ladder__field" id="field"><div class="zone zone--t2" style="bottom:78.5%; height:12.3%"><div class="zone__in"><div class="zone__hd"><span class="zone__pct">30%</span><span class="zone__ttl">2차 — FOMC 직후</span><span class="zone__px">1,362 – 1,378</span></div><div class="zone__note">9/17~25. 인상 시 스파이크 구간, MA20(1,380) 저항 부근.</div></div></div><div class="zone zone--t2" style="bottom:65.4%; height:10.0%"><div class="zone__in"><div class="zone__hd"><span class="zone__pct">30%</span><span class="zone__ttl">1차 — 단기 반등</span><span class="zone__px">1,345 – 1,358</span></div><div class="zone__note">기한 9/11 CPI 전. 못 닿으면 시장가로 집행.</div></div></div><div class="zone zone--cut" style="bottom:30.8%; height:7.7%"><div class="zone__in"><div class="zone__hd"><span class="zone__pct">전량</span><span class="zone__ttl">하락추세 재개</span><span class="zone__px">1,300 – 1,310</span></div><div class="zone__note">1,310원 하회 시 전량 손절. 손절선 5거래일째 유지.</div></div></div><div class="nowline" style="bottom:59.2%"><span class="nowline__tag">현재 1,336.90</span></div></div></div>
+  <p class="lede">9/3에 정한 계획입니다. 가격이 움직였다는 이유로 눈금을 옮기지 않습니다. 굵은 선이 현재가.</p>
+  <div class="ladder"><div class="ladder__axis" id="axis"></div><div class="ladder__field" id="field"><div class="zone zone--t2" style="bottom:76.0%; height:12.0%"><div class="zone__in"><div class="zone__hd"><span class="zone__pct">20%</span><span class="zone__ttl">2차 — FOMC 직후</span><span class="zone__px">1,390 – 1,405</span></div><div class="zone__note"></div></div></div><div class="zone zone--t2" style="bottom:56.0%; height:10.4%"><div class="zone__in"><div class="zone__hd"><span class="zone__pct">30%</span><span class="zone__ttl">1차 — 단기 되돌림</span><span class="zone__px">1,365 – 1,378</span></div><div class="zone__note">9/17~25. 인상 시 스파이크 구간, MA20(1,380) 저항 부근.</div></div></div><div class="zone zone--cut" style="bottom:8.0%; height:32.0%"><div class="zone__in"><div class="zone__hd"><span class="zone__pct">전량</span><span class="zone__ttl">손절 — 계획 종료</span><span class="zone__px">1,305 – 1,345</span></div><div class="zone__note">1,310원 하회 시 전량 손절. 손절선 5거래일째 유지.</div></div></div><div class="nowline" style="bottom:33.5%"><span class="nowline__tag">현재 1,336.90</span></div></div></div>
 </section>
 
 <section>
@@ -393,7 +405,7 @@ a:focus-visible,summary:focus-visible{outline:2px solid var(--up); outline-offse
             <div class="pw__seg s-dn" style="flex:51"><span>51%</span></div>
           </div>
         </div>
-      <div class="probs__split"><div class="probs__splitk">누적 도달 확률 — 기간 안에 한 번이라도 닿을 확률</div><div class="pt"><div class="pt__k up">1,345 터치<span>30% 매도</span></div><div class="pt__v"><span>1주</span><b>60%</b></div><div class="pt__v"><span>2주</span><b>71%</b></div><div class="pt__v"><span>3주</span><b>76%</b></div><div class="pt__v"><span>4주</span><b>79%</b></div></div><div class="pt"><div class="pt__k dn">1,310 이탈<span>전량 청산</span></div><div class="pt__v"><span>1주</span><b>8%</b></div><div class="pt__v"><span>2주</span><b>21%</b></div><div class="pt__v"><span>3주</span><b>31%</b></div><div class="pt__v"><span>4주</span><b>38%</b></div></div></div>
+      <div class="probs__split"><div class="probs__splitk">누적 도달 확률 — 기간 안에 한 번이라도 닿을 확률</div><div class="pt"><div class="pt__k up">1,365 터치<span>30% 매도</span></div><div class="pt__v"><span>1주</span><b>7%</b></div><div class="pt__v"><span>2주</span><b>20%</b></div><div class="pt__v"><span>3주</span><b>29%</b></div><div class="pt__v"><span>4주</span><b>36%</b></div></div></div>
       <p class="probs__note">중앙값은 시장 선도환율(한 달 <b>-0.04%</b>, CD(91일) 3.12% vs SOFR 3.64%)을 따르고, 폭은 HAR-RV 예측변동성 <b>일간 0.51%</b>
       (연율 8.2%)로 잡은 로그정규 모델 추정치입니다.
       이벤트 점프는 반영되지 않아 FOMC 전후 실제 분포는 이보다 꼬리가 두껍습니다.</p>
@@ -436,7 +448,7 @@ a:focus-visible,summary:focus-visible{outline:2px solid var(--up); outline-offse
     <div class="why__in">
       <h3 class="wh">지금의 힘겨루기</h3>
       <div class="tug"><div class="force force--dn"><h3>원화 강세</h3><div class="dir">환율 하락 압력</div><ul><li><span class="tag tag--std">정책</span><span>한은 기준금리 <b>3.00%</b>로 2연속 인상 → 한미 금리차 축소</span></li><li><span class="tag tag--std">수출</span><span>반도체 8월 수출 <b>467억달러</b> 역대 최대 → 무역흑자 347억달러</span></li><li><span class="tag tag--std">수급</span><span>수출기업 네고 물량 상시 출회 → <b>1,338원</b> 52주 신저가</span></li><li><span class="tag tag--std">통화</span><span>엔화 동반 강세로 원화도 같이 상승 압력 지속</span></li></ul></div><div class="force force--up"><h3>달러 강세</h3><div class="dir">환율 상승 압력</div><ul><li><span class="tag tag--std">고용</span><span>美 8월 비농업고용 <b>+16.2만명</b>, 예상 3배 상회 → 매파 강화</span></li><li><span class="tag tag--std">연준</span><span>CME FedWatch 9월 인상 확률 <b>55%</b>, 초박빙 공방</span></li><li><span class="tag tag--new">수급</span><span>국민연금 저가 매수·환헤지 중단 → 하락 속도 진정</span></li><li><span class="tag tag--std">기술</span><span>RSI <b>17.5</b> 극단적 과매도 → 기술적 반등 압력 누적</span></li></ul></div></div>
-      <h3 class="wh">한 달 뒤 어디에 있나</h3>
+      <h3 class="wh">오늘 분석이 보는 구간 (참고용, 계획을 바꾸지 않음)</h3>
       <div class="scen">
       <div class="probbar" role="img" aria-label="연준 인상 55퍼센트, 연준 동결 45퍼센트">
         <div class="p-up" style="flex:55">55% 연준 인상</div>
@@ -505,7 +517,7 @@ a:focus-visible,summary:focus-visible{outline:2px solid var(--up); outline-offse
 </div>
 
 <script>
-const PAYLOAD = {"series": [{"d": "2026-06-16", "c": 1511.0}, {"d": "2026-06-17", "c": 1525.5}, {"d": "2026-06-18", "c": 1538.0}, {"d": "2026-06-19", "c": 1533.0}, {"d": "2026-06-22", "c": 1538.5}, {"d": "2026-06-23", "c": 1533.5}, {"d": "2026-06-24", "c": 1543.5}, {"d": "2026-06-25", "c": 1545.0}, {"d": "2026-06-26", "c": 1537.5}, {"d": "2026-06-29", "c": 1541.5}, {"d": "2026-06-30", "c": 1548.0}, {"d": "2026-07-01", "c": 1552.5}, {"d": "2026-07-02", "c": 1542.5}, {"d": "2026-07-03", "c": 1529.0}, {"d": "2026-07-06", "c": 1530.5}, {"d": "2026-07-07", "c": 1517.2}, {"d": "2026-07-08", "c": 1507.0}, {"d": "2026-07-09", "c": 1507.0}, {"d": "2026-07-10", "c": 1502.0}, {"d": "2026-07-13", "c": 1499.5}, {"d": "2026-07-14", "c": 1491.0}, {"d": "2026-07-15", "c": 1488.5}, {"d": "2026-07-16", "c": 1491.0}, {"d": "2026-07-20", "c": 1478.5}, {"d": "2026-07-21", "c": 1482.5}, {"d": "2026-07-22", "c": 1479.0}, {"d": "2026-07-23", "c": 1476.5}, {"d": "2026-07-24", "c": 1462.5}, {"d": "2026-07-27", "c": 1466.0}, {"d": "2026-07-28", "c": 1455.2}, {"d": "2026-07-29", "c": 1446.0}, {"d": "2026-07-30", "c": 1426.2}, {"d": "2026-07-31", "c": 1440.0}, {"d": "2026-08-03", "c": 1430.8}, {"d": "2026-08-04", "c": 1431.0}, {"d": "2026-08-05", "c": 1423.5}, {"d": "2026-08-06", "c": 1424.5}, {"d": "2026-08-07", "c": 1411.0}, {"d": "2026-08-10", "c": 1419.5}, {"d": "2026-08-11", "c": 1413.5}, {"d": "2026-08-12", "c": 1419.0}, {"d": "2026-08-13", "c": 1420.2}, {"d": "2026-08-14", "c": 1417.5}, {"d": "2026-08-18", "c": 1413.5}, {"d": "2026-08-19", "c": 1390.0}, {"d": "2026-08-20", "c": 1394.8}, {"d": "2026-08-21", "c": 1387.0}, {"d": "2026-08-24", "c": 1384.0}, {"d": "2026-08-25", "c": 1383.5}, {"d": "2026-08-26", "c": 1386.0}, {"d": "2026-08-27", "c": 1382.0}, {"d": "2026-08-28", "c": 1381.0}, {"d": "2026-08-31", "c": 1369.5}, {"d": "2026-09-01", "c": 1375.5}, {"d": "2026-09-02", "c": 1360.3}, {"d": "2026-09-03", "c": 1358.5}, {"d": "2026-09-04", "c": 1349.5}, {"d": "2026-09-07", "c": 1347.0}, {"d": "2026-09-08", "c": 1341.5}, {"d": "2026-09-09", "c": 1336.9}], "ma20": [1515.46, 1517.14, 1518.65, 1520.38, 1522.03, 1523.1, 1524.9, 1527.05, 1529.1, 1530.8, 1532.47, 1533.35, 1533.78, 1532.25, 1532.38, 1532.02, 1531.14, 1530.55, 1529.91, 1529.11, 1528.11, 1526.26, 1523.91, 1521.18, 1518.38, 1515.66, 1512.31, 1508.18, 1504.61, 1500.3, 1495.2, 1488.88, 1483.75, 1478.85, 1473.87, 1469.18, 1465.06, 1460.26, 1456.13, 1451.84, 1448.24, 1444.82, 1441.14, 1437.89, 1433.27, 1429.06, 1424.59, 1420.66, 1416.54, 1413.08, 1409.88, 1407.62, 1404.09, 1401.33, 1397.79, 1394.54, 1390.79, 1387.59, 1383.69, 1379.86], "fc": [{"t": 1, "mid": 1336.87, "lo50": 1332.24, "hi50": 1341.52, "lo80": 1328.09, "hi80": 1345.72, "alt": 1337.05}, {"t": 2, "mid": 1336.84, "lo50": 1330.3, "hi50": 1343.42, "lo80": 1324.43, "hi80": 1349.37, "alt": 1337.19}, {"t": 3, "mid": 1336.82, "lo50": 1328.8, "hi50": 1344.88, "lo80": 1321.63, "hi80": 1352.17, "alt": 1337.34}, {"t": 4, "mid": 1336.79, "lo50": 1327.54, "hi50": 1346.1, "lo80": 1319.27, "hi80": 1354.54, "alt": 1337.49}, {"t": 5, "mid": 1336.76, "lo50": 1326.43, "hi50": 1347.18, "lo80": 1317.19, "hi80": 1356.62, "alt": 1337.64}, {"t": 6, "mid": 1336.73, "lo50": 1325.42, "hi50": 1348.15, "lo80": 1315.31, "hi80": 1358.5, "alt": 1337.78}, {"t": 7, "mid": 1336.71, "lo50": 1324.49, "hi50": 1349.04, "lo80": 1313.59, "hi80": 1360.23, "alt": 1337.93}, {"t": 8, "mid": 1336.68, "lo50": 1323.62, "hi50": 1349.87, "lo80": 1311.98, "hi80": 1361.85, "alt": 1338.08}, {"t": 9, "mid": 1336.65, "lo50": 1322.81, "hi50": 1350.64, "lo80": 1310.47, "hi80": 1363.36, "alt": 1338.23}, {"t": 10, "mid": 1336.62, "lo50": 1322.03, "hi50": 1351.37, "lo80": 1309.04, "hi80": 1364.79, "alt": 1338.38}, {"t": 11, "mid": 1336.6, "lo50": 1321.3, "hi50": 1352.07, "lo80": 1307.68, "hi80": 1366.15, "alt": 1338.52}, {"t": 12, "mid": 1336.57, "lo50": 1320.6, "hi50": 1352.74, "lo80": 1306.38, "hi80": 1367.45, "alt": 1338.67}, {"t": 13, "mid": 1336.54, "lo50": 1319.92, "hi50": 1353.37, "lo80": 1305.14, "hi80": 1368.7, "alt": 1338.82}, {"t": 14, "mid": 1336.51, "lo50": 1319.27, "hi50": 1353.98, "lo80": 1303.94, "hi80": 1369.9, "alt": 1338.97}, {"t": 15, "mid": 1336.49, "lo50": 1318.64, "hi50": 1354.57, "lo80": 1302.78, "hi80": 1371.06, "alt": 1339.11}, {"t": 16, "mid": 1336.46, "lo50": 1318.03, "hi50": 1355.14, "lo80": 1301.66, "hi80": 1372.18, "alt": 1339.26}, {"t": 17, "mid": 1336.43, "lo50": 1317.44, "hi50": 1355.69, "lo80": 1300.58, "hi80": 1373.27, "alt": 1339.41}, {"t": 18, "mid": 1336.4, "lo50": 1316.87, "hi50": 1356.23, "lo80": 1299.53, "hi80": 1374.32, "alt": 1339.56}, {"t": 19, "mid": 1336.38, "lo50": 1316.31, "hi50": 1356.75, "lo80": 1298.51, "hi80": 1375.35, "alt": 1339.7}, {"t": 20, "mid": 1336.35, "lo50": 1315.77, "hi50": 1357.25, "lo80": 1297.51, "hi80": 1376.35, "alt": 1339.85}], "levels": {"stop": 1310.0, "t1": 1350.0, "t2": 1370.0}, "events": {"08/27": "한은 3.00% 인상", "09/04": "美 고용 서프라이즈", "09/07": "국민연금 저가 매수", "09/09": "52주 신저가"}, "year": "2026", "ladder": {"lo": 1260.0, "hi": 1390.0, "step": 10}, "fb": {"repo": "yms9654/fx-report", "endpoint": "", "date": "2026-09-09", "px": "1,336.90", "chg": "-4.60", "verb": "기다린다", "amt": "", "stop": "1,310", "t1": "1,350", "t2": "1,370", "dataAt": "2026-09-09 22:03 KST"}};
+const PAYLOAD = {"series": [{"d": "2026-06-16", "c": 1511.0}, {"d": "2026-06-17", "c": 1525.5}, {"d": "2026-06-18", "c": 1538.0}, {"d": "2026-06-19", "c": 1533.0}, {"d": "2026-06-22", "c": 1538.5}, {"d": "2026-06-23", "c": 1533.5}, {"d": "2026-06-24", "c": 1543.5}, {"d": "2026-06-25", "c": 1545.0}, {"d": "2026-06-26", "c": 1537.5}, {"d": "2026-06-29", "c": 1541.5}, {"d": "2026-06-30", "c": 1548.0}, {"d": "2026-07-01", "c": 1552.5}, {"d": "2026-07-02", "c": 1542.5}, {"d": "2026-07-03", "c": 1529.0}, {"d": "2026-07-06", "c": 1530.5}, {"d": "2026-07-07", "c": 1517.2}, {"d": "2026-07-08", "c": 1507.0}, {"d": "2026-07-09", "c": 1507.0}, {"d": "2026-07-10", "c": 1502.0}, {"d": "2026-07-13", "c": 1499.5}, {"d": "2026-07-14", "c": 1491.0}, {"d": "2026-07-15", "c": 1488.5}, {"d": "2026-07-16", "c": 1491.0}, {"d": "2026-07-20", "c": 1478.5}, {"d": "2026-07-21", "c": 1482.5}, {"d": "2026-07-22", "c": 1479.0}, {"d": "2026-07-23", "c": 1476.5}, {"d": "2026-07-24", "c": 1462.5}, {"d": "2026-07-27", "c": 1466.0}, {"d": "2026-07-28", "c": 1455.2}, {"d": "2026-07-29", "c": 1446.0}, {"d": "2026-07-30", "c": 1426.2}, {"d": "2026-07-31", "c": 1440.0}, {"d": "2026-08-03", "c": 1430.8}, {"d": "2026-08-04", "c": 1431.0}, {"d": "2026-08-05", "c": 1423.5}, {"d": "2026-08-06", "c": 1424.5}, {"d": "2026-08-07", "c": 1411.0}, {"d": "2026-08-10", "c": 1419.5}, {"d": "2026-08-11", "c": 1413.5}, {"d": "2026-08-12", "c": 1419.0}, {"d": "2026-08-13", "c": 1420.2}, {"d": "2026-08-14", "c": 1417.5}, {"d": "2026-08-18", "c": 1413.5}, {"d": "2026-08-19", "c": 1390.0}, {"d": "2026-08-20", "c": 1394.8}, {"d": "2026-08-21", "c": 1387.0}, {"d": "2026-08-24", "c": 1384.0}, {"d": "2026-08-25", "c": 1383.5}, {"d": "2026-08-26", "c": 1386.0}, {"d": "2026-08-27", "c": 1382.0}, {"d": "2026-08-28", "c": 1381.0}, {"d": "2026-08-31", "c": 1369.5}, {"d": "2026-09-01", "c": 1375.5}, {"d": "2026-09-02", "c": 1360.3}, {"d": "2026-09-03", "c": 1358.5}, {"d": "2026-09-04", "c": 1349.5}, {"d": "2026-09-07", "c": 1347.0}, {"d": "2026-09-08", "c": 1341.5}, {"d": "2026-09-09", "c": 1336.9}], "ma20": [1515.46, 1517.14, 1518.65, 1520.38, 1522.03, 1523.1, 1524.9, 1527.05, 1529.1, 1530.8, 1532.47, 1533.35, 1533.78, 1532.25, 1532.38, 1532.02, 1531.14, 1530.55, 1529.91, 1529.11, 1528.11, 1526.26, 1523.91, 1521.18, 1518.38, 1515.66, 1512.31, 1508.18, 1504.61, 1500.3, 1495.2, 1488.88, 1483.75, 1478.85, 1473.87, 1469.18, 1465.06, 1460.26, 1456.13, 1451.84, 1448.24, 1444.82, 1441.14, 1437.89, 1433.27, 1429.06, 1424.59, 1420.66, 1416.54, 1413.08, 1409.88, 1407.62, 1404.09, 1401.33, 1397.79, 1394.54, 1390.79, 1387.59, 1383.69, 1379.86], "fc": [{"t": 1, "mid": 1336.87, "lo50": 1332.24, "hi50": 1341.52, "lo80": 1328.09, "hi80": 1345.72, "alt": 1337.05}, {"t": 2, "mid": 1336.84, "lo50": 1330.3, "hi50": 1343.42, "lo80": 1324.43, "hi80": 1349.37, "alt": 1337.19}, {"t": 3, "mid": 1336.82, "lo50": 1328.8, "hi50": 1344.88, "lo80": 1321.63, "hi80": 1352.17, "alt": 1337.34}, {"t": 4, "mid": 1336.79, "lo50": 1327.54, "hi50": 1346.1, "lo80": 1319.27, "hi80": 1354.54, "alt": 1337.49}, {"t": 5, "mid": 1336.76, "lo50": 1326.43, "hi50": 1347.18, "lo80": 1317.19, "hi80": 1356.62, "alt": 1337.64}, {"t": 6, "mid": 1336.73, "lo50": 1325.42, "hi50": 1348.15, "lo80": 1315.31, "hi80": 1358.5, "alt": 1337.78}, {"t": 7, "mid": 1336.71, "lo50": 1324.49, "hi50": 1349.04, "lo80": 1313.59, "hi80": 1360.23, "alt": 1337.93}, {"t": 8, "mid": 1336.68, "lo50": 1323.62, "hi50": 1349.87, "lo80": 1311.98, "hi80": 1361.85, "alt": 1338.08}, {"t": 9, "mid": 1336.65, "lo50": 1322.81, "hi50": 1350.64, "lo80": 1310.47, "hi80": 1363.36, "alt": 1338.23}, {"t": 10, "mid": 1336.62, "lo50": 1322.03, "hi50": 1351.37, "lo80": 1309.04, "hi80": 1364.79, "alt": 1338.38}, {"t": 11, "mid": 1336.6, "lo50": 1321.3, "hi50": 1352.07, "lo80": 1307.68, "hi80": 1366.15, "alt": 1338.52}, {"t": 12, "mid": 1336.57, "lo50": 1320.6, "hi50": 1352.74, "lo80": 1306.38, "hi80": 1367.45, "alt": 1338.67}, {"t": 13, "mid": 1336.54, "lo50": 1319.92, "hi50": 1353.37, "lo80": 1305.14, "hi80": 1368.7, "alt": 1338.82}, {"t": 14, "mid": 1336.51, "lo50": 1319.27, "hi50": 1353.98, "lo80": 1303.94, "hi80": 1369.9, "alt": 1338.97}, {"t": 15, "mid": 1336.49, "lo50": 1318.64, "hi50": 1354.57, "lo80": 1302.78, "hi80": 1371.06, "alt": 1339.11}, {"t": 16, "mid": 1336.46, "lo50": 1318.03, "hi50": 1355.14, "lo80": 1301.66, "hi80": 1372.18, "alt": 1339.26}, {"t": 17, "mid": 1336.43, "lo50": 1317.44, "hi50": 1355.69, "lo80": 1300.58, "hi80": 1373.27, "alt": 1339.41}, {"t": 18, "mid": 1336.4, "lo50": 1316.87, "hi50": 1356.23, "lo80": 1299.53, "hi80": 1374.32, "alt": 1339.56}, {"t": 19, "mid": 1336.38, "lo50": 1316.31, "hi50": 1356.75, "lo80": 1298.51, "hi80": 1375.35, "alt": 1339.7}, {"t": 20, "mid": 1336.35, "lo50": 1315.77, "hi50": 1357.25, "lo80": 1297.51, "hi80": 1376.35, "alt": 1339.85}], "levels": {"stop": 1310.0, "t1": 1350.0, "t2": 1370.0}, "events": {"08/27": "한은 3.00% 인상", "09/04": "美 고용 서프라이즈", "09/07": "국민연금 저가 매수", "09/09": "52주 신저가"}, "year": "2026", "ladder": {"lo": 1295.0, "hi": 1420.0, "step": 10}, "fb": {"repo": "yms9654/fx-report", "endpoint": "", "date": "2026-09-09", "px": "1,336.90", "chg": "-4.60", "verb": "D-17", "amt": "진도 0/50%", "stop": "1,310", "t1": "1,350", "t2": "1,370", "dataAt": "2026-09-09 22:03 KST"}};
 const D = PAYLOAD.series.map(r => [r.d.slice(5).replace('-','/'), r.c]);
 const EV = PAYLOAD.events || {};
 const FC = PAYLOAD.fc || [], MA = PAYLOAD.ma20 || [], LV = PAYLOAD.levels || {};
