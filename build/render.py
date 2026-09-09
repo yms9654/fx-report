@@ -116,7 +116,7 @@ def probs_html(w, fwd=None):
     </div>"""
 
 
-def tech_html(t):
+def tech_html(t, dxy=None, kchg=None):
     if not t:
         return ""
     cls = {"down": "dn", "up": "up", "flat": ""}[t["trend"]]
@@ -130,6 +130,11 @@ def tech_html(t):
         ("MA60 대비", f'<b class="t-{"dn" if t["vs60"] < 0 else "up"}">{t["vs60"]:+.1f}%</b>',
          f'MA60 {t["ma60"]:,.0f}'),
     ]
+    if dxy is not None and kchg is not None:
+        own = kchg - dxy["chg20"]
+        cells.append(("달러지수", f'<b class="t-{"dn" if dxy["chg20"] < 0 else "up"}">'
+                                  f'{dxy["chg20"]:+.1f}%</b>',
+                      f'{dxy["last"]:.1f} · 원화 고유 {own:+.1f}%p'))
     if t["bb"]:
         b = t["bb"]
         where = "하단 이탈" if b["pctb"] < 0 else "하단권" if b["pctb"] < 0.2 \
@@ -295,7 +300,9 @@ def main():
         f'<div class="now__rows">{rows_html}</div>'
         + drift_html(drift)
         + f'</div>')
-    S["TECH"] = tech_html(tech)
+    ser = data["series"]
+    kchg = ((ser[-1]["c"] / ser[-21]["c"] - 1) * 100) if len(ser) > 21 else None
+    S["TECH"] = tech_html(tech, data.get("dxy"), kchg)
     ip, fp = f"{px:,.2f}".split(".")
     S["NDAYS"] = str(data["span_days"])
 

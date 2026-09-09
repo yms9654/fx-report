@@ -55,6 +55,24 @@ def from_ecb():
     return out, "ECB 참고환율 (CET 16:00)"
 
 
+def dxy(days=90):
+    """달러지수. 원/달러 움직임이 '달러 요인'인지 '원화 고유 요인'인지 가르는 데 쓴다.
+    Yahoo Finance, 무키. 실패해도 리포트는 그대로 나간다."""
+    url = ("https://query1.finance.yahoo.com/v8/finance/chart/DX-Y.NYB"
+           f"?range={days}d&interval=1d")
+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+    with urllib.request.urlopen(req, timeout=20) as r:
+        d = json.loads(r.read().decode())["chart"]["result"][0]
+    ts = d["timestamp"]
+    cl = d["indicators"]["quote"][0]["close"]
+    out = [{"d": datetime.datetime.fromtimestamp(t, datetime.timezone.utc).strftime("%Y-%m-%d"),
+            "c": round(float(c), 3)}
+           for t, c in zip(ts, cl) if c is not None]
+    if len(out) < 20:
+        raise ValueError(f"dxy only {len(out)} rows")
+    return out
+
+
 def main():
     errs = []
     series = source = None
@@ -105,6 +123,16 @@ def main():
         "span_days": len(series),
         "hist_days": len(hist),
     }
+    try:
+        dx = dxy()
+        c0, c1 = dx[-21]["c"], dx[-1]["c"]
+        doc["dxy"] = {"last": c1, "d": dx[-1]["d"],
+                      "chg20": round((c1 / c0 - 1) * 100, 2),
+                      "series": dx[-60:]}
+    except Exception as e:                                   # noqa: BLE001
+        errs.append(f"dxy: {e}")
+        doc["warnings"] = errs
+
     tmp = OUT.with_suffix(".json.tmp")
     tmp.write_text(json.dumps(doc, ensure_ascii=False, indent=1), encoding="utf-8")
     tmp.replace(OUT)

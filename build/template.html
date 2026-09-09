@@ -306,9 +306,10 @@ a:focus-visible,summary:focus-visible{outline:2px solid var(--up); outline-offse
 .fb__note code{font-family:"IBM Plex Mono",monospace; font-size:11px; background:var(--rule-soft); padding:1px 4px; border-radius:2px}
 
 /* ---------- 기술적 지표 스트립 ---------- */
-.tech{display:grid; grid-template-columns:repeat(5,1fr); gap:1px; background:var(--rule);
+.tech{display:grid; grid-template-columns:repeat(auto-fit,minmax(148px,1fr)); gap:1px; background:var(--rule);
       border:1px solid var(--rule); border-radius:3px; margin-top:14px; overflow:hidden}
 @media (max-width:720px){.tech{grid-template-columns:repeat(2,1fr)}}
+.tech__s{max-width:100%}
 .tech__c{background:var(--card); padding:12px 14px}
 .tech__k{font-family:"IBM Plex Mono",monospace; font-size:9.5px; letter-spacing:.12em;
          text-transform:uppercase; color:var(--muted); margin-bottom:5px}
