@@ -76,8 +76,11 @@ def technicals(hist):
             "vs60": (px / ma60 - 1) * 100 if ma60 else None}
 
 
-def forecast(hist, px, ev_month, days=20, vol_win=60):
-    """로그정규 랜덤워크 예측 밴드. 변동성은 실측, 드리프트는 분석 기대값."""
+def forecast(hist, px, mu_month, alt_month=None, days=20, vol_win=60):
+    """로그정규 예측 밴드.
+
+    변동성은 실측, 중앙선 드리프트(mu_month)는 시장 선도환율에서 온다.
+    alt_month 를 주면 그 경로(분석 기대값)를 비교선으로 함께 낸다."""
     c = [r["c"] for r in hist][-vol_win:]
     rets = [math.log(b / a) for a, b in zip(c, c[1:]) if a > 0 and b > 0]
     if len(rets) < 10:
@@ -85,16 +88,22 @@ def forecast(hist, px, ev_month, days=20, vol_win=60):
     sig = statistics.stdev(rets)
     if sig <= 0:
         return None
-    mu = math.log(float(ev_month) / px) / 21
+    mu = math.log(float(mu_month) / px) / 21
+    mu_alt = math.log(float(alt_month) / px) / 21 if alt_month else None
     pts = []
     for t in range(1, days + 1):
         s, m = sig * math.sqrt(t), mu * t
-        pts.append({"t": t,
-                    "mid": px * math.exp(m),
-                    "lo50": px * math.exp(m - Z50 * s), "hi50": px * math.exp(m + Z50 * s),
-                    "lo80": px * math.exp(m - Z80 * s), "hi80": px * math.exp(m + Z80 * s)})
+        row = {"t": t,
+               "mid": px * math.exp(m),
+               "lo50": px * math.exp(m - Z50 * s), "hi50": px * math.exp(m + Z50 * s),
+               "lo80": px * math.exp(m - Z80 * s), "hi80": px * math.exp(m + Z80 * s)}
+        if mu_alt is not None:
+            row["alt"] = px * math.exp(mu_alt * t)
+        pts.append(row)
     return {"pts": pts, "sig_d": sig * 100, "sig_a": sig * math.sqrt(252) * 100,
-            "mu_m": (math.exp(mu * 21) - 1) * 100, "n": len(rets)}
+            "mu_m": (math.exp(mu * 21) - 1) * 100, "mu": mu,
+            "alt_m": (math.exp(mu_alt * 21) - 1) * 100 if mu_alt is not None else None,
+            "n": len(rets)}
 
 
 def trigger_drift(log, cur_stop, lookback=5):

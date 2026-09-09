@@ -18,6 +18,8 @@ rc_data=0; rc_nar=0
 python3 build/fetch_data.py >> "$LOG" 2>&1 || rc_data=$?
 [ $rc_data -ne 0 ] && say "WARN 데이터 수집 실패 (rc=$rc_data) — 직전 data.json 유지"
 
+python3 build/forward.py >> "$LOG" 2>&1 || say "WARN 선도환율 계산 실패 — 직전 forward.json 유지"
+
 if [ "${FX_SKIP_CLAUDE:-0}" != "1" ]; then
   python3 build/update_narrative.py >> "$LOG" 2>&1 || rc_nar=$?
   [ $rc_nar -ne 0 ] && say "WARN 분석 재작성 실패 (rc=$rc_nar) — 직전 narrative.json 유지"

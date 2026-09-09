@@ -35,7 +35,7 @@ def _touch_dn(b, mu, sig, T):
     return min(max(p, 0.0), 1.0)
 
 
-def weekly_probs(data, nar, px):
+def weekly_probs(data, nar, px, mu_month=None):
     closes = [r["c"] for r in data["series"]]
     rets = [math.log(b / a) for a, b in zip(closes, closes[1:]) if a > 0 and b > 0]
     if len(rets) < 10:
@@ -43,8 +43,8 @@ def weekly_probs(data, nar, px):
     sig = statistics.stdev(rets)                     # 일간 실현변동성
     if sig <= 0:
         return None
-    ev = float(nar["scenario"]["ev"])
-    mu = math.log(ev / px) / TD_MONTH                # 한 달 기대값 → 일간 드리프트
+    ev = float(mu_month if mu_month else nar["scenario"]["ev"])
+    mu = math.log(ev / px) / TD_MONTH                # 한 달 기준값 → 일간 드리프트
 
     sells = sorted((z for z in nar["ladder"]["zones"] if z["kind"] == "sell"),
                    key=lambda z: float(z["lo"]))
@@ -75,7 +75,7 @@ def weekly_probs(data, nar, px):
             "stop": stop}
 
 
-def probs_html(w):
+def probs_html(w, fwd=None):
     if not w:
         return '<p class="lede">확률 계산에 필요한 데이터가 부족합니다.</p>'
     rows = ""
@@ -98,14 +98,18 @@ def probs_html(w):
         touch += trow("t_up", "up", f'{NUM(tgt)} 터치<span>{E(w["target_pct"])} 매도</span>', None)
     if w["weeks"][0]["t_dn"] is not None:
         touch += trow("t_dn", "dn", f'{NUM(w["stop"])} 이탈<span>전량 청산</span>', None)
+    basis = (f'중앙값은 시장 선도환율(한 달 <b>{w["mu_m"]:+.2f}%</b>, '
+             f'{fwd["krw"]["source"].split()[0]} {fwd["krw"]["rate"]*100:.2f}% vs '
+             f'SOFR {fwd["usd"]["rate"]*100:.2f}%)을 따르고,') if fwd else \
+            (f'중앙값은 분석 기대값(한 달 <b>{w["mu_m"]:+.2f}%</b>)을 따르고,')
     return f"""<div class="probs">
       <div class="pw pw--hd"><div class="pw__k">기간</div>
         <div class="pw__bar"><span class="hd-up">오를 확률</span><span class="hd-dn">내릴 확률</span></div></div>
       {rows}
       <div class="probs__split"><div class="probs__splitk">누적 도달 확률 — 기간 안에 한 번이라도 닿을 확률</div>{touch}</div>
-      <p class="probs__note">일간 실현변동성 <b>{w['sig_d']:.2f}%</b> (연율 {w['sig_a']:.1f}%, 최근 {w['n']}개 수익률)와
-      분석 기대값(한 달 <b>{w['mu_m']:+.1f}%</b>)을 드리프트로 둔 로그정규 모델 추정치입니다.
-      시장이 이 가정대로 움직인다는 보장은 없고, 이벤트 리스크는 반영되지 않습니다.</p>
+      <p class="probs__note">{basis} 폭은 일간 실현변동성 <b>{w['sig_d']:.2f}%</b>
+      (연율 {w['sig_a']:.1f}%, 최근 {w['n']}개 수익률)로 잡은 로그정규 모델 추정치입니다.
+      이벤트 점프는 반영되지 않아 FOMC 전후 실제 분포는 이보다 꼬리가 두껍습니다.</p>
     </div>"""
 
 
@@ -234,7 +238,16 @@ def main():
 
     hist = data.get("history") or data["series"]
     tech = technicals(hist)
-    fc = forecast(hist, px, nar["scenario"]["ev"])
+    fwd = None
+    fp = ROOT / "forward.json"
+    if fp.exists():
+        try:
+            fwd = json.loads(fp.read_text(encoding="utf-8"))
+        except Exception:                                    # noqa: BLE001
+            fwd = None
+    # 중앙선은 시장 선도환율, 비교선은 분석 기대값
+    mu_month = float(fwd["m1"]) if fwd else float(nar["scenario"]["ev"])
+    fc = forecast(hist, px, mu_month, alt_month=float(nar["scenario"]["ev"]))
 
     # 트리거 이력 — 손절선이 가격을 따라 내려가는지 감시
     tlog_p = ROOT / "triggers_log.json"
@@ -311,7 +324,7 @@ def main():
         <div><div class="k">현재가 대비</div><div class="v" style="color:var(--{'up' if sc['ev']>=px else 'down'})">{sc['ev']-px:+,.0f}원</div></div>
       </div></div>"""
 
-    S["PROBS"] = probs_html(weekly_probs(data, nar, px))
+    S["PROBS"] = probs_html(weekly_probs(data, nar, px, mu_month), fwd)
 
     lad = nar["ladder"]
     alo, ahi = float(lad["lo"]), float(lad["hi"])
