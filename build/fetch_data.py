@@ -9,7 +9,7 @@ KST = zoneinfo.ZoneInfo("Asia/Seoul")
 UA = {"User-Agent": "Mozilla/5.0 (fx-report daily updater)"}
 DAYS = 60          # 차트에 담을 영업일 수
 PAGE_SIZE = 60     # 네이버 API 한 장 최대
-PAGES = 4          # 4장 = 약 1년치 (지표·52주 계산용)
+PAGES = 12         # 12장 = 약 3년치 (52주·MA120·HAR-RV 계산용)
 
 
 def get(url, timeout=20):
@@ -82,12 +82,15 @@ def main():
         except Exception:                            # noqa: BLE001
             hist = {}
     hist.update({r["d"]: r["c"] for r in full})
-    cutoff = (datetime.date.fromisoformat(latest["d"]) - datetime.timedelta(days=365)).isoformat()
-    hist = {d: c for d, c in hist.items() if d >= cutoff}   # 365일 지난 값은 버린다
+    ld = datetime.date.fromisoformat(latest["d"])
+    keep = (ld - datetime.timedelta(days=1200)).isoformat()  # 약 3년 보관 (HAR-RV 학습용)
+    hist = {d: c for d, c in hist.items() if d >= keep}
     tmp_h = HIST.with_suffix(".json.tmp")
     tmp_h.write_text(json.dumps(dict(sorted(hist.items())), indent=0), encoding="utf-8")
     tmp_h.replace(HIST)
-    lo, hi = min(hist.values()), max(hist.values())
+    y1 = (ld - datetime.timedelta(days=365)).isoformat()     # 52주 범위는 1년치에서만
+    w52v = [c for d, c in hist.items() if d >= y1] or list(hist.values())
+    lo, hi = min(w52v), max(w52v)
 
     first = closes[0]
     doc = {

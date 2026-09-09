@@ -35,12 +35,14 @@ def _touch_dn(b, mu, sig, T):
     return min(max(p, 0.0), 1.0)
 
 
-def weekly_probs(data, nar, px, mu_month=None):
+def weekly_probs(data, nar, px, mu_month=None, sig_override=None, vol_src=None):
     closes = [r["c"] for r in data["series"]]
     rets = [math.log(b / a) for a, b in zip(closes, closes[1:]) if a > 0 and b > 0]
     if len(rets) < 10:
         return None
     sig = statistics.stdev(rets)                     # 일간 실현변동성
+    if sig_override:
+        sig = sig_override                           # 예측 밴드와 같은 변동성을 쓴다
     if sig <= 0:
         return None
     ev = float(mu_month if mu_month else nar["scenario"]["ev"])
@@ -70,6 +72,7 @@ def weekly_probs(data, nar, px, mu_month=None):
             "t_dn": round(_touch_dn(b_dn, mu, sig, T) * 100) if b_dn < 0 else None,
         })
     return {"weeks": weeks, "sig_d": sig * 100, "sig_a": sig * math.sqrt(252) * 100,
+            "vol_src": vol_src or "실현변동성",
             "mu_m": (math.exp(mu * TD_MONTH) - 1) * 100, "n": len(rets),
             "target": float(nxt["lo"]) if nxt else None, "target_pct": nxt["pct"] if nxt else None,
             "stop": stop}
@@ -107,8 +110,8 @@ def probs_html(w, fwd=None):
         <div class="pw__bar"><span class="hd-up">오를 확률</span><span class="hd-dn">내릴 확률</span></div></div>
       {rows}
       <div class="probs__split"><div class="probs__splitk">누적 도달 확률 — 기간 안에 한 번이라도 닿을 확률</div>{touch}</div>
-      <p class="probs__note">{basis} 폭은 일간 실현변동성 <b>{w['sig_d']:.2f}%</b>
-      (연율 {w['sig_a']:.1f}%, 최근 {w['n']}개 수익률)로 잡은 로그정규 모델 추정치입니다.
+      <p class="probs__note">{basis} 폭은 {w['vol_src']} <b>일간 {w['sig_d']:.2f}%</b>
+      (연율 {w['sig_a']:.1f}%)로 잡은 로그정규 모델 추정치입니다.
       이벤트 점프는 반영되지 않아 FOMC 전후 실제 분포는 이보다 꼬리가 두껍습니다.</p>
     </div>"""
 
@@ -324,7 +327,10 @@ def main():
         <div><div class="k">현재가 대비</div><div class="v" style="color:var(--{'up' if sc['ev']>=px else 'down'})">{sc['ev']-px:+,.0f}원</div></div>
       </div></div>"""
 
-    S["PROBS"] = probs_html(weekly_probs(data, nar, px, mu_month), fwd)
+    S["PROBS"] = probs_html(
+        weekly_probs(data, nar, px, mu_month,
+                     sig_override=(fc["sig_d"] / 100) if fc else None,
+                     vol_src=fc["vol_src"] if fc else None), fwd)
 
     lad = nar["ladder"]
     alo, ahi = float(lad["lo"]), float(lad["hi"])
