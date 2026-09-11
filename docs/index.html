@@ -200,21 +200,7 @@ a:focus-visible,summary:focus-visible{outline:2px solid var(--up); outline-offse
 
 /* ---------- 주간 확률 ---------- */
 .probs{background:var(--card); border:1px solid var(--rule); border-radius:3px; padding:22px 24px; box-shadow:var(--shadow)}
-.pw{display:grid; grid-template-columns:74px 1fr; gap:16px; align-items:center; padding:7px 0}
-@media (max-width:640px){.pw{grid-template-columns:58px 1fr; gap:10px}}
-.pw--hd{padding-bottom:10px; border-bottom:1px solid var(--rule); margin-bottom:6px}
-.pw--hd .pw__k,.pw--hd .pw__rng{font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted)}
-.pw--hd .pw__bar{display:flex; justify-content:space-between; background:none; height:auto}
-.pw--hd .pw__bar span{font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.12em; text-transform:uppercase}
 .hd-up{color:var(--up)} .hd-dn{color:var(--down)}
-.pw__k{font-family:"IBM Plex Mono",monospace; font-size:14px; font-weight:600; letter-spacing:-.01em}
-.pw__k span{display:block; font-size:10.5px; font-weight:400; color:var(--muted); letter-spacing:0}
-.pw__bar{display:flex; gap:2px; height:30px; border-radius:2px; overflow:hidden}
-.pw__seg{display:flex; align-items:center; min-width:0; padding:0 9px}
-.pw__seg span{font-family:"IBM Plex Mono",monospace; font-size:12.5px; font-weight:600; color:#fff; white-space:nowrap}
-.pw__seg.s-up{background:var(--up)}
-.pw__seg.s-dn{background:var(--down); justify-content:flex-end}
-.pw__rng{font-family:"IBM Plex Mono",monospace; font-size:12.5px; color:var(--ink-2); text-align:right; letter-spacing:-.01em}
 .probs__split{margin-top:22px; padding-top:18px; border-top:1px solid var(--rule)}
 .probs__splitk{font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); margin-bottom:12px}
 .pt{display:grid; grid-template-columns:150px repeat(4,1fr); gap:10px; align-items:center; padding:8px 0; border-top:1px solid var(--rule-soft)}
@@ -317,8 +303,6 @@ a:focus-visible,summary:focus-visible{outline:2px solid var(--up); outline-offse
   var(--ink-2) 0 6px, transparent 6px 10px); opacity:.85}
 .chart__lg .lg-mid{background:repeating-linear-gradient(90deg,
   var(--ink) 0 6px, transparent 6px 10px)}
-.chart__lg .lg-alt{background:repeating-linear-gradient(90deg,
-  var(--up) 0 3px, transparent 3px 7px); opacity:.9}
 .chart__lg .lg-band{height:10px; border-radius:2px; background:var(--ink); opacity:.22}
 
 /* ---------- 계획 상태 게이지 ---------- */
@@ -326,18 +310,12 @@ a:focus-visible,summary:focus-visible{outline:2px solid var(--up); outline-offse
 .dcount{font-family:"IBM Plex Mono",monospace; font-size:13px; font-weight:700; letter-spacing:-.02em;
         color:var(--ink); text-transform:none}
 .now--cut .dcount{color:var(--down)}
-.gg__px{font-family:"IBM Plex Mono",monospace; font-size:clamp(38px,7.5vw,56px); font-weight:600;
-        letter-spacing:-.04em; line-height:1; margin:14px 0 8px}
-.gg__head{margin:0 0 4px; font-size:16px; font-weight:600; letter-spacing:-.01em}
-.now--cut .gg__head{color:var(--down)}
-.now--sell .gg__head{color:var(--up)}
-.gg__head b{font-family:"IBM Plex Mono",monospace; font-weight:600}
-.gg__rows{margin-top:16px}
-.gg{display:grid; grid-template-columns:74px 88px 92px 1fr; gap:14px; align-items:baseline;
+.now--cut .now--sell .gg__rows{margin-top:16px}
+.gg{display:grid; grid-template-columns:56px 104px 1fr; gap:14px; align-items:baseline;
     padding:10px 0; border-top:1px solid var(--rule-soft)}
 @media (max-width:640px){
-  .gg{grid-template-columns:70px 1fr auto; gap:8px 10px}
-  .gg__s{grid-column:1/-1; padding-left:80px; margin-top:-4px}
+  .gg{grid-template-columns:52px 1fr; gap:6px 10px}
+  .gg__s{grid-column:1/-1; padding-left:62px; margin-top:-4px}
 }
 .gg--stop{border-top:1px solid var(--rule)}
 .gg__k{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.1em;
@@ -346,10 +324,17 @@ a:focus-visible,summary:focus-visible{outline:2px solid var(--up); outline-offse
        text-align:right; white-space:nowrap}
 .gg__v .u{font-size:11px; font-weight:400; color:var(--muted); letter-spacing:0}
 .gg__s{font-size:12.5px; color:var(--muted); line-height:1.45}
-.bar{display:block; height:6px; border-radius:3px; background:var(--rule); overflow:hidden}
-.bar i{display:block; height:100%; background:var(--ink-2); border-radius:3px}
-.bar.b-warn i{background:var(--down)}
-@media (max-width:640px){.bar{margin-top:5px}}
+
+/* ---------- 오늘 할 일 ---------- */
+.act{font-size:clamp(44px,9vw,68px); font-weight:700; letter-spacing:-.045em; line-height:1;
+     margin:16px 0 10px}
+.now--cut .act{color:var(--down)}
+.now--sell .act{color:var(--up)}
+.act__how{margin:0 0 4px; font-size:16px; color:var(--ink-2); line-height:1.55; max-width:52ch}
+.act__how b{color:var(--ink); font-weight:600; font-family:"IBM Plex Mono",monospace}
+.gg__gap{margin:14px 0 0; padding-top:12px; border-top:1px solid var(--rule-soft);
+         font-size:12.5px; color:var(--muted); line-height:1.5}
+.why .tech{margin-top:0}
 </style>
 </head>
 <body>
@@ -357,7 +342,7 @@ a:focus-visible,summary:focus-visible{outline:2px solid var(--up); outline-offse
 <div class="metabar">
   <div class="metabar__in">
     <span><strong>USD/KRW</strong> 매도 리포트</span>
-    <span class="metabar__px"><span class="metabar__verb ">D-15</span> · 1,350.00 <span class="chg-dn">-1.00</span> · 2026.09.11</span>
+    <span class="metabar__px"><span class="metabar__verb ">D-13</span> · 1,350.00 <span class="chg-dn">-1.00</span> · 2026.09.11</span>
   </div>
 </div>
 
@@ -365,47 +350,21 @@ a:focus-visible,summary:focus-visible{outline:2px solid var(--up); outline-offse
 
 <header class="hero">
   <p class="eyebrow">한 달 매도 전략 · 자동 갱신 2026.09.11</p>
-  <div class="now now--cut"><div class="now__k">계획 상태 · D-0 26.09.03 → 마감 26.10.03<span class="dcount">D-15</span></div><div class="gg__px">1,350.00</div><p class="gg__head">진도 뒤처짐</p><div class="gg__rows"><div class="gg"><span class="gg__k">분포 위치</span><span class="gg__b"><span class="bar "><i style="width:43.3%"></i></span></span><span class="gg__v">43<span class="u">%ile</span></span><span class="gg__s">계획 시점 예상 분포의 하위 43%</span></div><div class="gg"><span class="gg__k">창내 고점</span><span class="gg__b"></span><span class="gg__v">1,358.50</span><span class="gg__s">-8.5원 · 26.09.03 기록</span></div><div class="gg"><span class="gg__k">계획 진도</span><span class="gg__b"><span class="bar b-warn"><i style="width:0.0%"></i></span></span><span class="gg__v">0<span class="u">/50%</span></span><span class="gg__s">시간은 29% 지남</span></div><div class="gg"><span class="gg__k">다음 눈금</span><span class="gg__b"></span><span class="gg__v">1,365</span><span class="gg__s">도달 시 30% 매도 · +15.0원</span></div><div class="gg gg--stop"><span class="gg__k">손절선</span><span class="gg__b"></span><span class="gg__v">1,345</span><span class="gg__s">+5.0원</span></div></div><div class="warn"><span class="warn__k">계획 점검</span><span class="warn__t">최근 5회 중 <b>3번</b> 손절선이 낮아졌습니다 (<b>1,345 → 1,310</b>, 35원). 가격을 따라 손절이 내려가면 계획은 영원히 발동하지 않습니다. 지금 값이 아니라 <b>처음 정한 1,345</b>을 기준으로 판단하세요.</span></div></div>
+  <div class="now now--wait"><div class="now__k">오늘 할 일 · 10/02 마감<span class="dcount">D-13</span></div><div class="act">없음</div><p class="act__how">지정가 <b>1,365</b> 유지. 걸어두었다면 오늘 볼 일은 끝입니다.</p><div class="gg__rows"><div class="gg"><span class="gg__k">현재</span><span class="gg__v">1,350.00</span><span class="gg__s">다음 눈금 1,365까지 +15.0원</span></div><div class="gg"><span class="gg__k">잔여</span><span class="gg__v">56<span class="u">%</span></span><span class="gg__s">하한 분할선 1,345 · +5.0원 · 2회 이탈</span></div></div><p class="gg__gap">추석 휴장으로 09.28까지 4일 공백이 있습니다. 그 앞뒤로 거래일이 몰립니다.</p></div>
 </header>
 
 <section>
   <h2>계획</h2>
-  <p class="lede">9/3에 정한 계획입니다. 가격이 움직였다는 이유로 눈금을 옮기지 않습니다. 굵은 선이 현재가.</p>
+  <p class="lede">9/3에 정한 계획입니다. 가격이 움직였다는 이유로 눈금을 옮기지 않습니다.</p>
   <div class="ladder"><div class="ladder__axis" id="axis"></div><div class="ladder__field" id="field"><div class="zone zone--t2" style="bottom:76.0%; height:12.0%"><div class="zone__in"><div class="zone__hd"><span class="zone__pct">20%</span><span class="zone__ttl">2차 — FOMC 직후</span><span class="zone__px">1,390 – 1,405</span></div><div class="zone__note"></div></div></div><div class="zone zone--t2" style="bottom:56.0%; height:10.4%"><div class="zone__in"><div class="zone__hd"><span class="zone__pct">30%</span><span class="zone__ttl">1차 — 단기 되돌림</span><span class="zone__px">1,365 – 1,378</span></div><div class="zone__note">9/17~25. 인상 시 스파이크 구간, MA20 저항 상단.</div></div></div><div class="zone zone--cut" style="bottom:8.0%; height:32.0%"><div class="zone__in"><div class="zone__hd"><span class="zone__pct">전량</span><span class="zone__ttl">손절 — 계획 종료</span><span class="zone__px">1,305 – 1,345</span></div><div class="zone__note">1,310원 하회 시 전량 손절. 이틀째 동결, 유지합니다.</div></div></div><div class="nowline" style="bottom:44.0%"><span class="nowline__tag">현재 1,350.00</span></div></div></div>
 </section>
 
 <section>
-  <h2>주간 확률</h2>
-  <p class="lede">앞으로 4주. 아래 두 줄은 그 기간 안에 계획 가격을 한 번이라도 건드릴 확률입니다.</p>
+  <h2>눈금에 닿을 확률</h2>
+  <p class="lede">방향 예측이 아니라 변동성×잔여시간의 함수입니다. "이 눈금이 현실적인가"에 대한 답.</p>
   <div class="probs">
-      <div class="pw pw--hd"><div class="pw__k">기간</div>
-        <div class="pw__bar"><span class="hd-up">오를 확률</span><span class="hd-dn">내릴 확률</span></div></div>
-      <div class="pw">
-          <div class="pw__k">1주<span>~09/18</span></div>
-          <div class="pw__bar">
-            <div class="pw__seg s-up" style="flex:50"><span>50%</span></div>
-            <div class="pw__seg s-dn" style="flex:50"><span>50%</span></div>
-          </div>
-        </div><div class="pw">
-          <div class="pw__k">2주<span>~09/25</span></div>
-          <div class="pw__bar">
-            <div class="pw__seg s-up" style="flex:50"><span>50%</span></div>
-            <div class="pw__seg s-dn" style="flex:50"><span>50%</span></div>
-          </div>
-        </div><div class="pw">
-          <div class="pw__k">3주<span>~10/02</span></div>
-          <div class="pw__bar">
-            <div class="pw__seg s-up" style="flex:49"><span>49%</span></div>
-            <div class="pw__seg s-dn" style="flex:51"><span>51%</span></div>
-          </div>
-        </div><div class="pw">
-          <div class="pw__k">4주<span>~10/09</span></div>
-          <div class="pw__bar">
-            <div class="pw__seg s-up" style="flex:49"><span>49%</span></div>
-            <div class="pw__seg s-dn" style="flex:51"><span>51%</span></div>
-          </div>
-        </div>
-      <div class="probs__split"><div class="probs__splitk">누적 도달 확률 — 기간 안에 한 번이라도 닿을 확률</div><div class="pt"><div class="pt__k up">1,365 터치<span>30% 매도</span></div><div class="pt__v"><span>1주</span><b>33%</b></div><div class="pt__v"><span>2주</span><b>49%</b></div><div class="pt__v"><span>3주</span><b>57%</b></div><div class="pt__v"><span>4주</span><b>62%</b></div></div><div class="pt"><div class="pt__k dn">1,345 이탈<span>전량 청산</span></div><div class="pt__v"><span>1주</span><b>75%</b></div><div class="pt__v"><span>2주</span><b>82%</b></div><div class="pt__v"><span>3주</span><b>85%</b></div><div class="pt__v"><span>4주</span><b>87%</b></div></div></div>
+      <div class="probs__split" style="margin-top:0;padding-top:0;border-top:0">
+      <div class="probs__splitk">계획 가격에 기간 안에 한 번이라도 닿을 확률</div><div class="pt"><div class="pt__k up">1,365 터치<span>30% 매도</span></div><div class="pt__v"><span>1주</span><b>33%</b></div><div class="pt__v"><span>2주</span><b>49%</b></div><div class="pt__v"><span>3주</span><b>57%</b></div><div class="pt__v"><span>4주</span><b>62%</b></div></div><div class="pt"><div class="pt__k dn">1,345 이탈<span>전량 청산</span></div><div class="pt__v"><span>1주</span><b>75%</b></div><div class="pt__v"><span>2주</span><b>82%</b></div><div class="pt__v"><span>3주</span><b>85%</b></div><div class="pt__v"><span>4주</span><b>87%</b></div></div></div>
       <p class="probs__note">중앙값은 시장 선도환율(한 달 <b>-0.04%</b>, CD(91일) 3.13% vs SOFR 3.64%)을 따르고, 폭은 HAR-RV 예측변동성 <b>일간 0.51%</b>
       (연율 8.1%)로 잡은 로그정규 모델 추정치입니다.
       이벤트 점프는 반영되지 않아 FOMC 전후 실제 분포는 이보다 꼬리가 두껍습니다.</p>
@@ -430,10 +389,8 @@ a:focus-visible,summary:focus-visible{outline:2px solid var(--up); outline-offse
     <span><i class="lg-solid"></i>종가</span>
     <span><i class="lg-dash"></i>MA20</span>
     <span><i class="lg-dash lg-mid"></i>시장 선도</span>
-    <span><i class="lg-dash lg-alt"></i>분석 기대</span>
     <span><i class="lg-band"></i>50% · 80% 구간</span>
   </div>
-  <div class="tech"><div class="tech__c"><div class="tech__k">추세</div><div class="tech__v"><b class="t-dn">하락추세</b></div><div class="tech__s">3/3 하락 신호</div></div><div class="tech__c"><div class="tech__k">RSI(14)</div><div class="tech__v"><b class="t-dn">27</b></div><div class="tech__s">과매도</div></div><div class="tech__c"><div class="tech__k">MA20 대비</div><div class="tech__v"><b class="t-dn">-1.7%</b></div><div class="tech__s">MA20 1,373</div></div><div class="tech__c"><div class="tech__k">MA60 대비</div><div class="tech__v"><b class="t-dn">-6.8%</b></div><div class="tech__s">MA60 1,448</div></div><div class="tech__c"><div class="tech__k">달러지수</div><div class="tech__v"><b class="t-dn">-0.9%</b></div><div class="tech__s">99.1 · 원화 고유 -4.0%p</div></div><div class="tech__c"><div class="tech__k">볼린저 %B</div><div class="tech__v"><b>0.24</b></div><div class="tech__s">중앙권</div></div></div>
   <details class="tbl">
     <summary>표로 보기 — 일별 종가 60영업일</summary>
     <table><thead><tr><th>일자</th><th>종가</th><th>전일비</th></tr></thead><tbody id="tbody"></tbody></table>
@@ -446,6 +403,8 @@ a:focus-visible,summary:focus-visible{outline:2px solid var(--up); outline-offse
   <details class="why">
     <summary><span class="s-t">힘겨루기 · 시나리오 · 일정 · 체결 비용</span><span class="s-h">펼치기</span></summary>
     <div class="why__in">
+      <h3 class="wh">기술적 지표 (방향 신호는 이 리포트가 신뢰하지 않습니다)</h3>
+      <div class="tech"><div class="tech__c"><div class="tech__k">추세</div><div class="tech__v"><b class="t-dn">하락추세</b></div><div class="tech__s">3/3 하락 신호</div></div><div class="tech__c"><div class="tech__k">RSI(14)</div><div class="tech__v"><b class="t-dn">27</b></div><div class="tech__s">과매도</div></div><div class="tech__c"><div class="tech__k">MA20 대비</div><div class="tech__v"><b class="t-dn">-1.7%</b></div><div class="tech__s">MA20 1,373</div></div><div class="tech__c"><div class="tech__k">MA60 대비</div><div class="tech__v"><b class="t-dn">-6.8%</b></div><div class="tech__s">MA60 1,448</div></div><div class="tech__c"><div class="tech__k">달러지수</div><div class="tech__v"><b class="t-dn">-0.9%</b></div><div class="tech__s">99.1 · 원화 고유 -4.0%p</div></div><div class="tech__c"><div class="tech__k">볼린저 %B</div><div class="tech__v"><b>0.24</b></div><div class="tech__s">중앙권</div></div></div>
       <h3 class="wh">지금의 힘겨루기</h3>
       <div class="tug"><div class="force force--dn"><h3>원화 강세</h3><div class="dir">환율 하락 압력</div><ul><li><span class="tag tag--std">정책</span><span>한은 기준금리 <b>3.00%</b>로 2연속 인상 → 한미 금리차 축소</span></li><li><span class="tag tag--std">수출</span><span>반도체 8월 수출 <b>467억달러</b> 역대 최대치</span></li><li><span class="tag tag--std">수급</span><span>국민연금 저가 매수 지속 → 낙폭 방어</span></li></ul></div><div class="force force--up"><h3>달러 강세</h3><div class="dir">환율 상승 압력</div><ul><li><span class="tag tag--new">연준</span><span>PPI 후 9월 인상 확률 <b>73%</b>로 급등</span></li><li><span class="tag tag--new">지정학</span><span>美, 이란 유조선 타격 → 브렌트유 <b>101달러</b></span></li><li><span class="tag tag--std">수급</span><span>유가발 달러 강세에 원화 반등, 1,341→1,350원</span></li><li><span class="tag tag--std">기술</span><span>RSI 27.1 과매도 지속 → 추가 반등 여력</span></li></ul></div></div>
       <h3 class="wh">오늘 분석이 보는 구간 (참고용, 계획을 바꾸지 않음)</h3>
@@ -517,7 +476,7 @@ a:focus-visible,summary:focus-visible{outline:2px solid var(--up); outline-offse
 </div>
 
 <script>
-const PAYLOAD = {"series": [{"d": "2026-06-18", "c": 1538.0}, {"d": "2026-06-19", "c": 1533.0}, {"d": "2026-06-22", "c": 1538.5}, {"d": "2026-06-23", "c": 1533.5}, {"d": "2026-06-24", "c": 1543.5}, {"d": "2026-06-25", "c": 1545.0}, {"d": "2026-06-26", "c": 1537.5}, {"d": "2026-06-29", "c": 1541.5}, {"d": "2026-06-30", "c": 1548.0}, {"d": "2026-07-01", "c": 1552.5}, {"d": "2026-07-02", "c": 1542.5}, {"d": "2026-07-03", "c": 1529.0}, {"d": "2026-07-06", "c": 1530.5}, {"d": "2026-07-07", "c": 1517.2}, {"d": "2026-07-08", "c": 1507.0}, {"d": "2026-07-09", "c": 1507.0}, {"d": "2026-07-10", "c": 1502.0}, {"d": "2026-07-13", "c": 1499.5}, {"d": "2026-07-14", "c": 1491.0}, {"d": "2026-07-15", "c": 1488.5}, {"d": "2026-07-16", "c": 1491.0}, {"d": "2026-07-20", "c": 1478.5}, {"d": "2026-07-21", "c": 1482.5}, {"d": "2026-07-22", "c": 1479.0}, {"d": "2026-07-23", "c": 1476.5}, {"d": "2026-07-24", "c": 1462.5}, {"d": "2026-07-27", "c": 1466.0}, {"d": "2026-07-28", "c": 1455.2}, {"d": "2026-07-29", "c": 1446.0}, {"d": "2026-07-30", "c": 1426.2}, {"d": "2026-07-31", "c": 1440.0}, {"d": "2026-08-03", "c": 1430.8}, {"d": "2026-08-04", "c": 1431.0}, {"d": "2026-08-05", "c": 1423.5}, {"d": "2026-08-06", "c": 1424.5}, {"d": "2026-08-07", "c": 1411.0}, {"d": "2026-08-10", "c": 1419.5}, {"d": "2026-08-11", "c": 1413.5}, {"d": "2026-08-12", "c": 1419.0}, {"d": "2026-08-13", "c": 1420.2}, {"d": "2026-08-14", "c": 1417.5}, {"d": "2026-08-18", "c": 1413.5}, {"d": "2026-08-19", "c": 1390.0}, {"d": "2026-08-20", "c": 1394.8}, {"d": "2026-08-21", "c": 1387.0}, {"d": "2026-08-24", "c": 1384.0}, {"d": "2026-08-25", "c": 1383.5}, {"d": "2026-08-26", "c": 1386.0}, {"d": "2026-08-27", "c": 1382.0}, {"d": "2026-08-28", "c": 1381.0}, {"d": "2026-08-31", "c": 1369.5}, {"d": "2026-09-01", "c": 1375.5}, {"d": "2026-09-02", "c": 1360.3}, {"d": "2026-09-03", "c": 1358.5}, {"d": "2026-09-04", "c": 1349.5}, {"d": "2026-09-07", "c": 1347.0}, {"d": "2026-09-08", "c": 1341.5}, {"d": "2026-09-09", "c": 1341.0}, {"d": "2026-09-10", "c": 1351.0}, {"d": "2026-09-11", "c": 1350.0}], "ma20": [1518.65, 1520.38, 1522.03, 1523.1, 1524.9, 1527.05, 1529.1, 1530.8, 1532.47, 1533.35, 1533.78, 1532.25, 1532.38, 1532.02, 1531.14, 1530.55, 1529.91, 1529.11, 1528.11, 1526.26, 1523.91, 1521.18, 1518.38, 1515.66, 1512.31, 1508.18, 1504.61, 1500.3, 1495.2, 1488.88, 1483.75, 1478.85, 1473.87, 1469.18, 1465.06, 1460.26, 1456.13, 1451.84, 1448.24, 1444.82, 1441.14, 1437.89, 1433.27, 1429.06, 1424.59, 1420.66, 1416.54, 1413.08, 1409.88, 1407.62, 1404.09, 1401.33, 1397.79, 1394.54, 1390.79, 1387.59, 1383.69, 1380.07, 1376.66, 1373.15], "fc": [{"t": 1, "mid": 1349.97, "lo50": 1345.32, "hi50": 1354.64, "lo80": 1341.15, "hi80": 1358.85, "alt": 1350.14}, {"t": 2, "mid": 1349.95, "lo50": 1343.37, "hi50": 1356.55, "lo80": 1337.49, "hi80": 1362.52, "alt": 1350.29}, {"t": 3, "mid": 1349.92, "lo50": 1341.87, "hi50": 1358.01, "lo80": 1334.68, "hi80": 1365.34, "alt": 1350.43}, {"t": 4, "mid": 1349.89, "lo50": 1340.61, "hi50": 1359.24, "lo80": 1332.31, "hi80": 1367.71, "alt": 1350.57}, {"t": 5, "mid": 1349.86, "lo50": 1339.49, "hi50": 1360.32, "lo80": 1330.22, "hi80": 1369.8, "alt": 1350.71}, {"t": 6, "mid": 1349.84, "lo50": 1338.48, "hi50": 1361.29, "lo80": 1328.33, "hi80": 1371.69, "alt": 1350.86}, {"t": 7, "mid": 1349.81, "lo50": 1337.54, "hi50": 1362.19, "lo80": 1326.6, "hi80": 1373.43, "alt": 1351.0}, {"t": 8, "mid": 1349.78, "lo50": 1336.67, "hi50": 1363.02, "lo80": 1324.98, "hi80": 1375.05, "alt": 1351.14}, {"t": 9, "mid": 1349.76, "lo50": 1335.85, "hi50": 1363.8, "lo80": 1323.47, "hi80": 1376.57, "alt": 1351.28}, {"t": 10, "mid": 1349.73, "lo50": 1335.08, "hi50": 1364.54, "lo80": 1322.03, "hi80": 1378.01, "alt": 1351.43}, {"t": 11, "mid": 1349.7, "lo50": 1334.34, "hi50": 1365.24, "lo80": 1320.67, "hi80": 1379.37, "alt": 1351.57}, {"t": 12, "mid": 1349.67, "lo50": 1333.64, "hi50": 1365.9, "lo80": 1319.36, "hi80": 1380.68, "alt": 1351.71}, {"t": 13, "mid": 1349.65, "lo50": 1332.96, "hi50": 1366.54, "lo80": 1318.12, "hi80": 1381.93, "alt": 1351.86}, {"t": 14, "mid": 1349.62, "lo50": 1332.31, "hi50": 1367.16, "lo80": 1316.91, "hi80": 1383.14, "alt": 1352.0}, {"t": 15, "mid": 1349.59, "lo50": 1331.68, "hi50": 1367.75, "lo80": 1315.75, "hi80": 1384.3, "alt": 1352.14}, {"t": 16, "mid": 1349.57, "lo50": 1331.07, "hi50": 1368.32, "lo80": 1314.63, "hi80": 1385.43, "alt": 1352.29}, {"t": 17, "mid": 1349.54, "lo50": 1330.47, "hi50": 1368.88, "lo80": 1313.54, "hi80": 1386.52, "alt": 1352.43}, {"t": 18, "mid": 1349.51, "lo50": 1329.9, "hi50": 1369.41, "lo80": 1312.49, "hi80": 1387.58, "alt": 1352.57}, {"t": 19, "mid": 1349.48, "lo50": 1329.34, "hi50": 1369.94, "lo80": 1311.46, "hi80": 1388.61, "alt": 1352.71}, {"t": 20, "mid": 1349.46, "lo50": 1328.79, "hi50": 1370.44, "lo80": 1310.46, "hi80": 1389.61, "alt": 1352.86}], "levels": {"stop": 1310.0, "t1": 1350.0, "t2": 1370.0}, "events": {"08/27": "한은 3.00% 인상", "09/09": "52주 신저가 1,341원", "09/10": "유가급등에 반등 1,351원", "09/11": "CPI 대기, 보합 1,350원"}, "year": "2026", "ladder": {"lo": 1295.0, "hi": 1420.0, "step": 10}, "fb": {"repo": "yms9654/fx-report", "endpoint": "", "date": "2026-09-11", "px": "1,350.00", "chg": "-1.00", "verb": "D-15", "amt": "진도 0/50%", "stop": "1,310", "t1": "1,350", "t2": "1,370", "dataAt": "2026-09-11 08:30 KST"}};
+const PAYLOAD = {"series": [{"d": "2026-06-18", "c": 1538.0}, {"d": "2026-06-19", "c": 1533.0}, {"d": "2026-06-22", "c": 1538.5}, {"d": "2026-06-23", "c": 1533.5}, {"d": "2026-06-24", "c": 1543.5}, {"d": "2026-06-25", "c": 1545.0}, {"d": "2026-06-26", "c": 1537.5}, {"d": "2026-06-29", "c": 1541.5}, {"d": "2026-06-30", "c": 1548.0}, {"d": "2026-07-01", "c": 1552.5}, {"d": "2026-07-02", "c": 1542.5}, {"d": "2026-07-03", "c": 1529.0}, {"d": "2026-07-06", "c": 1530.5}, {"d": "2026-07-07", "c": 1517.2}, {"d": "2026-07-08", "c": 1507.0}, {"d": "2026-07-09", "c": 1507.0}, {"d": "2026-07-10", "c": 1502.0}, {"d": "2026-07-13", "c": 1499.5}, {"d": "2026-07-14", "c": 1491.0}, {"d": "2026-07-15", "c": 1488.5}, {"d": "2026-07-16", "c": 1491.0}, {"d": "2026-07-20", "c": 1478.5}, {"d": "2026-07-21", "c": 1482.5}, {"d": "2026-07-22", "c": 1479.0}, {"d": "2026-07-23", "c": 1476.5}, {"d": "2026-07-24", "c": 1462.5}, {"d": "2026-07-27", "c": 1466.0}, {"d": "2026-07-28", "c": 1455.2}, {"d": "2026-07-29", "c": 1446.0}, {"d": "2026-07-30", "c": 1426.2}, {"d": "2026-07-31", "c": 1440.0}, {"d": "2026-08-03", "c": 1430.8}, {"d": "2026-08-04", "c": 1431.0}, {"d": "2026-08-05", "c": 1423.5}, {"d": "2026-08-06", "c": 1424.5}, {"d": "2026-08-07", "c": 1411.0}, {"d": "2026-08-10", "c": 1419.5}, {"d": "2026-08-11", "c": 1413.5}, {"d": "2026-08-12", "c": 1419.0}, {"d": "2026-08-13", "c": 1420.2}, {"d": "2026-08-14", "c": 1417.5}, {"d": "2026-08-18", "c": 1413.5}, {"d": "2026-08-19", "c": 1390.0}, {"d": "2026-08-20", "c": 1394.8}, {"d": "2026-08-21", "c": 1387.0}, {"d": "2026-08-24", "c": 1384.0}, {"d": "2026-08-25", "c": 1383.5}, {"d": "2026-08-26", "c": 1386.0}, {"d": "2026-08-27", "c": 1382.0}, {"d": "2026-08-28", "c": 1381.0}, {"d": "2026-08-31", "c": 1369.5}, {"d": "2026-09-01", "c": 1375.5}, {"d": "2026-09-02", "c": 1360.3}, {"d": "2026-09-03", "c": 1358.5}, {"d": "2026-09-04", "c": 1349.5}, {"d": "2026-09-07", "c": 1347.0}, {"d": "2026-09-08", "c": 1341.5}, {"d": "2026-09-09", "c": 1341.0}, {"d": "2026-09-10", "c": 1351.0}, {"d": "2026-09-11", "c": 1350.0}], "ma20": [1518.65, 1520.38, 1522.03, 1523.1, 1524.9, 1527.05, 1529.1, 1530.8, 1532.47, 1533.35, 1533.78, 1532.25, 1532.38, 1532.02, 1531.14, 1530.55, 1529.91, 1529.11, 1528.11, 1526.26, 1523.91, 1521.18, 1518.38, 1515.66, 1512.31, 1508.18, 1504.61, 1500.3, 1495.2, 1488.88, 1483.75, 1478.85, 1473.87, 1469.18, 1465.06, 1460.26, 1456.13, 1451.84, 1448.24, 1444.82, 1441.14, 1437.89, 1433.27, 1429.06, 1424.59, 1420.66, 1416.54, 1413.08, 1409.88, 1407.62, 1404.09, 1401.33, 1397.79, 1394.54, 1390.79, 1387.59, 1383.69, 1380.07, 1376.66, 1373.15], "fc": [{"t": 1, "mid": 1349.97, "lo50": 1345.32, "hi50": 1354.64, "lo80": 1341.15, "hi80": 1358.85, "alt": 1350.14}, {"t": 2, "mid": 1349.95, "lo50": 1343.37, "hi50": 1356.55, "lo80": 1337.49, "hi80": 1362.52, "alt": 1350.29}, {"t": 3, "mid": 1349.92, "lo50": 1341.87, "hi50": 1358.01, "lo80": 1334.68, "hi80": 1365.34, "alt": 1350.43}, {"t": 4, "mid": 1349.89, "lo50": 1340.61, "hi50": 1359.24, "lo80": 1332.31, "hi80": 1367.71, "alt": 1350.57}, {"t": 5, "mid": 1349.86, "lo50": 1339.49, "hi50": 1360.32, "lo80": 1330.22, "hi80": 1369.8, "alt": 1350.71}, {"t": 6, "mid": 1349.84, "lo50": 1338.48, "hi50": 1361.29, "lo80": 1328.33, "hi80": 1371.69, "alt": 1350.86}, {"t": 7, "mid": 1349.81, "lo50": 1337.54, "hi50": 1362.19, "lo80": 1326.6, "hi80": 1373.43, "alt": 1351.0}, {"t": 8, "mid": 1349.78, "lo50": 1336.67, "hi50": 1363.02, "lo80": 1324.98, "hi80": 1375.05, "alt": 1351.14}, {"t": 9, "mid": 1349.76, "lo50": 1335.85, "hi50": 1363.8, "lo80": 1323.47, "hi80": 1376.57, "alt": 1351.28}, {"t": 10, "mid": 1349.73, "lo50": 1335.08, "hi50": 1364.54, "lo80": 1322.03, "hi80": 1378.01, "alt": 1351.43}, {"t": 11, "mid": 1349.7, "lo50": 1334.34, "hi50": 1365.24, "lo80": 1320.67, "hi80": 1379.37, "alt": 1351.57}, {"t": 12, "mid": 1349.67, "lo50": 1333.64, "hi50": 1365.9, "lo80": 1319.36, "hi80": 1380.68, "alt": 1351.71}, {"t": 13, "mid": 1349.65, "lo50": 1332.96, "hi50": 1366.54, "lo80": 1318.12, "hi80": 1381.93, "alt": 1351.86}, {"t": 14, "mid": 1349.62, "lo50": 1332.31, "hi50": 1367.16, "lo80": 1316.91, "hi80": 1383.14, "alt": 1352.0}, {"t": 15, "mid": 1349.59, "lo50": 1331.68, "hi50": 1367.75, "lo80": 1315.75, "hi80": 1384.3, "alt": 1352.14}, {"t": 16, "mid": 1349.57, "lo50": 1331.07, "hi50": 1368.32, "lo80": 1314.63, "hi80": 1385.43, "alt": 1352.29}, {"t": 17, "mid": 1349.54, "lo50": 1330.47, "hi50": 1368.88, "lo80": 1313.54, "hi80": 1386.52, "alt": 1352.43}, {"t": 18, "mid": 1349.51, "lo50": 1329.9, "hi50": 1369.41, "lo80": 1312.49, "hi80": 1387.58, "alt": 1352.57}, {"t": 19, "mid": 1349.48, "lo50": 1329.34, "hi50": 1369.94, "lo80": 1311.46, "hi80": 1388.61, "alt": 1352.71}, {"t": 20, "mid": 1349.46, "lo50": 1328.79, "hi50": 1370.44, "lo80": 1310.46, "hi80": 1389.61, "alt": 1352.86}], "levels": {"stop": 1310.0, "t1": 1350.0, "t2": 1370.0}, "events": {"08/27": "한은 3.00% 인상", "09/09": "52주 신저가 1,341원", "09/10": "유가급등에 반등 1,351원", "09/11": "CPI 대기, 보합 1,350원"}, "year": "2026", "ladder": {"lo": 1295.0, "hi": 1420.0, "step": 10}, "fb": {"repo": "yms9654/fx-report", "endpoint": "", "date": "2026-09-11", "px": "1,350.00", "chg": "-1.00", "verb": "D-13", "amt": "진도 44/100%", "stop": "1,310", "t1": "1,350", "t2": "1,370", "dataAt": "2026-09-11 08:30 KST"}};
 const D = PAYLOAD.series.map(r => [r.d.slice(5).replace('-','/'), r.c]);
 const EV = PAYLOAD.events || {};
 const FC = PAYLOAD.fc || [], MA = PAYLOAD.ma20 || [], LV = PAYLOAD.levels || {};
@@ -557,7 +516,7 @@ const PT=T+RESERVE, PH=H-PT-B;
 
 const pool=[...Dv.map(d=>d[1]), ...MAv.filter(v=>v!=null),
             ...FC.map(p=>p.lo80), ...FC.map(p=>p.hi80),
-            ...FC.map(p=>p.alt).filter(v=>v!=null), ...Object.values(LV)];
+            ...Object.values(LV)];
 const pad=(Math.max(...pool)-Math.min(...pool))*0.08 || 5;
 const lo=Math.floor((Math.min(...pool)-pad)/10)*10, hi=Math.ceil((Math.max(...pool)+pad)/10)*10;
 const step=Math.max(10,Math.ceil((hi-lo)/(SMALL?4:6)/10)*10);
@@ -593,11 +552,6 @@ if(NF){
   g.appendChild(mk("path",{d:[`M${X(NP-1).toFixed(1)} ${Y(Dv[NP-1][1]).toFixed(1)}`]
       .concat(FC.map((p,i)=>`L${X(NP+i).toFixed(1)} ${Y(p.mid).toFixed(1)}`)).join(" "),
       fill:"none",stroke:"var(--ink)","stroke-width":2*FS,"stroke-dasharray":"6 4",opacity:.8}));
-  if(FC[0].alt!=null){
-    g.appendChild(mk("path",{d:[`M${X(NP-1).toFixed(1)} ${Y(Dv[NP-1][1]).toFixed(1)}`]
-      .concat(FC.map((p,i)=>`L${X(NP+i).toFixed(1)} ${Y(p.alt).toFixed(1)}`)).join(" "),
-      fill:"none",stroke:"var(--up)","stroke-width":1.8*FS,"stroke-dasharray":"2 4",opacity:.85}));
-  }
   g.appendChild(mk("line",{x1:X(NP-1),x2:X(NP-1),y1:PT,y2:PT+PH,stroke:"var(--rule)","stroke-width":1}));
   const tn=mk("text",{x:X(NP-1)+4*FS,y:PT+11*FS,fill:"var(--muted)","font-size":10.5*FS,
                       "font-family":"IBM Plex Mono, monospace"});
@@ -660,7 +614,7 @@ function move(e){
     const p=FC[i-NP];
     tt.querySelector("b").textContent=p.mid.toFixed(0);
     tt.querySelector("i").textContent="+"+p.t+"일 · 80% "+p.lo80.toFixed(0)+"–"+p.hi80.toFixed(0)
-      +(p.alt!=null?" · 분석 "+p.alt.toFixed(0):"");
+;
   } else {
     tt.querySelector("b").textContent=Dv[i][1].toFixed(2);
     tt.querySelector("i").textContent=PAYLOAD.year+" · "+Dv[i][0]+(EV[Dv[i][0]]?" · "+EV[Dv[i][0]]:"");

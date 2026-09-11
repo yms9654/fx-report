@@ -200,21 +200,7 @@ a:focus-visible,summary:focus-visible{outline:2px solid var(--up); outline-offse
 
 /* ---------- 주간 확률 ---------- */
 .probs{background:var(--card); border:1px solid var(--rule); border-radius:3px; padding:22px 24px; box-shadow:var(--shadow)}
-.pw{display:grid; grid-template-columns:74px 1fr; gap:16px; align-items:center; padding:7px 0}
-@media (max-width:640px){.pw{grid-template-columns:58px 1fr; gap:10px}}
-.pw--hd{padding-bottom:10px; border-bottom:1px solid var(--rule); margin-bottom:6px}
-.pw--hd .pw__k,.pw--hd .pw__rng{font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted)}
-.pw--hd .pw__bar{display:flex; justify-content:space-between; background:none; height:auto}
-.pw--hd .pw__bar span{font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.12em; text-transform:uppercase}
 .hd-up{color:var(--up)} .hd-dn{color:var(--down)}
-.pw__k{font-family:"IBM Plex Mono",monospace; font-size:14px; font-weight:600; letter-spacing:-.01em}
-.pw__k span{display:block; font-size:10.5px; font-weight:400; color:var(--muted); letter-spacing:0}
-.pw__bar{display:flex; gap:2px; height:30px; border-radius:2px; overflow:hidden}
-.pw__seg{display:flex; align-items:center; min-width:0; padding:0 9px}
-.pw__seg span{font-family:"IBM Plex Mono",monospace; font-size:12.5px; font-weight:600; color:#fff; white-space:nowrap}
-.pw__seg.s-up{background:var(--up)}
-.pw__seg.s-dn{background:var(--down); justify-content:flex-end}
-.pw__rng{font-family:"IBM Plex Mono",monospace; font-size:12.5px; color:var(--ink-2); text-align:right; letter-spacing:-.01em}
 .probs__split{margin-top:22px; padding-top:18px; border-top:1px solid var(--rule)}
 .probs__splitk{font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); margin-bottom:12px}
 .pt{display:grid; grid-template-columns:150px repeat(4,1fr); gap:10px; align-items:center; padding:8px 0; border-top:1px solid var(--rule-soft)}
@@ -317,8 +303,6 @@ a:focus-visible,summary:focus-visible{outline:2px solid var(--up); outline-offse
   var(--ink-2) 0 6px, transparent 6px 10px); opacity:.85}
 .chart__lg .lg-mid{background:repeating-linear-gradient(90deg,
   var(--ink) 0 6px, transparent 6px 10px)}
-.chart__lg .lg-alt{background:repeating-linear-gradient(90deg,
-  var(--up) 0 3px, transparent 3px 7px); opacity:.9}
 .chart__lg .lg-band{height:10px; border-radius:2px; background:var(--ink); opacity:.22}
 
 /* ---------- 계획 상태 게이지 ---------- */
@@ -326,18 +310,12 @@ a:focus-visible,summary:focus-visible{outline:2px solid var(--up); outline-offse
 .dcount{font-family:"IBM Plex Mono",monospace; font-size:13px; font-weight:700; letter-spacing:-.02em;
         color:var(--ink); text-transform:none}
 .now--cut .dcount{color:var(--down)}
-.gg__px{font-family:"IBM Plex Mono",monospace; font-size:clamp(38px,7.5vw,56px); font-weight:600;
-        letter-spacing:-.04em; line-height:1; margin:14px 0 8px}
-.gg__head{margin:0 0 4px; font-size:16px; font-weight:600; letter-spacing:-.01em}
-.now--cut .gg__head{color:var(--down)}
-.now--sell .gg__head{color:var(--up)}
-.gg__head b{font-family:"IBM Plex Mono",monospace; font-weight:600}
-.gg__rows{margin-top:16px}
-.gg{display:grid; grid-template-columns:74px 88px 92px 1fr; gap:14px; align-items:baseline;
+.now--cut .now--sell .gg__rows{margin-top:16px}
+.gg{display:grid; grid-template-columns:56px 104px 1fr; gap:14px; align-items:baseline;
     padding:10px 0; border-top:1px solid var(--rule-soft)}
 @media (max-width:640px){
-  .gg{grid-template-columns:70px 1fr auto; gap:8px 10px}
-  .gg__s{grid-column:1/-1; padding-left:80px; margin-top:-4px}
+  .gg{grid-template-columns:52px 1fr; gap:6px 10px}
+  .gg__s{grid-column:1/-1; padding-left:62px; margin-top:-4px}
 }
 .gg--stop{border-top:1px solid var(--rule)}
 .gg__k{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.1em;
@@ -346,10 +324,17 @@ a:focus-visible,summary:focus-visible{outline:2px solid var(--up); outline-offse
        text-align:right; white-space:nowrap}
 .gg__v .u{font-size:11px; font-weight:400; color:var(--muted); letter-spacing:0}
 .gg__s{font-size:12.5px; color:var(--muted); line-height:1.45}
-.bar{display:block; height:6px; border-radius:3px; background:var(--rule); overflow:hidden}
-.bar i{display:block; height:100%; background:var(--ink-2); border-radius:3px}
-.bar.b-warn i{background:var(--down)}
-@media (max-width:640px){.bar{margin-top:5px}}
+
+/* ---------- 오늘 할 일 ---------- */
+.act{font-size:clamp(44px,9vw,68px); font-weight:700; letter-spacing:-.045em; line-height:1;
+     margin:16px 0 10px}
+.now--cut .act{color:var(--down)}
+.now--sell .act{color:var(--up)}
+.act__how{margin:0 0 4px; font-size:16px; color:var(--ink-2); line-height:1.55; max-width:52ch}
+.act__how b{color:var(--ink); font-weight:600; font-family:"IBM Plex Mono",monospace}
+.gg__gap{margin:14px 0 0; padding-top:12px; border-top:1px solid var(--rule-soft);
+         font-size:12.5px; color:var(--muted); line-height:1.5}
+.why .tech{margin-top:0}
 </style>
 </head>
 <body>
@@ -370,13 +355,13 @@ a:focus-visible,summary:focus-visible{outline:2px solid var(--up); outline-offse
 
 <section>
   <h2>계획</h2>
-  <p class="lede">9/3에 정한 계획입니다. 가격이 움직였다는 이유로 눈금을 옮기지 않습니다. 굵은 선이 현재가.</p>
+  <p class="lede">9/3에 정한 계획입니다. 가격이 움직였다는 이유로 눈금을 옮기지 않습니다.</p>
   <!--SLOT:LADDER-->
 </section>
 
 <section>
-  <h2>주간 확률</h2>
-  <p class="lede">앞으로 4주. 아래 두 줄은 그 기간 안에 계획 가격을 한 번이라도 건드릴 확률입니다.</p>
+  <h2>눈금에 닿을 확률</h2>
+  <p class="lede">방향 예측이 아니라 변동성×잔여시간의 함수입니다. "이 눈금이 현실적인가"에 대한 답.</p>
   <!--SLOT:PROBS-->
 </section>
 
@@ -398,10 +383,8 @@ a:focus-visible,summary:focus-visible{outline:2px solid var(--up); outline-offse
     <span><i class="lg-solid"></i>종가</span>
     <span><i class="lg-dash"></i>MA20</span>
     <span><i class="lg-dash lg-mid"></i>시장 선도</span>
-    <span><i class="lg-dash lg-alt"></i>분석 기대</span>
     <span><i class="lg-band"></i>50% · 80% 구간</span>
   </div>
-  <!--SLOT:TECH-->
   <details class="tbl">
     <summary>표로 보기 — 일별 종가 <!--SLOT:NDAYS-->영업일</summary>
     <table><thead><tr><th>일자</th><th>종가</th><th>전일비</th></tr></thead><tbody id="tbody"></tbody></table>
@@ -414,6 +397,8 @@ a:focus-visible,summary:focus-visible{outline:2px solid var(--up); outline-offse
   <details class="why">
     <summary><span class="s-t">힘겨루기 · 시나리오 · 일정 · 체결 비용</span><span class="s-h">펼치기</span></summary>
     <div class="why__in">
+      <h3 class="wh">기술적 지표 (방향 신호는 이 리포트가 신뢰하지 않습니다)</h3>
+      <!--SLOT:TECH-->
       <h3 class="wh">지금의 힘겨루기</h3>
       <div class="tug"><!--SLOT:FORCES--></div>
       <h3 class="wh">오늘 분석이 보는 구간 (참고용, 계획을 바꾸지 않음)</h3>
@@ -510,7 +495,7 @@ const PT=T+RESERVE, PH=H-PT-B;
 
 const pool=[...Dv.map(d=>d[1]), ...MAv.filter(v=>v!=null),
             ...FC.map(p=>p.lo80), ...FC.map(p=>p.hi80),
-            ...FC.map(p=>p.alt).filter(v=>v!=null), ...Object.values(LV)];
+            ...Object.values(LV)];
 const pad=(Math.max(...pool)-Math.min(...pool))*0.08 || 5;
 const lo=Math.floor((Math.min(...pool)-pad)/10)*10, hi=Math.ceil((Math.max(...pool)+pad)/10)*10;
 const step=Math.max(10,Math.ceil((hi-lo)/(SMALL?4:6)/10)*10);
@@ -546,11 +531,6 @@ if(NF){
   g.appendChild(mk("path",{d:[`M${X(NP-1).toFixed(1)} ${Y(Dv[NP-1][1]).toFixed(1)}`]
       .concat(FC.map((p,i)=>`L${X(NP+i).toFixed(1)} ${Y(p.mid).toFixed(1)}`)).join(" "),
       fill:"none",stroke:"var(--ink)","stroke-width":2*FS,"stroke-dasharray":"6 4",opacity:.8}));
-  if(FC[0].alt!=null){
-    g.appendChild(mk("path",{d:[`M${X(NP-1).toFixed(1)} ${Y(Dv[NP-1][1]).toFixed(1)}`]
-      .concat(FC.map((p,i)=>`L${X(NP+i).toFixed(1)} ${Y(p.alt).toFixed(1)}`)).join(" "),
-      fill:"none",stroke:"var(--up)","stroke-width":1.8*FS,"stroke-dasharray":"2 4",opacity:.85}));
-  }
   g.appendChild(mk("line",{x1:X(NP-1),x2:X(NP-1),y1:PT,y2:PT+PH,stroke:"var(--rule)","stroke-width":1}));
   const tn=mk("text",{x:X(NP-1)+4*FS,y:PT+11*FS,fill:"var(--muted)","font-size":10.5*FS,
                       "font-family":"IBM Plex Mono, monospace"});
@@ -613,7 +593,7 @@ function move(e){
     const p=FC[i-NP];
     tt.querySelector("b").textContent=p.mid.toFixed(0);
     tt.querySelector("i").textContent="+"+p.t+"일 · 80% "+p.lo80.toFixed(0)+"–"+p.hi80.toFixed(0)
-      +(p.alt!=null?" · 분석 "+p.alt.toFixed(0):"");
+;
   } else {
     tt.querySelector("b").textContent=Dv[i][1].toFixed(2);
     tt.querySelector("i").textContent=PAYLOAD.year+" · "+Dv[i][0]+(EV[Dv[i][0]]?" · "+EV[Dv[i][0]]:"");
