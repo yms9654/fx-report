@@ -2,3 +2,4 @@ logs/
 *.tmp
 *.json.tmp
 build/_css.txt
+logs/last_narrative_failure.txt

@@ -145,10 +145,20 @@ def main():
         if txt.startswith("```"):
             txt = txt.split("```")[1]
             txt = txt[4:] if txt.lower().startswith("json") else txt
+        if "{" not in txt or "}" not in txt:
+            raise ValueError(f"JSON 아님 (len={len(txt)}): {txt[:200]!r}")
         txt = txt[txt.index("{"):txt.rindex("}") + 1]
         new = validate(json.loads(txt), px)
     except Exception as e:                                   # noqa: BLE001
         print(f"NARRATIVE FAILED ({type(e).__name__}): {e}", file=sys.stderr)
+        try:                                                 # 다음 실패를 진단할 수 있게 원문을 남긴다
+            (ROOT / "logs").mkdir(exist_ok=True)
+            (ROOT / "logs" / "last_narrative_failure.txt").write_text(
+                f"{datetime.datetime.now(KST).isoformat()}\n{type(e).__name__}: {e}\n\n"
+                + (locals().get("r").stdout[:4000] if locals().get("r") else "(응답 없음)"),
+                encoding="utf-8")
+        except Exception:                                    # noqa: BLE001
+            pass
         prev["degraded"] = True
         NAR.write_text(json.dumps(prev, ensure_ascii=False, indent=1), encoding="utf-8")
         return 2                                             # 렌더는 계속 진행
