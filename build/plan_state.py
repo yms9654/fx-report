@@ -135,13 +135,20 @@ def state(plan, data):
     # 진도: 눈금 체결 + 하한선 이탈 분할매도를 날짜순으로 재생한다
     lo_line = plan["stop"]
     left, sold, hits, rung_hit = 1.0, 0.0, 0, set()
+    log, cost = [], 0.0                                  # 계획이 시킨 매도 내역
     for r in win:
         c = r["c"]
         for j, g in enumerate(plan["rungs"]):
             if j not in rung_hit and c >= g["lo"] and left > 1e-9:
                 a = min(g["w"], left); sold += a; left -= a; rung_hit.add(j)
+                cost += a * c
+                log.append({"d": r["d"], "why": f'{g["pct"]} 눈금 {g["lo"]:,.0f} 도달',
+                            "w": a * 100, "px": c})
         if c <= lo_line and left > 1e-9:                 # 하한 분할선 이탈일
             a = min(left * LATCH_FRAC, left); sold += a; left -= a; hits += 1
+            cost += a * c
+            log.append({"d": r["d"], "why": f'하한선 {lo_line:,.0f} 이탈',
+                        "w": a * 100, "px": c})
     pending = [r for j, r in enumerate(plan["rungs"]) if j not in rung_hit]
     pending.sort(key=lambda r: r["lo"])
     nxt = pending[0] if pending else None
@@ -154,6 +161,7 @@ def state(plan, data):
         "hi": hi, "hi_d": hi_d, "off_hi": px - hi,
         "pct_rank": pct_rank,
         "reached": reached * 100, "left": left * 100,
+        "log": log, "avg": (cost / sold) if sold > 1e-9 else None,
         "latch_hits": hits, "latch_frac": LATCH_FRAC,
         "plan_w": 100.0,
         "next": nxt, "stop": plan["stop"],

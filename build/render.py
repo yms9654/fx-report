@@ -153,219 +153,69 @@ def drift_html(d):
 
 
 def action_html(st):
-    """오늘 할 일 한 줄. 계획이 동결된 이상 매일의 결정은 '내 손이 필요한가' 하나뿐이다.
-    정보가 아니라 지시를 먼저 놓는다."""
+    """오늘 할 일을 문장으로 먼저 말하고, 그 뒤에 왜 그런 상태인지 내역을 붙인다.
+    상태 숫자만 보여주면 12% 가 왜 12% 인지 알 수 없다."""
     px, nx, lo = st["px"], st["next"], st["stop"]
     dd = lambda x: x.replace("-", ".")[5:]
-    done = st["left"] <= 1e-9
+    left, done = st["left"], st["left"] <= 1e-9
 
     if done:
-        kind, act, how = "sell", "완료", "매도할 잔여 물량이 없습니다."
+        kind, act = "sell", "다 팔았습니다"
+        how = "계획한 물량을 모두 정리했습니다. 더 할 일이 없습니다."
     elif st["today_breach"]:
-        kind, act = "cut", f'{st["latch_frac"]*100:.0f}% 매도'
-        how = (f'하한 분할선 <b>{NUM(lo)}</b> 아래로 마감했습니다. '
-               f'잔여 {st["left"]:,.0f}% 중 <b>{st["left"]*st["latch_frac"]:,.0f}%p</b>를 정리합니다.')
+        cut = left * st["latch_frac"]
+        kind, act = "cut", f"잔여의 {st['latch_frac']*100:.0f}%를 파세요"
+        how = (f'종가가 하한 분할선 <b>{NUM(lo)}</b> 아래입니다. '
+               f'남은 {left:,.0f}% 중 <b>{cut:,.0f}%p</b>를 오늘 정리합니다.')
     elif nx and px >= nx["lo"]:
-        kind, act = "sell", f'{E(nx["pct"])} 매도'
-        how = f'눈금 <b>{NUM(nx["lo"])}</b>에 도달했습니다. 계획 비중을 집행합니다.'
+        kind, act = "sell", f"{E(nx['pct'])}를 파세요"
+        how = f'눈금 <b>{NUM(nx["lo"])}</b>에 닿았습니다. 계획 비중을 집행합니다.'
     elif st["rem"] <= 1:
-        kind, act, how = "cut", "전량 매도", "마지막 거래일입니다. 잔여 전량을 정리합니다."
+        kind, act = "cut", "남은 전부를 파세요"
+        how = f'마지막 거래일입니다. 잔여 <b>{left:,.0f}%</b>를 정리합니다.'
     else:
-        kind, act = "wait", "없음"
-        how = (f'지정가 <b>{NUM(nx["lo"])}</b> 유지. 걸어두었다면 오늘 볼 일은 끝입니다.'
-               if nx else '남은 눈금이 없습니다. 마감일에 잔여를 정리합니다.')
+        kind, act = "wait", "오늘은 팔지 않습니다"
+        how = (f'<b>{NUM(nx["lo"])}</b>에 지정가를 걸어두면 남은 {left:,.0f}%가 자동으로 체결됩니다. '
+               f'지금보다 {nx["lo"]-px:+,.0f}원.' if nx
+               else f'남은 눈금이 없습니다. 마감일에 잔여 {left:,.0f}%를 정리합니다.')
 
-    rows = [("현재", f'{px:,.2f}',
-             f'다음 눈금 {NUM(nx["lo"])}까지 {nx["lo"]-px:+,.1f}원' if nx else "남은 눈금 없음"),
-            ("잔여", f'{st["left"]:,.0f}<span class="u">%</span>',
-             f'하한 분할선 {NUM(lo)} · {px-lo:+,.1f}원'
-             + (f' · {st["latch_hits"]}회 이탈' if st["latch_hits"] else ''))]
-    body = "".join(f'<div class="gg"><span class="gg__k">{k}</span>'
-                   f'<span class="gg__v">{v}</span><span class="gg__s">{sub}</span></div>'
-                   for k, v, sub in rows)
+    log = st.get("log") or []
+    if log:
+        shown = log[-4:]
+        more = (f'<div class="tl__more">앞선 {len(log)-4}건 생략</div>'
+                if len(log) > 4 else "")
+        rows = "".join(
+            f'<div class="tl"><span class="tl__d">{dd(e["d"])}</span>'
+            f'<span class="tl__w">{e["w"]:.0f}<span class="u">%</span></span>'
+            f'<span class="tl__p">{e["px"]:,.2f}</span>'
+            f'<span class="tl__y">{E(e["why"])}</span></div>' for e in shown)
+        hist = (f'<div class="tl__k">계획이 시킨 매도</div>{more}{rows}'
+                f'<div class="tl tl--sum"><span class="tl__d">누적</span>'
+                f'<span class="tl__w">{st["reached"]:.0f}<span class="u">%</span></span>'
+                f'<span class="tl__p">{st["avg"]:,.2f}</span>'
+                f'<span class="tl__y">평균 매도 단가</span></div>')
+    else:
+        hist = ('<div class="tl__k">계획이 시킨 매도</div>'
+                '<div class="tl__none">아직 없습니다. 눈금이나 하한선에 닿으면 여기 기록됩니다.</div>')
+
+    foot = (f'<div class="tl tl--now"><span class="tl__d">잔여</span>'
+            f'<span class="tl__w">{left:,.0f}<span class="u">%</span></span>'
+            f'<span class="tl__p">{px:,.2f}</span>'
+            f'<span class="tl__y">오늘 종가</span></div>')
+
+    note = ('<p class="act__note">실제로 파셨는지는 알 수 없습니다. '
+            '9/3 계획을 그대로 따랐다면 위와 같습니다.</p>')
     gap = ""
     if st.get("gap"):
-        gap = (f'<p class="gg__gap">추석 휴장으로 {dd(st["gap"]["until"])}까지 '
-               f'{st["gap"]["days"]}일 공백이 있습니다. 그 앞뒤로 거래일이 몰립니다.</p>')
+        gap = (f'<p class="act__note">추석 휴장으로 {dd(st["gap"]["until"])}까지 '
+               f'{st["gap"]["days"]}일 공백. 거래일이 그 앞뒤로 몰립니다.</p>')
     return (f'<div class="now now--{kind}">'
             f'<div class="now__k">오늘 할 일 · {dd(st["deadline"]).replace(".", "/")} 마감'
             f'<span class="dcount">D-{st["rem"]}</span></div>'
             f'<div class="act">{act}</div>'
             f'<p class="act__how">{how}</p>'
-            f'<div class="gg__rows">{body}</div>{gap}')
+            f'<div class="tl__box">{hist}{foot}</div>{note}{gap}')
 
-
-def weekly_probs(data, nar, px, mu_month=None, sig_override=None, vol_src=None, plan=None):
-    closes = [r["c"] for r in data["series"]]
-    rets = [math.log(b / a) for a, b in zip(closes, closes[1:]) if a > 0 and b > 0]
-    if len(rets) < 10:
-        return None
-    sig = statistics.stdev(rets)                     # 일간 실현변동성
-    if sig_override:
-        sig = sig_override                           # 예측 밴드와 같은 변동성을 쓴다
-    if sig <= 0:
-        return None
-    ev = float(mu_month if mu_month else nar["scenario"]["ev"])
-    mu = math.log(ev / px) / TD_MONTH                # 한 달 기준값 → 일간 드리프트
-
-    # 도달 확률은 동결된 계획 눈금 기준. 서술이 매일 바뀌어도 확률의 기준은 고정.
-    if plan:
-        sells = sorted(({"lo": r["lo"], "pct": r["pct"]} for r in plan["rungs"]),
-                       key=lambda z: float(z["lo"]))
-        stop = float(plan["stop"])
-    else:
-        sells = sorted((z for z in nar["ladder"]["zones"] if z["kind"] == "sell"),
-                       key=lambda z: float(z["lo"]))
-        stop = float(nar["triggers"]["stop"])
-    nxt = next((z for z in sells if float(z["lo"]) > px), sells[-1] if sells else None)
-    b_up = math.log(float(nxt["lo"]) / px) if nxt else None
-    b_dn = math.log(stop / px)
-
-    weeks = []
-    base = datetime.date.fromisoformat(data["latest"]["d"])
-    for k in range(1, 5):
-        T = TD_WEEK * k
-        sT, mT = sig * math.sqrt(T), mu * T
-        up = PHI(mT / sT)
-        weeks.append({
-            "k": k,
-            "until": (base + datetime.timedelta(days=7 * k)).strftime("%m/%d"),
-            "up": round(up * 100),
-            "dn": round((1 - up) * 100),
-            "lo": px * math.exp(mT - Z80 * sT),
-            "hi": px * math.exp(mT + Z80 * sT),
-            "t_up": round(_touch_up(b_up, mu, sig, T) * 100) if b_up and b_up > 0 else None,
-            "t_dn": round(_touch_dn(b_dn, mu, sig, T) * 100) if b_dn < 0 else None,
-        })
-    return {"weeks": weeks, "sig_d": sig * 100, "sig_a": sig * math.sqrt(252) * 100,
-            "vol_src": vol_src or "실현변동성",
-            "mu_m": (math.exp(mu * TD_MONTH) - 1) * 100, "n": len(rets),
-            "target": float(nxt["lo"]) if nxt else None, "target_pct": nxt["pct"] if nxt else None,
-            "stop": stop}
-
-
-def probs_html(w, fwd=None):
-    if not w:
-        return '<p class="lede">확률 계산에 필요한 데이터가 부족합니다.</p>'
-    rows = ""
-    tgt = w["target"]
-    trow = lambda key, cls, label, vals: (
-        f'<div class="pt"><div class="pt__k {cls}">{label}</div>'
-        + "".join(f'<div class="pt__v"><span>{x["k"]}주</span>'
-                  f'<b>{x[key]}%</b></div>' for x in w["weeks"]) + '</div>')
-    touch = ""
-    if tgt and w["weeks"][0]["t_up"] is not None:
-        touch += trow("t_up", "up", f'{NUM(tgt)} 터치<span>{E(w["target_pct"])} 매도</span>', None)
-    if w["weeks"][0]["t_dn"] is not None:
-        touch += trow("t_dn", "dn", f'{NUM(w["stop"])} 이탈<span>전량 청산</span>', None)
-    basis = (f'중앙값은 시장 선도환율(한 달 <b>{w["mu_m"]:+.2f}%</b>, '
-             f'{fwd["krw"]["source"].split()[0]} {fwd["krw"]["rate"]*100:.2f}% vs '
-             f'SOFR {fwd["usd"]["rate"]*100:.2f}%)을 따르고,') if fwd else \
-            (f'중앙값은 분석 기대값(한 달 <b>{w["mu_m"]:+.2f}%</b>)을 따르고,')
-    return f"""<div class="probs">
-      <div class="probs__split" style="margin-top:0;padding-top:0;border-top:0">
-      <div class="probs__splitk">계획 가격에 기간 안에 한 번이라도 닿을 확률</div>{touch}</div>
-      <p class="probs__note">{basis} 폭은 {w['vol_src']} <b>일간 {w['sig_d']:.2f}%</b>
-      (연율 {w['sig_a']:.1f}%)로 잡은 로그정규 모델 추정치입니다.
-      이벤트 점프는 반영되지 않아 FOMC 전후 실제 분포는 이보다 꼬리가 두껍습니다.</p>
-    </div>"""
-
-
-def tech_html(t, dxy=None, kchg=None):
-    if not t:
-        return ""
-    cls = {"down": "dn", "up": "up", "flat": ""}[t["trend"]]
-    momcls = "dn" if t["mom"] == "과매도" else "up" if t["mom"] == "과매수" else ""
-    cells = [
-        ("추세", f'<b class="t-{cls}">{t["tlabel"]}</b>',
-         f'{sum(1 for _, v in t["signals"] if v < 0)}/{len(t["signals"])} 하락 신호'),
-        ("RSI(14)", f'<b class="t-{momcls}">{t["rsi"]:.0f}</b>', t["mom"] or ""),
-        ("MA20 대비", f'<b class="t-{"dn" if t["vs20"] < 0 else "up"}">{t["vs20"]:+.1f}%</b>',
-         f'MA20 {t["ma20"]:,.0f}'),
-        ("MA60 대비", f'<b class="t-{"dn" if t["vs60"] < 0 else "up"}">{t["vs60"]:+.1f}%</b>',
-         f'MA60 {t["ma60"]:,.0f}'),
-    ]
-    if dxy is not None and kchg is not None:
-        own = kchg - dxy["chg20"]
-        cells.append(("달러지수", f'<b class="t-{"dn" if dxy["chg20"] < 0 else "up"}">'
-                                  f'{dxy["chg20"]:+.1f}%</b>',
-                      f'{dxy["last"]:.1f} · 원화 고유 {own:+.1f}%p'))
-    if t["bb"]:
-        b = t["bb"]
-        where = "하단 이탈" if b["pctb"] < 0 else "하단권" if b["pctb"] < 0.2 \
-            else "상단권" if b["pctb"] > 0.8 else "중앙권"
-        cells.append(("볼린저 %B", f'<b>{b["pctb"]:.2f}</b>', where))
-    return '<div class="tech">' + "".join(
-        f'<div class="tech__c"><div class="tech__k">{k}</div>'
-        f'<div class="tech__v">{v}</div><div class="tech__s">{E(sub)}</div></div>'
-        for k, v, sub in cells) + '</div>'
-
-
-def drift_html(d):
-    if not d:
-        return ""
-    return (f'<div class="warn"><span class="warn__k">계획 점검</span>'
-            f'<span class="warn__t">최근 {d["days"]}회 중 <b>{d["n"]}번</b> 손절선이 낮아졌습니다 '
-            f'(<b>{NUM(d["from"])} → {NUM(d["to"])}</b>, {NUM(d["drop"])}원). '
-            f'가격을 따라 손절이 내려가면 계획은 영원히 발동하지 않습니다. '
-            f'지금 값이 아니라 <b>처음 정한 {NUM(d["from"])}</b>을 기준으로 판단하세요.</span></div>')
-
-
-def bar(pct, cls=""):
-    v = max(0.0, min(100.0, float(pct)))
-    return (f'<span class="bar {cls}"><i style="width:{v:.1f}%"></i></span>')
-
-
-def gauge_html(st, nar):
-    """이분법 지시 대신 상태를 숫자로 보여준다.
-    '오늘 팔까'를 매일 다시 판단하게 만드는 것이 기준 표류의 통로였다."""
-    px, hi, nx = st["px"], st["hi"], st["next"]
-    dd = lambda x: x.replace("-", ".")[2:]
-
-    if st["below_stop"]:
-        kind, head = "cut", f'손절선 <b>{NUM(st["stop"])}</b> 이탈'
-    elif st["reached"] >= st["plan_w"] - 1e-9:
-        kind, head = "sell", "계획 눈금 전부 도달"
-    elif st["time_pct"] > (st["reached"] / st["plan_w"] * 100 if st["plan_w"] else 0) + 20:
-        kind, head = "cut", "진도 뒤처짐"
-    else:
-        kind, head = "wait", "진도 정상"
-
-    rows = [
-        ("분포 위치",
-         bar(st["pct_rank"] or 0),
-         f'{st["pct_rank"]:.0f}<span class="u">%ile</span>' if st["pct_rank"] is not None else "—",
-         f'계획 시점 예상 분포의 하위 {st["pct_rank"]:.0f}%' if st["pct_rank"] is not None else ""),
-        ("창내 고점", "", f'{hi:,.2f}',
-         f'{px-hi:+,.1f}원 · {dd(st["hi_d"])} 기록'),
-        ("계획 진도",
-         bar(st["reached"] / st["plan_w"] * 100 if st["plan_w"] else 0,
-             "b-warn" if kind == "cut" else ""),
-         f'{st["reached"]:.0f}<span class="u">/{st["plan_w"]:.0f}%</span>',
-         f'시간은 {st["time_pct"]:.0f}% 지남'),
-        ("다음 눈금", "",
-         f'{NUM(nx["lo"])}' if nx else "—",
-         (f'도달 시 {E(nx["pct"])} 매도 · {nx["lo"]-px:+,.1f}원' if nx else "남은 눈금 없음")),
-    ]
-    body = "".join(
-        f'<div class="gg"><span class="gg__k">{k}</span>'
-        f'<span class="gg__b">{b}</span>'
-        f'<span class="gg__v">{v}</span>'
-        f'<span class="gg__s">{sub}</span></div>'
-        for k, b, v, sub in rows)
-
-    stopline = (f'<div class="gg gg--stop"><span class="gg__k">손절선</span>'
-                f'<span class="gg__b"></span>'
-                f'<span class="gg__v">{NUM(st["stop"])}</span>'
-                f'<span class="gg__s">{px-st["stop"]:+,.1f}원'
-                + (" · 이탈 상태" if st["below_stop"] else "") + '</span></div>')
-
-    return (f'<div class="now now--{kind}">'
-            f'<div class="now__k">계획 상태 · D-0 {dd(st["d0"])} → 마감 {dd(st["deadline"])}'
-            f'<span class="dcount">D-{st["rem"]}</span></div>'
-            f'<div class="gg__px">{px:,.2f}</div>'
-            f'<p class="gg__head">{head}</p>'
-            f'<div class="gg__rows">{body}{stopline}</div>')
 
 
 

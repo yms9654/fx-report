@@ -310,31 +310,39 @@ a:focus-visible,summary:focus-visible{outline:2px solid var(--up); outline-offse
 .dcount{font-family:"IBM Plex Mono",monospace; font-size:13px; font-weight:700; letter-spacing:-.02em;
         color:var(--ink); text-transform:none}
 .now--cut .dcount{color:var(--down)}
-.now--cut .now--sell .gg__rows{margin-top:16px}
-.gg{display:grid; grid-template-columns:56px 104px 1fr; gap:14px; align-items:baseline;
-    padding:10px 0; border-top:1px solid var(--rule-soft)}
-@media (max-width:640px){
-  .gg{grid-template-columns:52px 1fr; gap:6px 10px}
-  .gg__s{grid-column:1/-1; padding-left:62px; margin-top:-4px}
-}
-.gg--stop{border-top:1px solid var(--rule)}
-.gg__k{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.1em;
-       text-transform:uppercase; color:var(--muted)}
-.gg__v{font-family:"IBM Plex Mono",monospace; font-size:17px; font-weight:600; letter-spacing:-.02em;
-       text-align:right; white-space:nowrap}
-.gg__v .u{font-size:11px; font-weight:400; color:var(--muted); letter-spacing:0}
-.gg__s{font-size:12.5px; color:var(--muted); line-height:1.45}
+.now--cut .now--sell @media (max-width:640px){
+    }
 
 /* ---------- 오늘 할 일 ---------- */
-.act{font-size:clamp(44px,9vw,68px); font-weight:700; letter-spacing:-.045em; line-height:1;
+.act{font-size:clamp(27px,5.2vw,42px); font-weight:700; letter-spacing:-.045em; line-height:1;
      margin:16px 0 10px}
 .now--cut .act{color:var(--down)}
 .now--sell .act{color:var(--up)}
 .act__how{margin:0 0 4px; font-size:16px; color:var(--ink-2); line-height:1.55; max-width:52ch}
 .act__how b{color:var(--ink); font-weight:600; font-family:"IBM Plex Mono",monospace}
-.gg__gap{margin:14px 0 0; padding-top:12px; border-top:1px solid var(--rule-soft);
-         font-size:12.5px; color:var(--muted); line-height:1.5}
 .why .tech{margin-top:0}
+
+/* ---------- 계획이 시킨 매도 내역 ---------- */
+.tl__box{margin-top:22px; padding-top:16px; border-top:1px solid var(--rule)}
+.tl__k{font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.14em;
+       text-transform:uppercase; color:var(--muted); margin-bottom:8px}
+.tl{display:grid; grid-template-columns:52px 54px 82px 1fr; gap:12px; align-items:baseline;
+    padding:6px 0; font-family:"IBM Plex Mono",monospace; font-size:13px}
+@media (max-width:600px){.tl{grid-template-columns:48px 48px 76px; gap:8px}
+                         .tl__y{grid-column:1/-1; padding-left:0; margin-top:-3px}}
+.tl__d{color:var(--muted); font-size:11.5px}
+.tl__w{text-align:right; font-weight:600; letter-spacing:-.01em}
+.tl__w .u{font-size:10px; font-weight:400; color:var(--muted)}
+.tl__p{text-align:right; font-weight:600; letter-spacing:-.02em}
+.tl__y{font-family:"IBM Plex Sans KR",sans-serif; font-size:12.5px; color:var(--muted)}
+.tl--sum{border-top:1px solid var(--rule); margin-top:4px; padding-top:9px}
+.tl--sum .tl__d,.tl--sum .tl__y{color:var(--ink-2)}
+.tl--sum .tl__p{font-size:16px}
+.tl--now{border-top:1px solid var(--rule-soft); margin-top:2px}
+.tl__more{font-size:11.5px; color:var(--muted); padding:2px 0 4px}
+.tl__none{font-size:13px; color:var(--muted); padding:4px 0 2px}
+.act__note{margin:14px 0 0; font-size:12px; color:var(--muted); line-height:1.5}
+.act__note + .act__note{margin-top:6px}
 </style>
 </head>
 <body>
