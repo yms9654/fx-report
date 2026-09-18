@@ -152,59 +152,53 @@ def drift_html(d):
             f'지금 값이 아니라 <b>처음 정한 {NUM(d["from"])}</b>을 기준으로 판단하세요.</span></div>')
 
 
-def action_html(st):
-    """오늘 할 일을 문장으로 먼저 말하고, 그 뒤에 왜 그런 상태인지 내역을 붙인다.
-    상태 숫자만 보여주면 12% 가 왜 12% 인지 알 수 없다."""
-    px, nx, lo = st["px"], st["next"], st["stop"]
-    dd = lambda x: x.replace("-", ".")[5:]
-    left, done = st["left"], st["left"] <= 1e-9
+def action_html(st, plan):
+    """오늘 할 일만 말한다.
 
-    if done:
-        kind, act = "sell", "다 팔았습니다"
-        how = "계획한 물량을 모두 정리했습니다. 더 할 일이 없습니다."
-    elif st["today_breach"]:
-        cut = left * st["latch_frac"]
-        kind, act = "cut", f"잔여의 {st['latch_frac']*100:.0f}%를 파세요"
+    보유 비중·매도 내역·평균단가는 전부 제거했다. 시스템은 사용자가 무엇을
+    얼마나 들고 있는지 모르고, 실제로 팔았는지도 모른다. 모르는 것을 아는 척하면
+    화면 전체가 허구 위에 선다. 규칙은 '무엇을 하라'로만 말하고, 비중 계산은
+    사용자가 자기 보유분에 적용한다.
+    """
+    px, lo = st["px"], st["stop"]
+    dd = lambda x: x.replace("-", ".")[5:]
+    rungs = sorted(plan["rungs"], key=lambda r: float(r["lo"]))
+    above = [r for r in rungs if float(r["lo"]) > px]        # 아직 위에 있는 구간
+    nx = above[0] if above else None
+    inz = next((r for r in rungs if float(r["lo"]) <= px <= float(r["hi"])), None)
+
+    if px <= lo:
+        kind, act = "cut", "보유분의 1/4를 파세요"
         how = (f'종가가 하한 분할선 <b>{NUM(lo)}</b> 아래입니다. '
-               f'남은 {left:,.0f}% 중 <b>{cut:,.0f}%p</b>를 오늘 정리합니다.')
-    elif nx and px >= nx["lo"]:
-        kind, act = "sell", f"{E(nx['pct'])}를 파세요"
-        how = f'눈금 <b>{NUM(nx["lo"])}</b>에 닿았습니다. 계획 비중을 집행합니다.'
+               f'남아 있는 물량의 <b>1/4</b>를 오늘 정리하고, 나머지는 계속 들고 갑니다.')
+    elif inz:
+        kind, act = "sell", f'{E(inz["pct"])}를 파세요'
+        how = f'가격이 매도 구간 <b>{NUM(inz["lo"])} – {NUM(inz["hi"])}</b> 안에 있습니다.'
     elif st["rem"] <= 1:
         kind, act = "cut", "남은 전부를 파세요"
-        how = f'마지막 거래일입니다. 잔여 <b>{left:,.0f}%</b>를 정리합니다.'
+        how = '마지막 거래일입니다. 남아 있는 물량을 정리합니다.'
+    elif nx:
+        kind, act = "wait", "오늘은 팔지 않습니다"
+        how = (f'다음 매도 구간은 <b>{NUM(nx["lo"])} – {NUM(nx["hi"])}</b>, '
+               f'지금보다 <b>{nx["lo"]-px:+,.0f}원</b>입니다. '
+               f'지정가를 걸어두면 닿는 순간 체결됩니다.')
     else:
         kind, act = "wait", "오늘은 팔지 않습니다"
-        how = (f'<b>{NUM(nx["lo"])}</b>에 지정가를 걸어두면 남은 {left:,.0f}%가 자동으로 체결됩니다. '
-               f'지금보다 {nx["lo"]-px:+,.0f}원.' if nx
-               else f'남은 눈금이 없습니다. 마감일에 잔여 {left:,.0f}%를 정리합니다.')
+        how = f'가격이 계획 구간을 모두 넘어섰습니다. 마감({dd(st["deadline"])})까지 남은 물량을 정리하세요.'
 
-    log = st.get("log") or []
-    if log:
-        shown = log[-4:]
-        more = (f'<div class="tl__more">앞선 {len(log)-4}건 생략</div>'
-                if len(log) > 4 else "")
-        rows = "".join(
-            f'<div class="tl"><span class="tl__d">{dd(e["d"])}</span>'
-            f'<span class="tl__w">{e["w"]:.0f}<span class="u">%</span></span>'
-            f'<span class="tl__p">{e["px"]:,.2f}</span>'
-            f'<span class="tl__y">{E(e["why"])}</span></div>' for e in shown)
-        hist = (f'<div class="tl__k">계획이 시킨 매도</div>{more}{rows}'
-                f'<div class="tl tl--sum"><span class="tl__d">누적</span>'
-                f'<span class="tl__w">{st["reached"]:.0f}<span class="u">%</span></span>'
-                f'<span class="tl__p">{st["avg"]:,.2f}</span>'
-                f'<span class="tl__y">평균 매도 단가</span></div>')
-    else:
-        hist = ('<div class="tl__k">계획이 시킨 매도</div>'
-                '<div class="tl__none">아직 없습니다. 눈금이나 하한선에 닿으면 여기 기록됩니다.</div>')
-
-    foot = (f'<div class="tl tl--now"><span class="tl__d">잔여</span>'
-            f'<span class="tl__w">{left:,.0f}<span class="u">%</span></span>'
-            f'<span class="tl__p">{px:,.2f}</span>'
-            f'<span class="tl__y">오늘 종가</span></div>')
-
-    note = ('<p class="act__note">실제로 파셨는지는 알 수 없습니다. '
-            '9/3 계획을 그대로 따랐다면 위와 같습니다.</p>')
+    passed = [r for r in rungs if float(r["hi"]) < px]
+    rows = [("현재", f'{px:,.2f}', f'{st["chg"]:+.2f} · {dd(st["today"])}')]
+    if nx:
+        rows.append(("매도 구간", f'{NUM(nx["lo"])}<span class="u">–{NUM(nx["hi"])}</span>',
+                     f'{nx["lo"]-px:+,.0f}원 · 닿으면 {E(nx["pct"])}'))
+    rows.append(("하한 분할선", f'{NUM(lo)}', f'{px-lo:+,.0f}원 · 아래로 마감하면 보유분의 1/4 정리'))
+    if passed:
+        rows.append(("지나간 구간",
+                     " · ".join(NUM(r["lo"]) for r in passed),
+                     "이미 통과했습니다"))
+    body = "".join(f'<div class="tl"><span class="tl__d">{k}</span>'
+                   f'<span class="tl__p">{v}</span><span class="tl__y">{sub}</span></div>'
+                   for k, v, sub in rows)
     gap = ""
     if st.get("gap"):
         gap = (f'<p class="act__note">추석 휴장으로 {dd(st["gap"]["until"])}까지 '
@@ -214,10 +208,7 @@ def action_html(st):
             f'<span class="dcount">D-{st["rem"]}</span></div>'
             f'<div class="act">{act}</div>'
             f'<p class="act__how">{how}</p>'
-            f'<div class="tl__box">{hist}{foot}</div>{note}{gap}')
-
-
-
+            f'<div class="tl__box">{body}</div>{gap}')
 
 def main():
     cfg = {}
@@ -282,7 +273,7 @@ def main():
     S["EYEBROW"] = E(nar.get("eyebrow", "매도 전략")) + f" · 자동 갱신 {now:%Y.%m.%d}"
     S["METAVERB"] = (f'<span class="metabar__verb '
                      + ("v-cut" if st["below_stop"] else "") + f'">D-{st["rem"]}</span>')
-    S["VERDICTNOW"] = action_html(st) + "</div>"
+    S["VERDICTNOW"] = action_html(st, plan) + "</div>"
     ser = data["series"]
     kchg = ((ser[-1]["c"] / ser[-21]["c"] - 1) * 100) if len(ser) > 21 else None
     S["TECH"] = tech_html(tech, data.get("dxy"), kchg)
@@ -394,7 +385,7 @@ def main():
             "px": f"{px:,.2f}",
             "chg": f"{chg:+.2f}",
             "verb": f"D-{st['rem']}",
-            "amt": f"진도 {st['reached']:.0f}/{st['plan_w']:.0f}%",
+            "amt": f"하한선 {st['stop']:,.0f}",
             "stop": NUM(nar["triggers"]["stop"]),
             "t1": NUM(nar["triggers"]["t1"]),
             "t2": NUM(nar["triggers"]["t2"]),
@@ -413,7 +404,7 @@ def main():
     dst.parent.mkdir(exist_ok=True)
     dst.write_text(out, encoding="utf-8")
     (ROOT / "docs" / ".nojekyll").touch()
-    print(f"OK rendered {len(out):,} bytes | px {px:,.2f} | D-{st['rem']} 진도 {st['reached']:.0f}/{st['plan_w']:.0f}% | {tech['tlabel']} RSI {tech['rsi']:.0f}")
+    print(f"OK rendered {len(out):,} bytes | px {px:,.2f} | D-{st['rem']} | {tech['tlabel']} RSI {tech['rsi']:.0f}")
     return 0
 
 
